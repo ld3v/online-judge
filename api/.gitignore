@@ -1,0 +1,10 @@
+# Folder need to ignore
+node_modules/
+dist/
+
+# File need to ignore
+.env
+
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

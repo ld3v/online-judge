@@ -1,0 +1,138 @@
+.CardWrapForm {
+  position: relative;
+  padding-bottom: 10px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 3px 7px rgba(44, 44, 44, 0.25);
+
+  .cardHeader {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    height: 50px;
+    padding: 10px 16px;
+
+    &:has(.header .description) {
+      height: auto;
+    }
+
+    .header {
+      .title {
+        margin-top: 5px;
+        font: normal normal bold 20px/26px 'Nunito';
+      }
+
+      .description {
+        color: #7d7d7d;
+        font: normal normal normal 14px/18px 'Nunito';
+        font-style: italic;
+      }
+    }
+  }
+  .formContent {
+    padding: 0 20px 10px 20px;
+
+    :global {
+      .ant-form-item.inp-labelDesc {
+        .ant-form-item-label label,
+        .ant-form-item-label label > div,
+        .ant-picker {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+.labelWithDesc {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: start;
+
+  .withExtra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .desc,
+  .extraDesc {
+    color: rgb(143, 143, 143);
+    font-style: italic;
+  }
+
+  .desc {
+    margin-top: 5px;
+  }
+}
+
+// TableSearchSelect
+.TableSearchSelect_Search {
+  margin-bottom: 5px;
+}
+// .TableSearchSelect_Table {
+//   :global {
+//   }
+// }
+
+.InputsNested {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  input {
+    margin-left: 5px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+.TagSelection {
+  :global {
+    .tagSelection-options {
+      margin-bottom: 5px;
+    }
+    .tagSelection-table {
+      .ant-pro-table .ant-pro-card .ant-pro-card-body {
+        padding: 0;
+      }
+    }
+  }
+}
+
+.InputMarkdown {
+  position: relative;
+
+  :global {
+    .inputMarkdown-content {
+      &.preview {
+        min-height: 100px;
+        max-height: 240px;
+        overflow: hidden auto;
+        border: 1px solid #d9d9d9;
+      }
+    }
+    .inputMarkdown-preview {
+      position: absolute;
+      right: 5px;
+      bottom: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background-color: rgba(255, 255, 255, 0.25);
+      border-radius: 50%;
+      backdrop-filter: blur(1px);
+    }
+  }
+}
+
+.InputDisplay {
+  padding: 5px;
+  font: normal normal bold 14px/22px 'Nunito';
+}

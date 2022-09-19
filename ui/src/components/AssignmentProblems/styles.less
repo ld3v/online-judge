@@ -1,0 +1,23 @@
+.AssignmentProblems {
+  .ProblemTitle {
+    font: normal normal normal 20px/24px 'Nunito';
+  }
+
+  .ProblemItem {
+    &:global(.secondary .problem-score) {
+      color: #fff;
+      font-weight: bold;
+      background-color: #7d7d7d;
+    }
+    &:global(.danger .problem-score) {
+      color: #fff;
+      font-weight: bold;
+      background-color: #d85858;
+    }
+    &:global(.success .problem-score) {
+      color: #fff;
+      font-weight: bold;
+      background-color: #0cba00;
+    }
+  }
+}

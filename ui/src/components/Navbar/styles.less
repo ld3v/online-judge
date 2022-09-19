@@ -1,0 +1,140 @@
+.Navbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: var(--navbar-height);
+  padding: 0 25px;
+  background-color: #fff;
+  box-shadow: 0 3px 17px rgba(44, 44, 44, 0.25);
+
+  :global {
+    .logo {
+      height: 100%;
+      padding: 5px 0;
+
+      img {
+        width: auto;
+        height: calc(var(--navbar-height) - 10px);
+      }
+    }
+    .actions {
+      display: flex;
+      padding: 5px 0;
+
+      > div {
+        margin-right: 10px;
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+}
+
+.Action {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  padding: 2.5px;
+  background-image: linear-gradient(to right bottom, #007bff, #5900ff);
+  border-radius: 50%;
+  cursor: pointer;
+
+  :global {
+    .avatar,
+    .bell {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 35px;
+      height: 35px;
+      overflow: hidden;
+      background-color: #fff;
+      border-radius: 50%;
+
+      img {
+        width: 100%;
+        height: auto;
+      }
+    }
+  }
+}
+
+.DropdownContentWrapper {
+  padding: 5px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 3px 17px rgba(77, 77, 77, 0.25);
+  &:global(.account) {
+    width: 180px;
+  }
+  &:global(.notifications) {
+    width: 300px;
+  }
+
+  .DropdownActions {
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px solid rgb(234, 234, 234);
+  }
+
+  .DropdownContent {
+    width: 100%;
+    max-height: 450px;
+    overflow: hidden auto;
+    :global {
+      .account {
+        margin-bottom: 10px;
+        padding: 5px;
+        font: normal normal normal 12px/16px 'Nunito';
+      }
+      .dropdown-items {
+        .dropdown-item {
+          position: relative;
+          margin-top: 5px;
+          padding: 5px 5px;
+          font: normal normal bold 14px/20px 'Nunito';
+          border-radius: 5px;
+          cursor: pointer;
+          transition: 300ms;
+
+          .notify {
+            &-title {
+              display: -webkit-box;
+              overflow: hidden;
+              -webkit-line-clamp: 2;
+              -webkit-box-orient: vertical;
+            }
+            &-content {
+              display: -webkit-box;
+              overflow: hidden;
+              // color: rgb(83, 83, 83);
+              font-weight: 400;
+              -webkit-line-clamp: 4;
+              -webkit-box-orient: vertical;
+            }
+          }
+
+          &:first-child {
+            margin-top: 0;
+          }
+          &:hover {
+            background-color: rgb(248, 248, 248);
+          }
+          &.disabled {
+            background-color: #ababab;
+            cursor: not-allowed;
+            opacity: 0.2;
+          }
+        }
+      }
+    }
+  }
+}

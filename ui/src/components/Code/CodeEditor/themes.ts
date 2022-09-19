@@ -1,0 +1,43 @@
+/**
+ * ### Code theme
+ * In real case, a little user use this feature to change their theme. So, I will comment some themes, which not be used popularly!
+ */
+export default [
+  // "ambiance",
+  // "chaos",
+  "chrome",
+  // "clouds",
+  // "clouds_midnight",
+  // "cobalt",
+  // "crimson_editor",
+  // "dawn",
+  "dracula",
+  // "dreamweaver",
+  "eclipse",
+  "github",
+  // "gob",
+  // "gruvbox",
+  // "idle_fingers",
+  // "iplastic",
+  // "katzenmilch",
+  // "kr_theme",
+  // "kuroir",
+  // "merbivore",
+  // "merbivore_soft",
+  // "mono_industrial",
+  // "monokai",
+  // "pastel_on_dark",
+  // "solarized_dark",
+  // "solarized_light",
+  // "sqlserver",
+  // "terminal",
+  // "textmate",
+  // "tomorrow",
+  // "tomorrow_night",
+  // "tomorrow_night_blue",
+  // "tomorrow_night_bright",
+  // "tomorrow_night_eighties",
+  // "twilight",
+  // "vibrant_ink",
+  // "xcode"
+];

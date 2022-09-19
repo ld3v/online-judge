@@ -1,0 +1,28 @@
+.BuildingMode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 200px;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 3px 7px rgba(44, 44, 44, 0.25);
+
+  :global {
+    .building-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      img {
+        width: 100px;
+        height: auto;
+        margin-bottom: 25px;
+      }
+      span {
+        font: normal normal bold 20px/24px 'Nunito';
+      }
+    }
+  }
+}

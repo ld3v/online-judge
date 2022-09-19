@@ -1,0 +1,65 @@
+@import './mixin.less';
+@import './variables.less';
+
+// Default
+body {
+  color: var(--color-primary-1);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  .typography(@font-size-sm, @line-height-sm);
+}
+
+// Overwrite antd
+h1.ant-typography {
+  font-weight: var(--font-weight-extra-bold) !important;
+
+  .typography(@font-size-xl, @line-height-xl);
+}
+h2.ant-typography {
+  font-weight: var(--font-weight-extra-bold);
+
+  .typography(@font-size-lg, @line-height-lg);
+}
+h3 {
+  font-weight: var(--font-weight-bold);
+
+  .typography(@font-size-md, @line-height-md);
+}
+h4.ant-typography,
+h5.ant-typography,
+h6.ant-typography {
+  .mb-0;
+  .typography(@font-size, @line-height);
+}
+a.ant-typography,
+span.ant-typography {
+  .typography(@font-size-sm, @line-height-sm);
+}
+
+// Margin - Padding - Width-with-px
+.make-margins();
+.make-paddings();
+.make-width-px();
+
+// Aligns
+.make-aligns(@align-position);
+
+// Display
+.make-display(@display-values);
+
+.space-between {
+  justify-content: space-between;
+}
+
+// Text-color
+@colors-arr: ~'white-0' var(--color-white-0), ~'primary-0' var(--color-primary-0),
+  ~'primary-1' var(--color-primary-1), ~'primary-2' var(--color-primary-2),
+  ~'primary-3' var(--color-primary-3), ~'primary-4' var(--color-primary-4),
+  ~'primary-5' var(--color-primary-5), ~'error' var(--color-error),
+  ~'dark-0' var(--color-dark-0), ~'dark-1' var(--color-dark-1),
+  ~'dark-2' var(--color-dark-2), ~'dark-3' var(--color-dark-3),
+  ~'dark-4' var(--color-dark-4), ~'dark-5' var(--color-dark-5);
+
+.make-colors(@colors-arr);

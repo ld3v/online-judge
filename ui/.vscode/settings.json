@@ -1,0 +1,56 @@
+{
+  "cSpell.words": [
+    "concurent",
+    "DATETIME",
+    "daygrid",
+    "fullcalendar",
+    "Mgnt",
+    "Nums",
+    "openapi",
+    "ormconfig",
+    "qaswedrfgtyhjuiklopzvxcbmn",
+    "tailwindcss",
+    "TIASNE",
+    "timegrid",
+    "wecode"
+  ],
+  "files.associations": {
+    "*.js": "javascriptreact"
+  },
+  "prettier.requireConfig": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#588c30",
+    "activityBar.activeBackground": "#588c30",
+    "activityBar.foreground": "#ffffff",
+    "activityBar.inactiveForeground": "#fae4f6",
+    "activityBar.activeBorder": "#ffffff",
+    "activityBarBadge.background": "#ffffff",
+    "activityBarBadge.foreground": "#588c30",
+    "titleBar.activeBackground": "#588c30",
+    "titleBar.inactiveBackground": "#588c30",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveForeground": "#e7e7e799",
+    "statusBar.background": "#588c30",
+    "statusBarItem.hoverBackground": "#626262",
+    "statusBar.foreground": "#ffffff"
+  },
+  "workbench.preferredLightColorTheme": "Default Dark+",
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/.umi": true,
+    "**/dist": true
+  },
+  "less.lint.unknownAtRules": "ignore",
+  "less/at-rule-no-unknown": [
+    true,
+    {
+      "ignoreAtRules": ["tailwind"]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "cSpell.words": [
+    "Coef",
+    "concurent"
+  ],
+  "files.associations": {
+    "*.js": "javascriptreact"
+  },
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#fd7575",
+    "activityBar.activeBackground": "#ff5454",
+    "activityBar.foreground": "#ffffff",
+    "activityBar.inactiveForeground": "#fae4f6",
+    "activityBar.activeBorder": "#ffffff",
+    "activityBarBadge.background": "#fae4f6",
+    "activityBarBadge.foreground": "#fd7575",
+    "titleBar.activeBackground": "#fd7575",
+    "titleBar.inactiveBackground": "#fd7575",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveForeground": "#e7e7e799",
+    "statusBar.background": "#fd7575",
+    "statusBarItem.hoverBackground": "#626262",
+    "statusBar.foreground": "#fd7575",
+  },
+  "workbench.preferredLightColorTheme": "Default Dark+"
+}

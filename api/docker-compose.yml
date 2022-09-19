@@ -1,0 +1,30 @@
+version: "3"
+services:
+  wecode_db:
+    container_name: wecode_db
+    image: postgres:latest
+    restart: always
+    ports:
+    - $POSTGRES_PORT:5432
+    volumes:
+    - ./data/postgres:/data/postgres
+    env_file:
+    - .env
+
+  wecode_mailhog:
+    container_name: wecode_mailhog
+    image: mailhog/mailhog
+    logging:
+      driver: 'none'  # disable saving logs
+    ports:
+      - $MAIL_PORT:1025
+      - $MAIL_UI_PORT:8025
+ 
+  wecode_adminer:
+    links:
+    - wecode_db:postgres
+    container_name: wecode_adminer
+    restart: always
+    image: adminer
+    ports:
+    - $ADMINER_PORT:8080

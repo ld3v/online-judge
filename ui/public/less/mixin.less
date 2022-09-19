@@ -1,0 +1,128 @@
+.make-margins(@size: 50) when (@size >= 0) {
+  .make-margins(@size - 1);
+
+  @spacing: @size * 5;
+  @size-px: ~'@{spacing}px';
+
+  .m-@{size} {
+    margin: @size-px !important;
+  }
+  .mt-@{size} {
+    margin-top: @size-px !important;
+  }
+  .mr-@{size} {
+    margin-right: @size-px !important;
+  }
+  .mb-@{size} {
+    margin-bottom: @size-px !important;
+  }
+  .ml-@{size} {
+    margin-left: @size-px !important;
+  }
+}
+
+// PADDING
+.make-paddings(@size: 10) when (@size >= 0) {
+  .make-paddings(@size - 1);
+
+  @spacing: @size * 5;
+  @size-px: ~'@{spacing}px';
+
+  .p-@{size} {
+    padding: @size-px;
+  }
+  .pt-@{size} {
+    padding-top: @size-px;
+  }
+  .pr-@{size} {
+    padding-right: @size-px;
+  }
+  .pb-@{size} {
+    padding-bottom: @size-px;
+  }
+  .pl-@{size} {
+    padding-left: @size-px;
+  }
+}
+
+// Width with pixels
+
+.make-width-px(@size: 20) when (@size >= -1) {
+  .make-width-px(@size - 1);
+  
+  @size-name: if((@size = -1), 'full', @size);
+
+  @spacing: @size * 5;
+  @spacing-big: @spacing * 10;
+
+  @size-px: if((@size = -1), 100%, ~'@{spacing}px');
+  @size-big-px: if((@size = -1), 100%, ~'@{spacing-big}px');
+
+  .w-@{size-name} {
+    width: @size-px !important;
+  }
+  .w-big-@{size-name} {
+    width: @size-big-px !important;
+  }
+}
+
+.make-colors-with-prefix(@prefix, @list) {
+  .iter(length(@list));
+  .iter(@i) when (@i > 0) {
+    .iter(@i - 1);
+    @pair: extract(@list, @i);
+    @key: extract(@pair, 1);
+    @value: extract(@pair, 2);
+    .@{prefix}.color-@{key} {
+      color: @value !important;
+    }
+  }
+}
+.make-colors(@list) {
+  .iter(length(@list));
+  .iter(@i) when (@i > 0) {
+    .iter(@i - 1);
+    @pair: extract(@list, @i);
+    @key: extract(@pair, 1);
+    @value: extract(@pair, 2);
+    .color-@{key} {
+      color: @value !important;
+    }
+  }
+}
+
+// Typo
+.typography(@font-size, @line-height) {
+  @size-px: ~'@{font-size}px';
+  @height-px: ~'@{line-height}px';
+
+  font-size: @size-px !important;
+  font-family: 'Nunito', sans-serif !important;
+  line-height: @height-px !important;
+}
+
+// Align
+.make-aligns(@aligns, @i: 1) when (@i <= length(@aligns)) {
+  @align: extract(@aligns, @i);
+
+  .text-@{align} {
+    text-align: @align !important;
+  }
+  .float-@{align} {
+    float: @align !important;
+  }
+  .item-@{align} {
+    align-items: @align !important;
+  }
+  .make-aligns(@aligns, @i + 1);
+}
+
+// Display
+.make-display(@displays, @i: 1) when (@i <= length(@displays) ) {
+  @value: extract(@displays, @i);
+
+  .display-@{value} {
+    display: @value;
+  }
+  .make-display(@displays, @i + 1);
+}
