@@ -33,6 +33,7 @@ const ProcessContent: React.FC<{ process: Record<string, TQueueState> }> = ({ pr
     <Steps.Step
       title={intl.formatMessage({ id: `settings.sync-all-data.process._.${processNameId}` })}
       description={intl.formatMessage({ id: `queue.state.${process[processNameId]}` })}
+      key={`process#${processNameId}`}
     />
   ));
   return (

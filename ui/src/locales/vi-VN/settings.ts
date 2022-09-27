@@ -63,6 +63,7 @@ export default {
   'settings.sync-all-data.process._.language': 'Cập nhật ngôn ngữ.',
 
   // Exceptions
+  'exception.settings.sync-configuration.failed': 'Đồng bộ thất bại! Vui lòng thử lại sau!',
   'exception.settings.sync-all-data.process-empty-info': '<Lỗi không mong muốn đã xảy ra trong quá trình hiển thị dữ liệu cho tiến trình này>.',
   'exception.settings.sync-all-data.history.empty': 'Không có lần đồng bộ dữ liệu nào!',
 };

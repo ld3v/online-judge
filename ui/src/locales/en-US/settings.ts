@@ -52,14 +52,7 @@ export default {
   'settings.sync-all-data.process._.assignment-problems': 'Add problems to assignments.',
 
   // Exceptions
+  'exception.settings.sync-configuration.failed': 'Sync failed! Please try again later!',
   'exception.settings.sync-all-data.process-empty-info': 'Unexpected error appear when render this process\'s info.',
   'exception.settings.sync-all-data.history.empty': 'No data sync times',
 };
-// export const SYNC_PROCESS_KEY = {
-//   ASSIGNMENT: "assignment",
-//   PROBLEM: "problem",
-//   LANGUAGE: "language",
-//   ACCOUNT: "account",
-//   ASSIGNMENT_PROBLEMS: "assignment-problems",
-//   PROBLEM_LANGUAGES: "problem-languages",
-// };

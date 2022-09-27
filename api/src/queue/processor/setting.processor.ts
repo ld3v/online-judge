@@ -35,34 +35,42 @@ export class SettingProcessor {
       // SYNC ACCOUNTS ===================
       this.logger.log(`Handle update accounts`, undefined, 1, "PROCESSING");
       const { success: accCreated, failed: accCreateFailed } = await this.settingService.syncAccountsByJudge();
-      if (accCreated && accCreated.length > 0) {
-        // Re-update queue status
-        await this.queueService.update(job.data.queueId, [SYNC_PROCESS_KEY.ACCOUNT, QueueState.Done]);
-      }
+      await this.queueService.update(
+        job.data.queueId,
+        [
+          SYNC_PROCESS_KEY.ACCOUNT,
+          (!accCreated && !accCreateFailed) || (accCreated && accCreateFailed && accCreateFailed.length > accCreated.length)
+            ? QueueState.Error
+            : QueueState.Done,
+        ],
+      );
       this.logger.log(
         accCreated && accCreateFailed
-          ? `Done (Success: ${accCreated.length}, Failed: ${accCreateFailed.length})`
-          : '\x1b[31mFailed!\x1b[0m',
+          ? `Account - Done (Success: ${accCreated.length}, Failed: ${accCreateFailed.length})`
+          : 'Account - \x1b[31mFailed!\x1b[0m',
         undefined,
         2,
         "INFO",
       );
-      if (accCreateFailed.length > 0) {
+      if (accCreateFailed && accCreateFailed.length > 0) {
         this.logger.log(`\x1b[31mUnexpected error happened (First error):\x1b[0m ${accCreateFailed[0]}`, undefined, 2, "ERR");
       }
 
       // SYNC LANGUAGES ==================
       this.logger.log(`Handle update languages`, undefined, 1, "PROCESSING");
-      const langCreated = await this.settingService.syncLanguagesByJudge();
-      if (langCreated && langCreated.length > 0) {
-        // Re-update queue status
-        await this.queueService.update(job.data.queueId, [SYNC_PROCESS_KEY.LANGUAGE, QueueState.Done]);
-      }
-      const { map: langMappingByName } = array2Map(langCreated, "name");
+      const { success: langCreated } = await this.settingService.syncLanguagesByJudge();
+      await this.queueService.update(
+        job.data.queueId,
+        [
+          SYNC_PROCESS_KEY.LANGUAGE,
+          langCreated ? QueueState.Done : QueueState.Error,
+        ],
+      );
+      const { map: langMappingByName } = array2Map(langCreated || [], "name");
       this.logger.log(
         langCreated
-          ? `Done (Success: ${langCreated.length}, Failed: --)`
-          : '\x1b[31mFailed!\x1b[0m',
+          ? `Lang - Done (Success: ${langCreated.length}, Failed: --)`
+          : 'Lang - \x1b[31mFailed!\x1b[0m',
         undefined,
         2,
         "INFO",
@@ -76,22 +84,27 @@ export class SettingProcessor {
         judgeAssIdMap2AssId,
         judgeAssIdMap2JudgeAssProblems,
       } = await this.settingService.syncAssignmentsByJudge();
-      if (assCreated && assCreated.length > 0) {
-        // Re-update queue status
-        await this.queueService.update(job.data.queueId, [SYNC_PROCESS_KEY.ASSIGNMENT, QueueState.Done]);
-      }
+        await this.queueService.update(
+          job.data.queueId,
+          [
+            SYNC_PROCESS_KEY.ASSIGNMENT,
+            (!assCreated && !assCreateFailed) || (assCreated && assCreateFailed && assCreateFailed.length > assCreated.length)
+              ? QueueState.Error
+              : QueueState.Done,
+          ],
+        );
       this.logger.log(
         assCreateFailed && assCreated
-          ? `Done (Success: ${assCreated.length}, Failed: ${assCreateFailed.length})`
-          : '\x1b[31mFailed!\x1b[0m',
+          ? `Assignment - Done (Success: ${assCreated.length}, Failed: ${assCreateFailed.length})`
+          : 'Assignment - \x1b[31mFailed!\x1b[0m',
         undefined,
         2,
         "INFO",
       );
-      if (assCreateFailed.length > 0) {
+      if (assCreateFailed && assCreateFailed.length > 0) {
         this.logger.log(`\x1b[31mUnexpected error happened (First error):\x1b[0m ${assCreateFailed[0]}`, undefined, 2, "ERR");
       }
-      const { map: assignmentMapById } = array2Map(assCreated, "id");
+      const { map: assignmentMapById } = array2Map(assCreated || [], "id");
 
       // SYNC PROBLEMS ===================
       this.logger.log(`Handle update problems`, undefined, 1, "PROCESSING");
@@ -101,22 +114,27 @@ export class SettingProcessor {
         judgeProbIdMap2ProbId,
         judgeProbIdMap2Langs,
       } = await this.settingService.syncProblemsByJudge();
-      if (probCreated && probCreated.length > 0) {
-        // Re-update queue status
-        await this.queueService.update(job.data.queueId, [SYNC_PROCESS_KEY.PROBLEM, QueueState.Done]);
-      }
+      await this.queueService.update(
+        job.data.queueId,
+        [
+          SYNC_PROCESS_KEY.PROBLEM,
+          (!probCreated && !probCreateFailed) || (probCreated && probCreateFailed && probCreateFailed.length > probCreated.length)
+            ? QueueState.Error
+            : QueueState.Done,
+        ],
+      );
       this.logger.log(
         probCreated && probCreateFailed
-          ? `Done (Success: ${probCreated.length}, Failed: ${probCreateFailed.length})`
-          : '\x1b[31mFailed!\x1b[0m',
+          ? `Problem - Done (Success: ${probCreated.length}, Failed: ${probCreateFailed.length})`
+          : 'Problem - \x1b[31mFailed!\x1b[0m',
         undefined,
         2,
         "INFO",
       );
-      if (probCreateFailed.length > 0) {
+      if (probCreateFailed && probCreateFailed.length > 0) {
         this.logger.log(`\x1b[31mUnexpected error happened (First error):\x1b[0m ${probCreateFailed[0]}`, undefined, 2, "ERR");
       }
-      const { map: problemMapById } = array2Map(probCreated, "id");
+      const { map: problemMapById } = array2Map(probCreated || [], "id");
 
       // UPDATE PROBLEM-LANGUAGES =====================
       this.logger.log(`Handle update problem-languages`, undefined, 1, "PROCESSING");
@@ -129,19 +147,25 @@ export class SettingProcessor {
         problemMapById,
         langMappingByName,
       );
-      if (probCreated && probCreated.length > 0) {
-        // Re-update queue status
-        await this.queueService.update(job.data.queueId, [SYNC_PROCESS_KEY.PROBLEM_LANGUAGES, QueueState.Done]);
-      }
+      await this.queueService.update(
+        job.data.queueId,
+        [
+          SYNC_PROCESS_KEY.PROBLEM_LANGUAGES,
+          (!resAddProblemLangSuccess && !resAddProblemLangFailed) ||
+          (resAddProblemLangSuccess && resAddProblemLangFailed && resAddProblemLangFailed.length > resAddProblemLangSuccess.length)
+            ? QueueState.Error
+            : QueueState.Done,
+        ],
+      );
       this.logger.log(
         resAddProblemLangSuccess && resAddProblemLangFailed
-          ? `Done (Success: ${resAddProblemLangSuccess.length}, Failed: ${resAddProblemLangFailed.length})`
-          : '\x1b[31mFailed!\x1b[0m',
+          ? `ProblemLanguages - Done (Success: ${resAddProblemLangSuccess.length}, Failed: ${resAddProblemLangFailed.length})`
+          : 'ProblemLanguages - \x1b[31mFailed!\x1b[0m',
         undefined,
         2,
         "INFO",
       );
-      if (resAddProblemLangFailed.length > 0) {
+      if (resAddProblemLangFailed && resAddProblemLangFailed.length > 0) {
         this.logger.log(`\x1b[31mUnexpected error happened (First error):\x1b[0m ${resAddProblemLangFailed[0]}`, undefined, 2, "ERR");
       }
 
@@ -157,19 +181,25 @@ export class SettingProcessor {
         assignmentMapById,
         problemMapById,
       );
-      if (resAssProbCreated && resAssProbCreated.length > 0) {
-        // Re-update queue status
-        await this.queueService.update(job.data.queueId, [SYNC_PROCESS_KEY.ASSIGNMENT_PROBLEMS, QueueState.Done]);
-      }
+      await this.queueService.update(
+        job.data.queueId,
+        [
+          SYNC_PROCESS_KEY.ASSIGNMENT_PROBLEMS,
+          (!resAssProbCreated && !resAssProbFailed) ||
+          (resAssProbCreated && resAssProbFailed && resAssProbFailed.length > resAssProbCreated.length)
+            ? QueueState.Error
+            : QueueState.Done,
+        ],
+      );
       this.logger.log(
         resAssProbCreated && resAssProbFailed
-          ? `Done (Success: ${resAssProbCreated.length}, Failed: ${resAssProbFailed.length})`
-          : '\x1b[31mFailed!\x1b[0m',
+          ? `AssignmentProblems - Done (Success: ${resAssProbCreated.length}, Failed: ${resAssProbFailed.length})`
+          : 'AssignmentProblems - \x1b[31mFailed!\x1b[0m',
         undefined,
         2,
         "INFO",
       );
-      if (resAddProblemLangFailed.length > 0) {
+      if (resAssProbFailed && resAddProblemLangFailed.length > 0) {
         this.logger.log(`\x1b[31mUnexpected error happened (First error):\x1b[0m ${resAssProbFailed[0]}`, undefined, 2, "ERR");
       }
 
@@ -178,6 +208,7 @@ export class SettingProcessor {
       this.logger.log(`Synced all data!`, undefined, 0, "DONE");
     } catch (err) {
       this.logger.log(`\x1b[31mSync all-data failed!\x1b[0m`, undefined, 0, "ERR");
+      console.error(err);
       await this.queueService.update(job.data.queueId, undefined, QueueState.Error);
     }
   }

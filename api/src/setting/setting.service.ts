@@ -65,17 +65,19 @@ export class SettingService {
    * This func will **REMOVE** all of language
    * and import all of assignments from old JUDGE system.
    */
-   public async syncLanguagesByJudge(): Promise<Language[]> {
+   public async syncLanguagesByJudge(): Promise<{ success?: Language[] }> {
     // Get languages on JUDGE system
     const judgeLangs = await this.getJudgeData("languages", false);
     if (!judgeLangs) {
-      return [];
+      return {};
     }
     // Remove all of languages
     await this.langService.removeAll();
     // Convert JUDGE's langs -> current lang's models.
     const langs = judgeLang2Lang(Object.values(judgeLangs));
-    return await this.langService.createMulti(...langs);
+    return {
+      success: await this.langService.createMulti(...langs),
+    };
   }
 
   /**
@@ -89,7 +91,10 @@ export class SettingService {
     // Get languages on JUDGE system
     const judgeAssignments = await this.getJudgeData("assignments", false);
     if (!judgeAssignments) {
-      return {};
+      return {
+        judgeAssIdMap2AssId: {},
+        judgeAssIdMap2JudgeAssProblems: {},
+      };
     }
     // Remove all of languages
     await this.assignmentService.removeAll();
@@ -112,7 +117,11 @@ export class SettingService {
       // Get languages on JUDGE system
       const judgeProblems = await this.getJudgeData("problems", false);
       if (!judgeProblems) {
-        return {};
+        return {
+          judgeProbIdMap2ProbId: {},
+          judgeProbIdMap2Langs: {},
+          judgeProbIdMap2JudgeAssIds: {},
+        };
       }
       // Remove all of languages
       await this.problemService.removeAll();
@@ -274,7 +283,6 @@ export class SettingService {
       const res = await this.httpService.axiosRef.get(url);
       const { is_error, msg, ...settingValues }: any = res.data || { is_error: true, msg: 'Unknown error!'};
       if (is_error) {
-        this.logger.errorCustom(new Error(`[getJudgeData] Error: ${msg}`));
         if (throwErr) {
           throw new Http502Exception(msg);
         }
@@ -283,7 +291,6 @@ export class SettingService {
       return settingValues;
     } catch (err) {
       this.logger.warn(`[!] - Error happen when get ${action} from JUDGE`);
-      this.logger.errorCustom(new Error(err));
       if (throwErr) {
         throw new Http502Exception("judge.no-connect");
       }

@@ -122,10 +122,14 @@ const SettingModel: ISettingModel = {
         const { history, current } = res;
         const { map: historyMapping, keys: historyIds } = array2Map([...history, ...(current ? [current] : [])], "id");
         yield put({ type: 'saveSyncAllHistory', payload: historyMapping });
-        callback?.({
-          historyIds: historyIds.filter(id => id !== current?.id),
-          currentId: current?.id,
-        });
+        callback?.(
+          {
+            historyIds: historyIds.filter(id => id !== current?.id),
+            currentId: current?.id,
+          },
+          null,
+          current || {},
+        );
       } catch (err) {
         console.error('[ERROR] - [DISPATCH] - [SETTINGS/SYNC-ALL-DATA-STATUS]:', err);
         callback?.(false, err);
