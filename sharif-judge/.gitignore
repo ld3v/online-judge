@@ -4,7 +4,7 @@
 **/application/session/*
 **/assignments/*
 **/tester/moss
-**/docker/db/full.sql
+**/docker/db/*.sql
 .vscode/*
 
 !.vscode/settings.json
@@ -12,5 +12,6 @@
 !**/assignments/index.html
 !**/application/session/.htaccess
 !**/application/session/index.html
+!**/docker/db/sample.sql
 
 .env

@@ -63,3 +63,18 @@ By default, you can use this account to login:
 admin
 0123456Son@
 ```
+
+### Already has SQL file.
+In the case, you already have a SQL file, (maybe exported from your old system,...).
+
+Move it to `/sharif-judge/docker/db` folder. (Example `wecode.sql` file).
+
+Open `Dockerfile` (`/sharif-judge/docker/db/Dockerfile`) and replace "**sample.sql**" with "**wecode.sql**" (Line 3).
+```Dockerfile
+# Old
+ADD ./sample.sql /docker-entrypoint-initdb.d
+# Change to
+ADD ./wecode.sql /docker-entrypoint-initdb.d
+```
+
+Restart your app with command `make up`.
