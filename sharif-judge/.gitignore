@@ -4,6 +4,7 @@
 **/application/session/*
 **/assignments/*
 **/tester/moss
+**/docker/db/full.sql
 .vscode/*
 
 !.vscode/settings.json

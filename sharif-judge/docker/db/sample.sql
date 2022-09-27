@@ -202,7 +202,7 @@ CREATE TABLE `shj_users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `shj_users` (`id`, `username`, `password`, `display_name`, `email`, `role`, `passchange_key`, `passchange_time`, `first_login_time`, `last_login_time`, `selected_assignment`) VALUES
-(1785,	'sunnie',	'$2a$08$k7BuE9s83J4FRZFoL0d0rOmVw6c1mPiAWSQo6Gsh7ENDszZbmBQFi',	'Van A',	'20521845@gm.uit.edu.vn',	'admin',	'',	NULL,	'2022-06-26 14:45:07',	'2022-07-19 19:21:25',	41);
+(1,	'admin',	'$2a$08$k7BuE9s83J4FRZFoL0d0rOmVw6c1mPiAWSQo6Gsh7ENDszZbmBQFi',	'admin',	'18520847@gm.uit.edu.vn',	'admin',	'',	NULL,	'2022-06-26 14:45:07',	'2022-07-19 19:21:25',	41);
 
 DROP TABLE IF EXISTS `sqlmapoutput`;
 CREATE TABLE `sqlmapoutput` (
