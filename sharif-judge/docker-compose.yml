@@ -1,7 +1,7 @@
 version: "3"
 services:
-  wecode_judge_server:
-    container_name: wecode_judge_server
+  sharif_judge_server:
+    container_name: sharif_judge_server
     image: nginx:1.17
     restart: always
     ports:
@@ -13,25 +13,25 @@ services:
       - ./assignments:/home/wecode/assignments
       - ./tester:/home/wecode/tester
 
-  wecode_judge_db:
-    container_name: wecode_judge_db
+  sharif_judge_db:
+    container_name: sharif_judge_db
     depends_on:
-      - wecode_judge_server
+      - sharif_judge_server
     build: ./docker/db
 
-  wecode_judge_adminer:
+  sharif_judge_adminer:
     links:
-    - wecode_judge_db:postgres
-    container_name: wecode_judge_adminer
+    - sharif_judge_db:postgres
+    container_name: sharif_judge_adminer
     restart: always
     image: adminer
     ports:
     - $ADMINER_PORT:8080
 
-  wecode_judge_app:
-    container_name: wecode_judge_app
+  sharif_judge_app:
+    container_name: sharif_judge_app
     build: ./docker/app
     volumes:
       - ./src:/var/www/html
     depends_on:
-      - wecode_judge_db
+      - sharif_judge_db

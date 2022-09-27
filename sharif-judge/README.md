@@ -32,10 +32,10 @@ cp config.php.example config.php
    ```php
     ...
     'port' => '3306',
-    'hostname' => 'wecode_judge_db', // container's name of database
+    'hostname' => 'sharif_judge_db', // container's name of database
     'username' => 'root',            // view in file `docker/db/Dockerfile`.
     'password' => 'root@wecode',     // view in file `docker/db/Dockerfile`.
-    'database' => 'wecode_judge',    // view in file `docker/db/Dockerfile`.
+    'database' => 'sharif_judge',    // view in file `docker/db/Dockerfile`.
     ...
    ```
 2. Update `line 26` in `config.php`, update base path for your app.
