@@ -1,0 +1,107 @@
+{#
+ # Sharif Judge
+ # file: assignments.twig
+ # author: Mohammad Javad Naderi <mjnaderi@gmail.com>
+ #}
+{% set selected = 'assignments' %}
+{% extends 'templates/base.twig' %}
+{% block icon %}fas fa-folder-open{% endblock %}
+{% block title %}Assignments{% endblock %}
+{% block head_title %}Assignments{% endblock %}
+
+{% block other_assets %}
+	<link rel='stylesheet' type='text/css' href='https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css'/>
+	
+{% endblock %}
+
+{% block title_menu %}
+{% if user.level >= 2 %}
+<small>
+	<nav class="nav nav-pills">
+		<a class="nav-link" href="{{ site_url('assignments/add') }}"><i class="fa fa-plus color8"></i> Add</a>
+		<a class="nav-link" href="{{ site_url('assignments/') }}"><i class="far fa-star color1"></i>Assingments setting</a>
+		<a class="nav-link {% if mode == 'accepted' %}active {% endif %}" href="{{ site_url('assignments/scores/accepted') }}"><i class="far fa-star color1"></i>Assignments score accepted</a>
+		<a class="nav-link {% if mode == 'sum' %}active {% endif %}" href="{{ site_url('assignments/scores/sum') }}"><i class="far fa-star color1"></i>Assignments score olp</a>
+	</nav>
+</small>
+
+{% endif %}
+{% endblock %}
+
+
+
+
+{% block main_content %}
+<div class="col">
+
+
+{% if all_assignments|length == 0 %}
+	<p style="text-align: center;">Nothing to show...</p>
+{% else %}
+<br/>
+<table class="wecode_table table table-striped table-bordered table-sm">
+<thead class="thead-dark">
+	<tr>
+		<th>User</th>
+		<th>Display name</th>
+		{% for item in all_assignments %}
+			{% if mode == 'accepted' %}
+				<th class="table-secondary">
+			{% else %}
+				<th class="table-success">
+			{% endif %}
+			<small>  {{ item.name|ellipsis(99) }} </small></th>
+		{% endfor %}
+		<th>Sum</th>
+		<th>Average<br/>of all assignment</th>
+		<th>Average<br/>of submitted assignment</th>
+	</tr>
+</thead>
+<tbody>
+	{% for user in all_user %}
+	<tr>
+		<td>{{ user.username }}</td>
+		<td>{{ user.display_name }}</td>
+		{% for item in all_assignments %}
+		
+			{% if mode == 'accepted' %}
+			<td class="table-success">  {{ user.assignments[item.id].accepted }} </td>
+			{% endif %}
+			
+			{% if mode == 'sum' %}
+			<td class="table-warning">  {{ user.assignments[item.id].total }} </td>
+			{% endif %}
+			
+		{% endfor %}
+		
+		{% if mode == 'accepted' %}
+		<td>{{ user.sum.accepted }}</td>
+		<td>{{ user.avga.accepted }}</td>
+		<td>{{ user.avgn.accepted }}</td>
+		{% endif %}
+		{% if mode == 'sum' %}
+		<td>{{ user.sum.total }}</td>
+		<td>{{ user.avga.total }}</td>
+		<td>{{ user.avgn.total }}</td>
+		{% endif %}
+	</tr>
+	{% endfor %}
+</tbody>
+</table>
+{% endif %}
+</div>
+{% endblock %}  {# main_content #}
+
+{% block body_end %}
+
+<script type='text/javascript' src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script type='text/javascript' src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+<script>
+	$(document).ready(function(){
+		$("table").DataTable({
+			"pageLength": 50,
+			"lengthMenu": [ [20, 50, 100, 200, -1], [20, 50, 100, 200, "All"] ]
+		});
+	});
+</script>
+{% endblock %}

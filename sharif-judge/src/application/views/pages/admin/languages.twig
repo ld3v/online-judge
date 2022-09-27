@@ -1,0 +1,48 @@
+{#
+ # wecode Judge
+ # file: users.twig
+ # author: Mohammad Javad Naderi <mjnaderi@gmail.com>
+ #}
+{% set selected = '' %}
+{% extends 'templates/base.twig' %}
+{% block icon %}fas fa-laptop-code{% endblock %}
+{% block title %}Language{% endblock %}
+{% block head_title %}Language{% endblock %}
+
+{% block title_menu %}
+	<span class="title_menu_item"><a href="https://github.com/truongan/wecode-judge/blob/docs/v1.4/users.md" target="_blank"><i class="fa fa-question-circle color6"></i> Help</a></span>
+{% endblock %}
+
+
+{% block main_content %}
+<div class="col">
+
+<div class="table-responsive">
+	<table class="table table-striped table-bordered">
+		<thead class="thead-dark">
+			<tr>
+				{% for field in all_languages|first|keys %}
+				<th>{{ field }} </th>
+				{% endfor %}
+				<th>EDIT</th>
+			</tr>
+		</thead>
+		{% for lang in all_languages %}
+		<tr data-id="{{ user.id }}">
+			{% for field in all_languages|first|keys %}
+			<td>
+				{{ attribute(lang, field) }}
+			</td>
+			{% endfor %}
+			<td>
+				<a href="{{base_url('languages/edit/'~lang.id)}}" class="btn btn-primary">EDIT
+				</a>
+			</td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+</div>
+	
+{% endblock %}  {# main_content #}
+

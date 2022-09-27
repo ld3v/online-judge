@@ -1,0 +1,37 @@
+version: "3"
+services:
+  wecode_judge_server:
+    container_name: wecode_judge_server
+    image: nginx:1.17
+    restart: always
+    ports:
+      - $APP_PORT:80
+    volumes:
+      - ./src/:/var/www/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - /home/wecode
+      - ./assignments:/home/wecode/assignments
+      - ./tester:/home/wecode/tester
+
+  wecode_judge_db:
+    container_name: wecode_judge_db
+    depends_on:
+      - wecode_judge_server
+    build: ./docker/db
+
+  wecode_judge_adminer:
+    links:
+    - wecode_judge_db:postgres
+    container_name: wecode_judge_adminer
+    restart: always
+    image: adminer
+    ports:
+    - $ADMINER_PORT:8080
+
+  wecode_judge_app:
+    container_name: wecode_judge_app
+    build: ./docker/app
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - wecode_judge_db

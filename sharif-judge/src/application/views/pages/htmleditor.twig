@@ -1,0 +1,145 @@
+{#
+ # Sharif Judge
+ # file: dashboard.twig
+ # author: Mohammad Javad Naderi <mjnaderi@gmail.com>
+ #}
+{% set selected = '' %}
+{% extends 'templates/base.twig' %}
+{% block icon %}far fa-edit{% endblock %}
+{% block title %}HTML editor{% endblock %}
+{% block head_title %}HTML editor{% endblock %}
+
+
+
+{% block other_assets %}
+<style>
+.content-wrapper{
+	display: flex;
+	flex-direction: column;
+}
+.container-fluid{
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+#main_content{
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+}
+.edit_wrapper{
+	
+	flex-grow: 1;
+	min-height: 400px;
+	overflow: auto;
+}
+</style>
+{% endblock %}
+
+{% block body_end %}
+<script src="{{ base_url('assets/ckeditor/ckeditor.js') }}" charset="utf-8"></script>
+<script type="text/javascript">
+function b64EncodeUnicode(str) {
+	//this function is shamelessly copied from: https://developer.mozilla.org/en/docs/Web/API/WindowBase64/Base64_encoding_and_decoding
+	return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+		return String.fromCharCode('0x' + p1);
+	}));
+}
+$(document).ready(function(){
+	var file_name ="";
+
+	
+	$("#opendialog").bind("change",function(e){
+		console.log(this.files);
+
+		file_name = this.files[0].name
+		
+		if (this.files && this.files[0]){
+			var reader = new FileReader();
+
+			reader.onload = function (e) {
+				$('#editor').html(e.target.result);
+			}
+			
+			reader.readAsText(this.files[0]);
+		}
+	});
+	
+	$("#open").click(function(){
+		$("#opendialog").click();
+	});
+	
+	$("#save").mouseover(function(){
+		$("#save > a").attr("href", "data:text/html;base64," + b64EncodeUnicode( CKEDITOR.instances.editor.getData() )) ;
+		$("#save > a").attr("download", file_name) ;
+		console.log($("#save > a"));
+	});
+
+	shj.setup_save('.save-button', '{{ site_url("htmleditor/autosave") }}', CKEDITOR.instances.editor);
+	{# $('.save-button').click(function(){
+		$.ajax({
+			type: 'POST',
+			url: '{{ site_url("htmleditor/autosave") }}',
+			data: {
+				wcj_csrf_name: shj.csrf_token,
+				content : CKEDITOR.instances.editor.getData()
+			},
+			success: function (response) {
+				if (response == "success"){
+					$.notify('Change sucessfully saved'
+						, {position: 'bottom right', className: 'success', autoHideDelay: 3500});
+					$('.save-button').removeClass('btn-info').addClass('btn-secondary');
+				}
+			},
+			error: function(response){
+				$.notify('Error while saving'
+					, {position: 'bottom right', className: 'error', autoHideDelay: 3500});
+				//alert('There was problem saving change. You should download the content right now');
+			}
+		});
+	});
+	CKEDITOR.on('instanceReady', function(){
+		CKEDITOR.instances.editor.on('change', function(){
+			$('.save-button').removeClass('btn-secondary').addClass('btn-info');
+		});
+	}); #}
+
+});
+
+</script>
+{% endblock %}
+
+
+{% block main_content %}
+	<div class="col-12  d-flex flex-column">
+			{% for error in errors %}
+				<p class="text-danger">{{ error|raw }}</p>
+			{% endfor %}
+		<div class="row justify-content-center">
+			<input type="file" style="display: none;" id="opendialog">
+
+			<div class="col-auto">
+				<a class="btn btn-primary" href="#" id="open"><i class="fa fa-folder-open-o" aria-hidden="true"></i> Open</a>
+			</div>
+			
+			<div class="col-auto mr-auto ml-auto">		
+				<a class="btn btn-secondary save-button">
+					Save draft (will autosave every 3 minutes)
+				</a>
+			</div>
+			
+			<div id="save" class="col-auto">
+				<a class="btn btn-primary"  download href="#"><i class="fa fa-download" aria-hidden="true"></i>Download </a>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="edit_wrapper" id="editor" contenteditable="true">
+				{{ content | raw }}
+			</div>
+		</div>
+	</div>
+</div>
+<!-- </div> -->
+{% endblock %}  {# main_content #}
