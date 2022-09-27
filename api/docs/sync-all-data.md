@@ -12,8 +12,11 @@ In the current system, account model has a special field (`is_root` (Like `root`
 
 When you run this feature, it will be remove all of accounts. Except root accounts (`is_root=true`).
 
-### 1.2: Update assignment, problems, languages, assignment-problems & problem-languages:
-Like **Update account** action, all of assignments, problems,... in this system will be removed; And will be replaced by data from the old system.
+### 1.2: Update problems:
+In the current system (`@judge-wecode`), synchronize not only the existing data in the database, but also the content of the problem.
+
+### 1.3: Update assignment, languages, assignment-problems & problem-languages:
+Like **Update account** action, all of assignments, languages, problem-langs,... in this system will be removed; And will be replaced by data from the old system.
 
 ## How to sync:
 Not simple by clicking button `Sync all data` in Settings page. You need do more than one step to sync :)
