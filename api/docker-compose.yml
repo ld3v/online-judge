@@ -1,5 +1,10 @@
 version: "3"
 services:
+  wecode_redis:
+    container_name: wecode_redis
+    image: "redis:alpine"
+    ports:
+      - "$REDIS_PORT:6379"
   wecode_db:
     container_name: wecode_db
     image: postgres:latest

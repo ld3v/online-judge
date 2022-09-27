@@ -34,7 +34,32 @@ export default {
   'settings.sync-configuration': 'Sync system configuration',
   'settings.sync-configuration.description': 'Sync with wecode-judge {judgeURL, select, false {} other { with URL: "{judgeURL}"}}.<br>You can change URL content in backend environment variables.',
   'settings.sync-configuration.submit-title': 'Sync',
-  'settings.sync-configuration.success': 'Sync with wecode-judge successfully!',
+  'settings.sync-configuration.success': 'Sync with wecode-judge successfully! Please refresh your page to update latest configuration!',
   // Sync data
-  'settings.sync-data': 'Sync data',
+  'settings.sync-all-data': 'Sync all of data',
+  'settings.sync-all-data.description': 'This action will <b>get all of data from JUDGE system</b> and <b>import it to the current system</b>. Of course, all of data in the current system will be removed!<br/><b>So, be careful when use this feature!</b>',
+  'settings.sync-all-data.no-processing': 'No process is in progress!',
+  'settings.sync-all-data.sync-button-title': 'Sync now',
+  'settings.sync-all-data.history-title': 'Sync history',
+  'settings.sync-all-data.process.current.title': 'Syncing... - <small>(jobId#{jobId} - queueId#{queueId} - {time})</small>.',
+  'settings.sync-all-data.process.title': 'Synced at <i>{time}</i> - <small>(jobId#{jobId} - queueId#{queueId})</small>.',
+  // Sync data - Items
+  'settings.sync-all-data.process._.account': 'Update accounts.',
+  'settings.sync-all-data.process._.language': 'Update languages.',
+  'settings.sync-all-data.process._.problem': 'Update problems.',
+  'settings.sync-all-data.process._.assignment': 'Update assignments.',
+  'settings.sync-all-data.process._.problem-languages': 'Add languages to problems.',
+  'settings.sync-all-data.process._.assignment-problems': 'Add problems to assignments.',
+
+  // Exceptions
+  'exception.settings.sync-all-data.process-empty-info': 'Unexpected error appear when render this process\'s info.',
+  'exception.settings.sync-all-data.history.empty': 'No data sync times',
 };
+// export const SYNC_PROCESS_KEY = {
+//   ASSIGNMENT: "assignment",
+//   PROBLEM: "problem",
+//   LANGUAGE: "language",
+//   ACCOUNT: "account",
+//   ASSIGNMENT_PROBLEMS: "assignment-problems",
+//   PROBLEM_LANGUAGES: "problem-languages",
+// };

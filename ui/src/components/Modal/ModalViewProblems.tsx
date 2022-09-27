@@ -69,7 +69,13 @@ const ModalViewProblems: React.FC<IModalViewProblems> = ({
   return (
     <Modal {...modalBaseProps} title={assignment.name}>
       <AssignmentProblems assignmentId={assignmentId} />
-      <DoProblem />
+      <DoProblem
+        codeEditorProps={{
+          enableSnippets: true,
+          enableLiveAutocompletion: true,
+          enableBasicAutocompletion: true,
+        }}
+      />
     </Modal>
   );
 };

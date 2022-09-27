@@ -1,9 +1,16 @@
+import { InjectQueue } from '@nestjs/bull';
 import { Body, Controller, Get, HttpCode, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Queue } from 'bull';
 import { Role } from 'src/account/account.enum';
 import JwtAuthGuard from 'src/auth/gaurd/jwtAuth.gaurd';
 import RoleGuard from 'src/auth/gaurd/roles.gaurd';
+import { Queue as QueueEntity } from 'src/queue/entities/queue.entity';
+import { SYNC_PROCESS_KEY } from 'src/queue/processor/setting.processor';
+import { QueueName, QueueState } from 'src/queue/queue.enum';
+import { QueueService } from 'src/queue/queue.service';
 import { SETTING_FIELDS_MAPPING } from 'utils/constants/settings';
+import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { Http506Exception } from 'utils/Exceptions/http506.exception';
 import SettingDto from './dto/setting.dto';
 import { SettingService } from './setting.service';
@@ -13,6 +20,8 @@ export class SettingController {
   constructor(
     private readonly settingService: SettingService,
     private readonly configService: ConfigService,
+    private readonly queueService: QueueService,
+    @InjectQueue('setting') private readonly settingQueue: Queue,
   ) {}
 
   @Get('/')
@@ -54,6 +63,58 @@ export class SettingController {
       const settings = await this.settingService.syncWithJudge();
       const settingsTransformed = this.settingService.transformSetting(settings);
       return settingsTransformed;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Get('/sync-data')
+  @UseGuards(JwtAuthGuard)
+  @UseGuards(RoleGuard(Role.Admin))
+  async getSyncDataStatus () {
+    try {
+      const currentProcess = await this.queueService.getCurrentProcess(QueueName.SettingSyncAllData);
+      const history = await this.queueService.getHistoryProcesses(QueueName.SettingSyncAllData);
+      
+      return {
+        current: currentProcess
+          ? this.queueService.transformData(currentProcess)[0]
+          : undefined,
+        history: this.queueService.transformData(...history),
+      };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Post('/sync-data')
+  @UseGuards(JwtAuthGuard)
+  @UseGuards(RoleGuard(Role.Admin))
+  async syncData () {
+    try {
+      // Check if have any current process -> Not run.
+      const currentProcess = await this.queueService.getCurrentProcess(QueueName.SettingSyncAllData);
+      if (currentProcess) {
+        throw new Http400Exception("setting.sync-all-data.processing");
+      }
+      const queueId = QueueEntity.genId();
+      const job = await this.settingQueue.add('syncAllData', {
+        queueId,
+      });
+      const queueRes = await this.queueService.add({
+        id: queueId,
+        jobId: job.id,
+        name: QueueName.SettingSyncAllData,
+        process: {
+          [SYNC_PROCESS_KEY.ACCOUNT]: QueueState.Processing,
+          [SYNC_PROCESS_KEY.ASSIGNMENT]: QueueState.Processing,
+          [SYNC_PROCESS_KEY.PROBLEM]: QueueState.Processing,
+          [SYNC_PROCESS_KEY.PROBLEM_LANGUAGES]: QueueState.Processing,
+          [SYNC_PROCESS_KEY.ASSIGNMENT_PROBLEMS]: QueueState.Processing,
+          [SYNC_PROCESS_KEY.LANGUAGE]: QueueState.Processing,
+        },
+      });
+      return this.queueService.transformData(queueRes)[0];
     } catch (err) {
       throw err;
     }

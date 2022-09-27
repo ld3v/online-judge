@@ -201,6 +201,7 @@ const ProblemForm: React.FC<IProblemForm> = ({
               title: intl.formatMessage({ id: 'language.table.name' }),
               editable: false,
               width: 150,
+              fixed: 'left',
               dataIndex: 'name',
             },
             {

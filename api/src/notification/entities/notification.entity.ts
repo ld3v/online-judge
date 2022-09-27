@@ -25,13 +25,19 @@ export class Notification {
   @Column()
   public text: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamptz'
+  })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    type: 'timestamptz'
+  })
   updated_at: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({
+    type: 'timestamptz'
+  })
   deleted_at: Date;
 
   // Relation

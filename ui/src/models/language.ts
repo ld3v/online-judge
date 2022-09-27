@@ -25,7 +25,7 @@ const LanguageModel: ILanguageModel = {
     dic: {},
   },
   effects: {
-    *get({ payload }, { call, put }) {
+    *get({ payload }, { call, put }): Generator<any, any, any> {
       const { callback } = payload || {};
       try {
         const res = yield call(getAllLangs);

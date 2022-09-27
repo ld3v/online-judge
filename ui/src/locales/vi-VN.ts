@@ -5,6 +5,7 @@ import component from './vi-VN/component';
 import language from './vi-VN/language';
 import notification from './vi-VN/notification';
 import problem from './vi-VN/problem';
+import queue from './vi-VN/queue';
 import scoreboard from './vi-VN/scoreboard';
 import settings from './vi-VN/settings';
 import site from './vi-VN/site';
@@ -24,4 +25,5 @@ export default {
   ...component,
   ...settings,
   ...notification,
+  ...queue,
 };

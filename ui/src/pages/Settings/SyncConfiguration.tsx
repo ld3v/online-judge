@@ -20,6 +20,7 @@ const SyncConfiguration: React.FC<ISyncConfiguration> = ({ dispatch, syncing, cl
         notification.success({
           message: intl.formatMessage({ id: 'settings.sync-configuration.success' }),
         });
+        dispatch({ type: 'settings/getAll' });
       }
     };
     dispatch({ type: 'settings/sync', payload: { callback } });

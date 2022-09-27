@@ -7,13 +7,14 @@ import { AccountRepository } from './account.repository';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from '../auth/auth.service';
 import { ConfigService } from '@nestjs/config';
-import { FoundAndNotFoundResult } from 'utils/types';
+import { FoundAndNotFoundResult, SuccessAndFailed } from 'utils/types';
 import { ifViewByAdmin } from 'utils/func';
 import { AccountFilter, IAccountTransformed, ICreateOne, IUpdateOne, TGetAccountStatus } from './account.types';
 import { Assignment } from 'src/assignment/entities/assignment.entity';
 import { Http503Exception } from 'utils/Exceptions/http503.exception';
 import { Role } from './account.enum';
 import { ProblemService } from 'src/problem/problem.service';
+import CustomLogger from 'src/logger/customLogger';
 
 const { HASH_SALT_DEFAULT } = defaultValues;
 const ACC_SELECTED_FIELDS = [
@@ -38,6 +39,7 @@ export class AccountService {
     private readonly authService: AuthService,
     private readonly problemService: ProblemService,
     private readonly configSrv: ConfigService,
+    private readonly logger: CustomLogger,
   ) {}
 
   public async get({ keyword, role, page, limit, exceptIds }: AccountFilter) {
@@ -96,8 +98,8 @@ export class AccountService {
     if (ids.length === 0) {
       return {
         found: [],
-        foundIds: [],
-        notFoundIds: [],
+        foundKeys: [],
+        notFoundKeys: [],
       };
     }
     try {
@@ -109,23 +111,60 @@ export class AccountService {
       }
         
       const accountItems = await accountItemsQuery.getMany();
-      const accountFoundIds = accountItems.map(problem => problem.id);
+      const accountFoundIds = accountItems.map(account => account.id);
       const accountNotFoundIds = ids.filter(id => !accountFoundIds.includes(id));
 
       if (showErrIfErr && accountNotFoundIds.length > 0) {
         throw new Http400Exception('assignment.notfound', {
-          notFoundIds: accountNotFoundIds,
+          notFoundKeys: accountNotFoundIds,
         });
       }
 
       return {
         found: accountItems,
-        foundIds: accountFoundIds,
-        notFoundIds: accountNotFoundIds,
+        foundKeys: accountFoundIds,
+        notFoundKeys: accountNotFoundIds,
       };
     } catch (err) {
       console.error('account.service/getByIds:', err);
       throw new Http503Exception('account.service/getByIds');
+    }
+  }
+
+  public async getByUsernames(usernames: string[], showErrIfErr: boolean = true): Promise<FoundAndNotFoundResult<Account>> {
+    if (usernames.length === 0) {
+      return {
+        found: [],
+        foundKeys: [],
+        notFoundKeys: [],
+      };
+    }
+    try {
+      let accountItemsQuery = this.accountRepository.createQueryBuilder('acc')
+        .leftJoinAndSelect("acc.problems_created", "problem")
+        .select([...ACC_SELECTED_FIELDS, "problem.id", "problem.name"]);
+      if (Array.isArray(usernames) && usernames.length > 0) {
+        accountItemsQuery = accountItemsQuery.andWhere("acc.username IN (:...usernames)", { usernames })
+      }
+        
+      const accountItems = await accountItemsQuery.getMany();
+      const accountFoundUsernames = accountItems.map(account => account.id);
+      const accountNotFoundUsernames = usernames.filter(usr => !accountFoundUsernames.includes(usr));
+
+      if (showErrIfErr && accountNotFoundUsernames.length > 0) {
+        throw new Http400Exception('assignment.notfound', {
+          notFoundUsernames: accountNotFoundUsernames,
+        });
+      }
+
+      return {
+        found: accountItems,
+        foundKeys: accountFoundUsernames,
+        notFoundKeys: accountNotFoundUsernames,
+      };
+    } catch (err) {
+      console.error('account.service/getByUsernames:', err);
+      throw new Http503Exception('account.service/getByUsernames');
     }
   }
 
@@ -178,6 +217,22 @@ export class AccountService {
     });
     return await this.accountRepository.save(newAccount);
   }
+
+  public async importMulti(...accounts: Account[]): Promise<SuccessAndFailed<Account>> {
+    const newAccounts = accounts.map(async (acc) => {
+      try {
+        return await this.accountRepository.save(acc);
+      } catch (err) {
+        return err;
+      }
+    });
+    const resNewAccounts = await Promise.all(newAccounts);
+    
+    const success = resNewAccounts.filter(a => !(a instanceof Error));
+    const failed = resNewAccounts.filter(a => a instanceof Error);
+
+    return { success, failed };
+  } 
 
   public async updateInfo(
     account: Account,
@@ -239,6 +294,17 @@ export class AccountService {
     const hashSalt = this.configSrv.get('PASS_HASH_SALT') || HASH_SALT_DEFAULT;
     const encryptedPassword = await bcrypt.hash(password, Number(hashSalt));
     return encryptedPassword;
+  }
+
+  /**
+   * ## DANGER!!!
+   * This func will remove all of accounts (Except root accounts)
+   * @returns 
+   */
+  public async removeAllExceptRoot() {
+    const accountsNeedRemove = await this.accountRepository.find({ is_root: false });
+    const res = await this.accountRepository.remove(accountsNeedRemove);
+    return res;
   }
 
   public transformAccountData (requester: Account, ...accounts: Account[]): IAccountTransformed[] {

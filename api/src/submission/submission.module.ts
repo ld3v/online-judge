@@ -11,8 +11,8 @@ import { SubmissionService } from './submission.service';
   imports: [
     TypeOrmModule.forFeature([SubmissionRepository]),
     forwardRef(() => AssignmentModule),
+    forwardRef(() => AccountModule),
     ProblemModule,
-    AccountModule,
   ],
   controllers: [SubmissionController],
   providers: [SubmissionService],

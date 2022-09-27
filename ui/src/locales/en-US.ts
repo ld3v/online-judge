@@ -6,6 +6,7 @@ import component from './en-US/component';
 import language from './en-US/language';
 import notification from './en-US/notification';
 import problem from './en-US/problem';
+import queue from './en-US/queue';
 import scoreboard from './en-US/scoreboard';
 import settings from './en-US/settings';
 import site from './en-US/site';
@@ -25,6 +26,7 @@ export default {
   ...component,
   ...settings,
   ...notification,
+  ...queue,
 };
 
 // DatePicker locale

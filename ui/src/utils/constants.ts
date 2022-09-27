@@ -29,6 +29,8 @@ export const NON_AUTH_NOT_REDIRECT_PATHS = [
   `${AUTH_HANDLER_PATH}/`,
   MAINTENANCE_PATH,
   `${MAINTENANCE_PATH}/`,
+  '_test/upload',
+  '_test/upload/',
 ]
 
 export const EMPTY_VALUE = '--';

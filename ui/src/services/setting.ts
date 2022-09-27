@@ -15,6 +15,14 @@ export const updateSettings = (data: any) => {
   })
 }
 
+// Sync all data
+export const syncAllData = () => {
+  return request.post('/settings/sync-data');
+}
+export const getSyncAllDataStatus = () => {
+  return request('/settings/sync-data');
+}
+
 export const getJudgeURL = () => {
   return request.get('/settings/judge-url');
 };

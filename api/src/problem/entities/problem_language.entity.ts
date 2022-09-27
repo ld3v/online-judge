@@ -23,13 +23,19 @@ export class ProblemLanguage {
   @Column()
   public memory_limit: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamptz'
+  })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    type: 'timestamptz'
+  })
   updated_at: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({
+    type: 'timestamptz'
+  })
   deleted_at: Date;
 
   // Relation

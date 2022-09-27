@@ -1,10 +1,13 @@
-import { checkRegisterAvailable, getAllSettings, getJudgeURL, syncSettings, updateSettings } from '@/services/setting';
+import { checkRegisterAvailable, getAllSettings, getJudgeURL, getSyncAllDataStatus, syncAllData, syncSettings, updateSettings } from '@/services/setting';
+import { TQueue } from '@/types/queue';
+import { array2Map } from '@/utils/funcs';
 import type { Model } from 'dva';
 import type { Effect, Reducer } from 'umi';
 
 type TSettingState = {
   dic: Record<string, any>;
   list: any[];
+  syncAllHistory: Record<string, TQueue>;
 };
 
 interface ISettingModel extends Model {
@@ -15,9 +18,12 @@ interface ISettingModel extends Model {
     update: Effect;
     sync: Effect;
     getJudgeURL: Effect;
+    syncAllData: Effect;
+    syncAllDataStatus: Effect;
   };
   reducers: {
     save: Reducer;
+    saveSyncAllHistory: Reducer;
   };
 }
 
@@ -26,9 +32,10 @@ const SettingModel: ISettingModel = {
   state: {
     dic: {},
     list: [],
+    syncAllHistory: {},
   },
   effects: {
-    *getAll({ payload }, { call, put }) {
+    *getAll({ payload }, { call, put }): Generator<any, any, any> {
       const { callback } = payload || {};
       try {
         const settings = yield call(getAllSettings);
@@ -43,7 +50,7 @@ const SettingModel: ISettingModel = {
         callback?.()
       }
     },
-    *getRegisterStatus({ payload }, { call }) {
+    *getRegisterStatus({ payload }, { call }): Generator<any, any, any> {
       const { callback } = payload || {};
       try {
         const status = yield call(checkRegisterAvailable);
@@ -57,7 +64,7 @@ const SettingModel: ISettingModel = {
         callback?.();
       }
     },
-    *update({ payload }, { call, put }) {
+    *update({ payload }, { call, put }): Generator<any, any, any> {
       const { callback, data } = payload || {};
       try {
         const res = yield call(updateSettings, data);
@@ -73,7 +80,7 @@ const SettingModel: ISettingModel = {
         callback?.(false, err);
       }
     },
-    *getJudgeURL({ payload }, { call }) {
+    *getJudgeURL({ payload }, { call }): Generator<any, any, any> {
       const { callback } = payload || {};
       try {
         const res = yield call(getJudgeURL);
@@ -87,7 +94,7 @@ const SettingModel: ISettingModel = {
         callback?.()
       }
     },
-    *sync({ payload }, { call, put }) {
+    *sync({ payload }, { call, put }): Generator<any, any, any> {
       const { callback } = payload || {};
       try {
         const res = yield call(syncSettings);
@@ -103,6 +110,43 @@ const SettingModel: ISettingModel = {
         callback?.(false, err);
       }
     },
+    *syncAllDataStatus({ payload }, { call, put }): Generator<any, any, any> {
+      const { callback } = payload || {};
+      try {
+        const res = yield call(getSyncAllDataStatus);
+        if (res.isError) {
+          callback?.(false, res);
+          return;
+        }
+        // Refresh data
+        const { history, current } = res;
+        const { map: historyMapping, keys: historyIds } = array2Map([...history, ...(current ? [current] : [])], "id");
+        yield put({ type: 'saveSyncAllHistory', payload: historyMapping });
+        callback?.({
+          historyIds: historyIds.filter(id => id !== current?.id),
+          currentId: current?.id,
+        });
+      } catch (err) {
+        console.error('[ERROR] - [DISPATCH] - [SETTINGS/SYNC-ALL-DATA-STATUS]:', err);
+        callback?.(false, err);
+      }
+    },
+    *syncAllData({ payload }, { call, put }): Generator<any, any, any> {
+      const { callback } = payload || {};
+      try {
+        const res = yield call(syncAllData);
+        if (res.isError) {
+          callback?.(false, res);
+          return;
+        }
+        yield put({ type: 'saveSyncAllHistory', payload: { [res.id]: res } });
+        // Refresh data
+        callback?.(res.id);
+      } catch (err) {
+        console.error('[ERROR] - [DISPATCH] - [SETTINGS/SYNC-ALL-DATA]:', err);
+        callback?.(false, err);
+      }
+    },
   },
   reducers: {
     save(state, { payload }) {
@@ -115,6 +159,15 @@ const SettingModel: ISettingModel = {
         list: Object.keys(payload),
       };
     },
+    saveSyncAllHistory(state, { payload }) {
+      return {
+        ...state,
+        syncAllHistory: {
+          ...state.syncAllHistory,
+          ...payload,
+        }
+      };
+    }
   },
 };
 

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import CustomLogger from 'src/logger/customLogger';
 import { ProblemService } from 'src/problem/problem.service';
 import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { FoundAndNotFoundResult, ILang } from 'utils/types';
@@ -11,12 +12,17 @@ export class LanguageService {
   constructor(
     @InjectRepository(LangRepository)
     private readonly langRepository: LangRepository,
-    private readonly problemService: ProblemService,
+    private readonly logger: CustomLogger,
   ) {}
 
   public async create (data: ILang): Promise<Language> {
     const newLang = this.langRepository.create(data);
     return await this.langRepository.save(newLang);
+  }
+
+  public async createMulti (...langModels: Language[]): Promise<Language[]> {
+    const res = await this.langRepository.save(langModels);
+    return res;
   }
 
   public async update (curLang: Language, data: ILang): Promise<Language> {
@@ -41,6 +47,17 @@ export class LanguageService {
       throw new Http400Exception('lang.notfound');
     }
     return !!res.affected;
+  }
+
+  /**
+   * ## DANGER
+   * 
+   * This func is used to delete all langs
+   */
+  public async removeAll (): Promise<boolean> {
+    const langsNeedRemove = await this.langRepository.find();
+    const res = await this.langRepository.remove(langsNeedRemove);
+    return !!res;
   }
 
   /**
@@ -73,14 +90,14 @@ export class LanguageService {
 
     if (showErrIfErr && langNotFoundIds.length > 0) {
       throw new Http400Exception('lang.notfound', {
-        notFoundIds: langNotFoundIds,
+        notFoundKeys: langNotFoundIds,
       });
     }
 
     return {
       found: langItems,
-      foundIds: langFoundIds,
-      notFoundIds: langNotFoundIds,
+      foundKeys: langFoundIds,
+      notFoundKeys: langNotFoundIds,
     };
   }
 

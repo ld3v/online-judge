@@ -35,7 +35,7 @@ const AccountModel: IAccountModel = {
     dic: {},
   },
   effects: {
-    *search({ payload }, { call, put }) {
+    *search({ payload }, { call, put }): Generator<any, any, any> {
       const { keyword, except, role, page, limit, callback } = payload || {};
       try {
         const res = yield call(get, { keyword, except, page, limit, role });
@@ -54,7 +54,7 @@ const AccountModel: IAccountModel = {
         callback?.(false, err);
       }
     },
-    *updateById({ payload }, { call, put }) {
+    *updateById({ payload }, { call, put }): Generator<any, any, any> {
       const { id, data, callback } = payload || {};
       try {
         const res = yield call(updateAccountById, id, data);
@@ -73,7 +73,7 @@ const AccountModel: IAccountModel = {
         callback?.(false, err);
       }
     },
-    *getById({ payload }, { call, put }) {
+    *getById({ payload }, { call, put }): Generator<any, any, any> {
       const { id, callback } = payload || {};
       try {
         const res = yield call(getAccountById, id);
@@ -91,7 +91,7 @@ const AccountModel: IAccountModel = {
         callback?.(false, err);
       }
     },
-    *loadMe({ payload }, { call, put }) {
+    *loadMe({ payload }, { call, put }): Generator<any, any, any> {
       const { callback } = payload || {};
       try {
         const res = yield call(getAccountById, 'me');
@@ -109,7 +109,7 @@ const AccountModel: IAccountModel = {
         callback?.(false, err);
       }
     },
-    *updateState({ payload }, { call, put }) {
+    *updateState({ payload }, { call, put }): Generator<any, any, any> {
       const { id, state, reason, callback } = payload || {};
       try {
         const res = yield call(updateAccountState, id, state, reason);

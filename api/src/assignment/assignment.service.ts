@@ -5,15 +5,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { AccountService } from 'src/account/account.service';
 import { Account } from 'src/account/entities/account.entity';
+import CustomLogger from 'src/logger/customLogger';
 import { Problem } from 'src/problem/entities/problem.entity';
 import { ProblemService } from 'src/problem/problem.service';
 import { TProblemWithAssignment } from 'src/problem/problem.types';
+import { TJudgeAssignmentProblem } from 'src/setting/setting.utils';
 import { Submission } from 'src/submission/entities/submission.entity';
 import { SubmissionService } from 'src/submission/submission.service';
 import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { Http506Exception } from 'utils/Exceptions/http506.exception';
 import { array2Map } from 'utils/func';
-import { FoundAndNotFoundResult, IAssignment } from 'utils/types';
+import { FoundAndNotFoundResult, IAssignment, SuccessAndFailed } from 'utils/types';
 import { AssignmentAccountRepository, AssignmentProblemRepository, AssignmentRepository } from './assignment.repository';
 import { IAssignmentEntity, IAssignmentProblemInput, IAssignmentTransformed, ICoefficientInfo, TSearchQuery } from './assignment.types';
 import { Assignment } from './entities/assignment.entity';
@@ -35,11 +37,55 @@ export class AssignmentService {
     private readonly submissionService: SubmissionService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly logger: CustomLogger,
   ) {}
 
   public async create (data: IAssignment): Promise<Assignment> {
     const newProb = this.assignmentRepository.create(data);
     return await this.assignmentRepository.save(newProb);
+  }
+
+  public async createMulti (
+    assignmentsInfo: {
+      assignment: Assignment,
+      judgeId: number;
+      judgeProblems: TJudgeAssignmentProblem[];
+      participantUsernames: string[]
+    }[]
+  ): Promise<SuccessAndFailed<Assignment> & {
+    judgeAssIdMap2AssId: Record<number, string>,
+    judgeAssIdMap2JudgeAssProblems: Record<number, TJudgeAssignmentProblem[]>
+  }> {
+    const judgeAssIdMap2AssId: Record<number, string> = {};
+    const judgeAssIdMap2JudgeAssProblems: Record<number, TJudgeAssignmentProblem[]> = {};
+    const createPromises = assignmentsInfo.map(async ({ assignment, judgeId, judgeProblems, participantUsernames }) => {
+      try {
+        const assCreated = await this.assignmentRepository.save(assignment);
+        judgeAssIdMap2AssId[judgeId] = assCreated.id;
+        judgeAssIdMap2JudgeAssProblems[judgeId] = judgeProblems;
+        // Handle update participants for assignment
+        const { found: accounts } = participantUsernames.length > 0
+          ? await this.accountService.getByUsernames(participantUsernames, false)
+          : { found: [] };
+        if (accounts.length > 0) {
+          await this.updateParticipants(assCreated, accounts);
+        }
+        return assCreated;
+      } catch (err) {
+        return err;
+      }
+    });
+    const res = await Promise.all(createPromises);
+
+    const success =  res.filter(r => !(r instanceof Error));
+    const failed = res.filter(r => r instanceof Error);
+
+    return {
+      success,
+      failed,
+      judgeAssIdMap2AssId,
+      judgeAssIdMap2JudgeAssProblems,
+    };
   }
 
   public async update (curAss: Assignment, data: IAssignment): Promise<{ assignment: Assignment; coefficient?: string }> {
@@ -185,6 +231,15 @@ export class AssignmentService {
     return res.affected;
   }
 
+  /**
+   * ## DANGER
+   * This func will **REMOVE** all of assignment in the current system!
+   */
+  public async removeAll (): Promise<Assignment[]> {
+    const assignmentNeedRemove = await this.assignmentRepository.find();
+    const res = await this.assignmentRepository.remove(assignmentNeedRemove);
+    return res;
+  }
 
   /**
    * This func is used to get assignment by its ID.
@@ -225,14 +280,14 @@ export class AssignmentService {
 
     if (showErrIfErr && assignmentNotFoundIds.length > 0) {
       throw new Http400Exception('assignment.notfound', {
-        notFoundIds: assignmentNotFoundIds,
+        notFoundKeys: assignmentNotFoundIds,
       });
     }
 
     return {
       found: assignmentItems,
-      foundIds: assignmentFoundIds,
-      notFoundIds: assignmentNotFoundIds,
+      foundKeys: assignmentFoundIds,
+      notFoundKeys: assignmentNotFoundIds,
     };
   }
 

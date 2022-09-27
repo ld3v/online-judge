@@ -43,17 +43,17 @@ export class Assignment {
   
   @Column({
     name: 'start_time',
-    type: 'timestamp',
+    type: 'timestamptz',
     default: null,
   })
-  public start_time: string;
+  public start_time: Date;
   
   @Column({
     name: 'finish_time',
-    type: 'timestamp',
+    type: 'timestamptz',
     default: null,
   })
-  public finish_time: string;
+  public finish_time: Date;
 
   @Column({
     name: 'extra_time',
@@ -79,13 +79,19 @@ export class Assignment {
   })
   public is_public: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamptz'
+  })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    type: 'timestamptz'
+  })
   updated_at: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({
+    type: 'timestamptz'
+  })
   deleted_at: Date;
 
   // Relations

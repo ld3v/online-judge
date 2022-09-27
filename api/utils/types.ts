@@ -20,7 +20,7 @@ export interface ILang {
   extension: string;
   default_time_limit?: number;
   default_memory_limit?: number;
-  sorting: number;
+  // sorting: number; // Maybe not use in this system
   // Relation data
   problems?: any[];
 }
@@ -28,7 +28,6 @@ export interface ILangAddProblem {
   id: string;
   time_limit?: number;
   memory_limit?: number;
-  data: ILang;
 }
 export interface IUpdateProblemLang {
   id: string;
@@ -86,8 +85,12 @@ export interface ISubmission {
 // Other
 export interface FoundAndNotFoundResult<ItemType> {
   found: ItemType[],
-  foundIds: string[],
-  notFoundIds: string[],
+  foundKeys: string[],
+  notFoundKeys: string[],
+}
+export interface SuccessAndFailed<Type = any> {
+  success?: Type[];
+  failed?: Error[];
 }
 
 export type TMap = Record<any, any>;

@@ -3,9 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/account/account.enum';
 import { Account } from 'src/account/entities/account.entity';
 import { Language } from 'src/language/entities/language.entity';
+import { TJudgeProblemLang, TJudgeProblemTransformed } from 'src/setting/setting.utils';
 import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { Http503Exception } from 'utils/Exceptions/http503.exception';
-import { FoundAndNotFoundResult, ILang, ILangAddProblem, IProblem, IUpdateProblemLang } from 'utils/types';
+import { FoundAndNotFoundResult, ILang, ILangAddProblem, IProblem, IUpdateProblemLang, SuccessAndFailed } from 'utils/types';
 import { Problem } from './entities/problem.entity';
 import { ProblemLanguage } from './entities/problem_language.entity';
 import { ProblemLangRepository, ProblemRepository } from './problem.repository';
@@ -23,6 +24,39 @@ export class ProblemService {
   public async create ({ note, ...data }: IProblem, author: Account): Promise<Problem> {
     const newProb = this.problemRepository.create({ ...data, admin_note: note, created_by: author  });
     return await this.problemRepository.save(newProb);
+  }
+
+  public async createByJudgeProblems (
+    problems: TJudgeProblemTransformed[],
+  ): Promise<SuccessAndFailed<Problem> & {
+    judgeProbIdMap2ProbId: Record<number, string>,
+    judgeProbIdMap2Langs: Record<number, TJudgeProblemLang[]>,
+    judgeProbIdMap2JudgeAssIds: Record<number, number[]>,
+  }> {
+    const judgeProbIdMap2ProbId: Record<string, string> = {};
+    const judgeProbIdMap2JudgeAssIds: Record<string, number[]> = {};
+    const judgeProbIdMap2Langs: Record<string, TJudgeProblemLang[]> = {};
+    const createPromise = problems.map(async ({ problem, judgeId, judgeLanguages, judgeAssignmentIds }) => {
+      try {
+        const created = await this.problemRepository.save(problem);
+        judgeProbIdMap2ProbId[judgeId] = created.id;
+        judgeProbIdMap2JudgeAssIds[judgeId] = judgeAssignmentIds;
+        judgeProbIdMap2Langs[judgeId] = judgeLanguages;
+        return created;
+      } catch (err) {
+        return err;
+      }
+    });
+    const resCreated = await Promise.all(createPromise);
+    const success = resCreated.filter(r => !(r instanceof Error));
+    const failed = resCreated.filter(r => r instanceof Error);
+    return {
+      success,
+      failed,
+      judgeProbIdMap2ProbId,
+      judgeProbIdMap2JudgeAssIds,
+      judgeProbIdMap2Langs
+    };
   }
 
   public async update (curProb: Problem, data: IProblem): Promise<Problem> {
@@ -46,6 +80,15 @@ export class ProblemService {
     return !!res.affected;
   }
 
+  /**
+   * ## DANGER
+   * This func will remove all of problems in the current system!
+   */
+  public async removeAll(): Promise<Problem[]> {
+    const problemsNeedRemove = await this.problemRepository.find();
+    return await this.problemRepository.remove(problemsNeedRemove);
+  }
+
   public async getById(id: string, showErrIfErr: boolean = true) {
     const curProb = await this.problemRepository.createQueryBuilder("problem")
       .leftJoinAndSelect("problem.created_by", "created_by")
@@ -67,8 +110,8 @@ export class ProblemService {
     if (ids.length === 0) {
       return {
         found: [],
-        foundIds: [],
-        notFoundIds: [],
+        foundKeys: [],
+        notFoundKeys: [],
       };
     }
     try {
@@ -86,14 +129,14 @@ export class ProblemService {
   
       if (showErrIfErr && problemNotFoundIds.length > 0) {
         throw new Http400Exception('problem.notfound', {
-          notFoundIds: problemNotFoundIds,
+          notFoundKeys: problemNotFoundIds,
         });
       }
   
       return {
         found: problemItems,
-        foundIds: problemFoundIds,
-        notFoundIds: problemNotFoundIds,
+        foundKeys: problemFoundIds,
+        notFoundKeys: problemNotFoundIds,
       };
     } catch (err) {
       console.error('[feature:problem.getByIds]', err);
@@ -144,8 +187,8 @@ export class ProblemService {
   public async getProblemLangByIds(ids: string[], showErrIfErr: boolean = true): Promise<FoundAndNotFoundResult<ProblemLanguage>> {
     if (ids.length === 0) return {
       found: [],
-      foundIds: [],
-      notFoundIds: [],
+      foundKeys: [],
+      notFoundKeys: [],
     }
     const problemLangs = await this.problemLangRepository
       .createQueryBuilder('probLang')
@@ -158,22 +201,22 @@ export class ProblemService {
 
     if (showErrIfErr && problemLangNotFoundIds.length > 0) {
       throw new Http400Exception('problem.notfound', {
-        notFoundIds: problemLangNotFoundIds,
+        notFoundKeys: problemLangNotFoundIds,
       });
     }
 
     return {
       found: problemLangs,
-      foundIds: problemLangFoundIds,
-      notFoundIds: problemLangNotFoundIds,
+      foundKeys: problemLangFoundIds,
+      notFoundKeys: problemLangNotFoundIds,
     };
   }
 
   public async addProblemLangs(problem: Problem, langs: Language[], langMapping: Record<string, ILangAddProblem>) {
     const newProblemLangs = langs.map(lang => this.problemLangRepository.create({
       problem,
-      time_limit: langMapping[lang.id].time_limit || lang.default_time_limit,
-      memory_limit: langMapping[lang.id].memory_limit || lang.default_memory_limit,
+      time_limit: langMapping[lang.id]?.time_limit || lang.default_time_limit,
+      memory_limit: langMapping[lang.id]?.memory_limit || lang.default_memory_limit,
       language: lang,
     }));
     return await this.problemLangRepository.save(newProblemLangs);

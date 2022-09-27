@@ -21,8 +21,8 @@ export interface IAssignmentTransformed {
   id: string,
   name: string,
   description: string,
-  startTime: string,
-  finishTime: string,
+  startTime: Date,
+  finishTime: Date,
   extraTime: number,
   lateRule: string,
   open: boolean;

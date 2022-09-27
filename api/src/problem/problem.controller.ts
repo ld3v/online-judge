@@ -143,10 +143,10 @@ export class ProblemController {
   private transformProblem (requester: Account, ...problems: Problem[]) {
     const ifAdmin = (value: any) => requester.role === Role.Admin ? value : undefined;
     const problemTransformed = problems.map(problem => {
-      const created_by = {
+      const created_by = problem.created_by ? {
         id: problem.created_by.id,
         display_name: problem.created_by.display_name,
-      }
+      } : {};
       const languages = problem.languages.map(lang => (
         lang.language
           ? {

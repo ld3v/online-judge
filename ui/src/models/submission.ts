@@ -26,7 +26,7 @@ const SubmissionModel: ISubmissionModel = {
     dic: {},
   },
   effects: {
-    *search({ payload }, { call, put }) {
+    *search({ payload }, { call, put }): Generator<any, any, any> {
       const { assignmentId, accountId, problemId, langId, page, limit, callback } = payload || {};
       try {
         const res = yield call(getSubmission, { assignmentId, accountId, problemId, langId, page, limit });

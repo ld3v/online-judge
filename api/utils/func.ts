@@ -48,3 +48,18 @@ export const isAdmin = (requester: Account, adminValues: any, nonAdminValues: an
  * @returns {any}
  */
 export const sleep = (ms: number = 5000): Promise<any> => new Promise(resolve => setTimeout(resolve, ms));
+
+export const reserveMapping = (mapping: Record<string | number, (string | number)[]>): Record<string | number, (string | number)[]> => {
+  const mappingReserved: Record<string | number, (string | number)[]> = {};
+  Object.keys(mapping).forEach((mapKey: number | string) => {
+    const mapValues = mapping[mapKey];
+    mapValues.forEach(mapValueKey => {
+      if (mappingReserved[mapValueKey]) {
+        mappingReserved[mapValueKey] = [...new Set([...mappingReserved[mapValueKey], mapKey])];
+        return;
+      }
+      mappingReserved[mapValueKey] = [mapKey];
+    });
+  });
+  return mappingReserved;
+}

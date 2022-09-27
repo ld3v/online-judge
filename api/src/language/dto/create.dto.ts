@@ -7,9 +7,6 @@ class CreateDto {
   @IsString()
   extension: string;
 
-  @IsNumber()
-  sorting: number;
-
   @IsOptional()
   @IsNumber()
   default_time_limit: number;

@@ -32,7 +32,7 @@ const AuthModel: IAuthModel = {
     current: undefined,
   },
   effects: {
-    *login({ payload }, { call }) {
+    *login({ payload }, { call }): Generator<any, any, any> {
       const { username, password, callback, msg } = payload || {};
       const res = yield call(login, {
         username,
@@ -52,7 +52,7 @@ const AuthModel: IAuthModel = {
       // console.log(account);
       callback?.(account);
     },
-    *register({ payload }, { call }) {
+    *register({ payload }, { call }): Generator<any, any, any> {
       const { username, password, display_name, email, callback, msg } = payload || {};
       const res = yield call(register, {
         username,
@@ -74,7 +74,7 @@ const AuthModel: IAuthModel = {
       // console.log(account);
       callback?.(account);
     },
-    *forgotPassword({ payload }, { call }) {
+    *forgotPassword({ payload }, { call }): Generator<any, any, any> {
       const { email, callback, msg } = payload || {};
       const res = yield call(forgotPassword, email);
       if (res.isError) {
@@ -87,7 +87,7 @@ const AuthModel: IAuthModel = {
       }
       callback?.(res);
     },
-    *reSendValidate({ payload }, { call }) {
+    *reSendValidate({ payload }, { call }): Generator<any, any, any> {
       const { callback } = payload || {};
       const res = yield call(reValidateEmail);
       if (res.isError) {
@@ -96,7 +96,7 @@ const AuthModel: IAuthModel = {
       }
       callback?.(res);
     },
-    *getByToken({ payload }, { call, put }) {
+    *getByToken({ payload }, { call, put }): Generator<any, any, any> {
       const { token, callback } = payload || {};
       const authInfo = yield call(getByToken, token);
       if (authInfo.isError) {
@@ -106,7 +106,7 @@ const AuthModel: IAuthModel = {
       yield put({ type: 'saveCurrent', payload: authInfo });
       callback?.(authInfo);
     },
-    *resetPassword({ payload }, { call }) {
+    *resetPassword({ payload }, { call }): Generator<any, any, any> {
       const { token, password, callback } = payload || {};
       const res = yield call(resetPassword, token, password);
       console.log(res);
@@ -116,7 +116,7 @@ const AuthModel: IAuthModel = {
       }
       callback?.(res);
     },
-    *validate({ payload }, { call }) {
+    *validate({ payload }, { call }): Generator<any, any, any> {
       const { token, callback } = payload || {};
       const res = yield call(validateEmail, token);
       console.log(res);

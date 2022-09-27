@@ -1,7 +1,8 @@
 {
   "cSpell.words": [
     "Coef",
-    "concurent"
+    "concurent",
+    "timestamptz"
   ],
   "files.associations": {
     "*.js": "javascriptreact"

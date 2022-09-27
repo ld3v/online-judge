@@ -27,7 +27,7 @@ const ScoreboardModel: IScoreboardModel = {
     subColsDic: {},
   },
   effects: {
-    *get({ payload }, { call, put }) {
+    *get({ payload }, { call, put }): Generator<any, any, any> {
       const { id, callback } = payload || {};
       try {
         const res = yield call(getScoreboard, id);

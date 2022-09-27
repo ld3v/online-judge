@@ -29,7 +29,7 @@ const ProblemModel: IProblemModel = {
     list: [],
   },
   effects: {
-    *search({ payload }, { call, put }) {
+    *search({ payload }, { call, put }): Generator<any, any, any> {
       const { keyword, assignmentIds, langIds, except, page, limit, callback } = payload || {};
       try {
         const res = yield call(getAllProblems, { keyword, assignmentIds, langIds, except, page, limit });
@@ -48,7 +48,7 @@ const ProblemModel: IProblemModel = {
         callback?.(false, err);
       }
     },
-    *create({ payload }, { call, put }) {
+    *create({ payload }, { call, put }): Generator<any, any, any> {
       const { data, callback } = payload || {};
       try {
         const res = yield call(createProblem, data);
@@ -67,7 +67,7 @@ const ProblemModel: IProblemModel = {
         callback?.(false, err);
       }
     },
-    *update({ payload }, { call, put }) {
+    *update({ payload }, { call, put }): Generator<any, any, any> {
       const { id, data, callback } = payload || {};
       try {
         const res = yield call(updateProblem, id, data);
@@ -86,7 +86,7 @@ const ProblemModel: IProblemModel = {
         callback?.(false, err);
       }
     },
-    *getById({ payload }, { call, put }) {
+    *getById({ payload }, { call, put }): Generator<any, any, any> {
       const { id, callback } = payload || {};
       try {
         const res = yield call(getProblemById, id);
@@ -104,7 +104,7 @@ const ProblemModel: IProblemModel = {
         callback?.(false, err);
       }
     },
-    *deleteById({ payload }, { call, put }) {
+    *deleteById({ payload }, { call, put }): Generator<any, any, any> {
       const { id, callback } = payload || {};
       try {
         const res = yield call(deleteProblemById, id);

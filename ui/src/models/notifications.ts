@@ -32,7 +32,7 @@ const NotificationModel: INotificationModel = {
     createModalVisible: false,
   },
   effects: {
-    *getAll({ payload }, { call, put }) {
+    *getAll({ payload }, { call, put }): Generator<any, any, any> {
       const { callback } = payload || {};
       try {
         const notifications = yield call(getAll);
@@ -48,7 +48,7 @@ const NotificationModel: INotificationModel = {
         callback?.(false);
       }
     },
-    *create({ payload }, { call, put }) {
+    *create({ payload }, { call, put }): Generator<any, any, any> {
       const { title, text, callback } = payload || {};
       try {
         const res = yield call(create, {

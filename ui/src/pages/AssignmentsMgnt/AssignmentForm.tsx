@@ -135,7 +135,14 @@ const AssignmentFormPage: React.FC<IAssignmentFormPage> = ({
     setParticipantSearchDisabled(isPublic);
     form.setFieldsValue({ is_public: isPublic, participants: [] });
   };
-  const handleSubmit = ({ description, time, problems, participants, ...values }: any) => {
+  const handleSubmit = ({
+    description,
+    time,
+    problems,
+    participants,
+    lateRule,
+    ...values
+  }: any) => {
     // console.log({ description, time, problems, participants, ...values });
     const problemsTransformed = (problems || []).map((p: any, idx: number) => ({
       id: p.id,
@@ -146,6 +153,7 @@ const AssignmentFormPage: React.FC<IAssignmentFormPage> = ({
     const data = {
       ...values,
       description: description || '',
+      late_rule: lateRule,
       start_time: time.startTime ? time.startTime.toDate() : undefined,
       finish_time: time.finishTime ? time.finishTime.toDate() : undefined,
       problems: problemsTransformed,
@@ -335,7 +343,7 @@ const AssignmentFormPage: React.FC<IAssignmentFormPage> = ({
               placeholder={intl.formatMessage({ id: 'assignment.form.extra-time.placeholder' })}
             />
           </Form.Item>
-          <Form.Item label={lateRuleLabel} name="late_rule">
+          <Form.Item label={lateRuleLabel} name="lateRule">
             <Input.TextArea
               rows={8}
               autoSize={{ maxRows: 10 }}

@@ -34,13 +34,19 @@ export class AssignmentProblem {
   })
   public problem_name: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamptz'
+  })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    type: 'timestamptz'
+  })
   updated_at: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({
+    type: 'timestamptz'
+  })
   deleted_at: Date;
 
   // Relations

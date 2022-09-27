@@ -5,6 +5,7 @@ import * as cookieParser from 'cookie-parser';
 import * as  moment from 'moment';
 import "moment-timezone";
 import { AppModule } from './app.module';
+import CustomLogger from './logger/customLogger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -28,6 +29,7 @@ async function bootstrap() {
     // credentials: true,
     maxAge: 30,
   });
+  app.useLogger(app.get(CustomLogger));
   app.use(cookieParser());
   await app.listen(port);
   console.info(`Running with port ${port}`);

@@ -69,7 +69,7 @@ const AssignmentModel: IAssignmentModel = {
   },
   effects: {
     // Test coefficient
-    *_coefficient({ payload }, { call }) {
+    *_coefficient({ payload }, { call }): Generator<any, any, any> {
       const { callback, ...queryData } = payload;
       try {
         const res = yield call(getCoefficient, queryData);
@@ -83,7 +83,7 @@ const AssignmentModel: IAssignmentModel = {
         callback?.(false, err);
       }
     },
-    *search({ payload }, { call, put }) {
+    *search({ payload }, { call, put }): Generator<any, any, any> {
       const { keyword, except, page, limit, callback } = payload || {};
       try {
         const res = yield call(getAllAssignments, { keyword, except, page, limit });
@@ -115,7 +115,7 @@ const AssignmentModel: IAssignmentModel = {
         callback?.(false, err);
       }
     },
-    *create({ payload }, { call, put }) {
+    *create({ payload }, { call, put }): Generator<any, any, any> {
       const { data, callback } = payload || {};
       try {
         const res = yield call(createAssignment, data);
@@ -143,7 +143,7 @@ const AssignmentModel: IAssignmentModel = {
         callback?.(false, err);
       }
     },
-    *updateById({ payload }, { call, put }) {
+    *updateById({ payload }, { call, put }): Generator<any, any, any> {
       const { id, data, callback } = payload || {};
       try {
         const res = yield call(updateAssignment, id, data);
@@ -175,7 +175,7 @@ const AssignmentModel: IAssignmentModel = {
         callback?.(false, err);
       }
     },
-    *getById({ payload }, { call, put }) {
+    *getById({ payload }, { call, put }): Generator<any, any, any> {
       const { id, callback } = payload || {};
       try {
         const res = yield call(getAssignmentById, id);
@@ -213,7 +213,7 @@ const AssignmentModel: IAssignmentModel = {
         callback?.(false, err);
       }
     },
-    *getProblems({ payload }, { call, put }) {
+    *getProblems({ payload }, { call, put }): Generator<any, any, any> {
       const { id, callback } = payload || {};
       try {
         const res = yield call(getAssignmentProblems, id);
@@ -255,7 +255,7 @@ const AssignmentModel: IAssignmentModel = {
         callback?.(false, err);
       }
     },
-    *deleteById({ payload }, { call, put }) {
+    *deleteById({ payload }, { call, put }): Generator<any, any, any> {
       const { id, callback } = payload || {};
       try {
         const res = yield call(deleteAssignment, id);
