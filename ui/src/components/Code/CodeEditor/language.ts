@@ -160,4 +160,4 @@ export default <TCodeEditorLang[]>[
   // "yaml"
 ];
 
-export type TCodeEditorLang = 'c_cpp' | 'python' | 'pascal' | 'java'
+export type TCodeEditorLang = 'c_cpp' | 'python' | 'pascal' | 'java';

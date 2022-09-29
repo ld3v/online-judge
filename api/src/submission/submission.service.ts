@@ -1,12 +1,21 @@
+import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Queue } from 'bull';
+import * as path from 'path';
+import { Account } from 'src/account/entities/account.entity';
+import { Queue as QueueEntity } from 'src/queue/entities/queue.entity';
 import { Assignment } from 'src/assignment/entities/assignment.entity';
+import { addFile, isExist } from 'common/file.helper';
+import { QueueService } from 'src/queue/queue.service';
 import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { Http503Exception } from 'utils/Exceptions/http503.exception';
 import { ISubmission } from 'utils/types';
 import { Submission } from './entities/submission.entity';
 import { SubmissionRepository } from './submission.repository';
-import { SubmissionFilter } from './submission.types';
+import { IAddSubmission, SubmissionFilter } from './submission.types';
+import { QueueName } from 'src/queue/queue.enum';
+import CustomLogger from 'src/logger/customLogger';
 
 
 
@@ -15,10 +24,52 @@ export class SubmissionService {
   constructor(
     @InjectRepository(SubmissionRepository)
     private readonly submissionRepository: SubmissionRepository,
+    private readonly queueService: QueueService,
+    @InjectQueue('submission')
+    private readonly submissionQueue: Queue,
+    private readonly logger: CustomLogger,
   ) {}
 
-  public async create (data: ISubmission) {
-    const newSubmission = this.submissionRepository.create(data);
+  /**
+   * Upload with code (**code is text**)
+   * 
+   * This func will create a new submission, add a new job to queue to run code.
+   * @param {IAddSubmission} data Data to create a new submission
+   * @param {Account} submitter Who submit
+   * @returns 
+   */
+  public async create (data: IAddSubmission, submitter: Account, fileExt: string) {
+    const newSubmission = new Submission();
+    newSubmission.assignment = data.assignment;
+    newSubmission.problem = data.problem;
+    newSubmission.language = data.language;
+    newSubmission.submitter = submitter;
+    newSubmission.id = Submission.genId();
+    // Handle write code to file
+    await this.createCodeFile(
+      data.code,
+      './upload/problems-solutions',
+      `solution__${newSubmission.id}.${fileExt}`,
+    );
+    this.logger.log(
+      'Saved code to file:' +
+      path.join(
+        '/upload/problems-solutions',
+        `solution__${newSubmission.id}.${fileExt}`,
+      )
+    );
+
+    // Update submission info
+    const queueId = QueueEntity.genId();
+    const newJob = await this.submissionQueue.add({
+      queueId,
+    });
+    const newQueue = await this.queueService.add({
+      id: queueId,
+      jobId: newJob.id,
+      name: QueueName.Submission,
+    });
+    newSubmission.queue = newQueue;
     return await this.submissionRepository.save(newSubmission);
   }
 
@@ -99,6 +150,7 @@ export class SubmissionService {
       .leftJoinAndSelect("sub.language", "lang")
       .leftJoinAndSelect("sub.problem", "problem")
       .leftJoinAndSelect("sub.assignment", "assignment")
+      .leftJoinAndSelect("sub.queue", "queue")
       .where("assignment.id = :assignmentId AND sub.is_final = true", { assignmentId: assignment.id })
       .getMany();
     return submissions;
@@ -162,4 +214,17 @@ export class SubmissionService {
   }
 
   // public transformData()
+
+  /**
+   * This func will create a new file from submit's code input.
+   */
+  private async createCodeFile (code: string, dirPath: string, filename: string = "solution") {
+    try {
+      const resCreateFile = await addFile(dirPath, filename, code);
+      return resCreateFile;
+    } catch (err) {
+      console.error(err);
+      throw new Http503Exception('local-file.unknown', { err });
+    }
+  }
 }

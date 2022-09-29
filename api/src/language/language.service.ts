@@ -77,6 +77,17 @@ export class LanguageService {
     return curLang;
   }
 
+  public async getByExtension (extension: string, showErrIfErr: boolean = true) {
+    const curLang = await this.langRepository.findOne({ extension });
+    
+    if (!curLang && showErrIfErr) {
+      throw new Http400Exception('lang.notfound', {
+        notFoundExtension: extension,
+      });
+    }
+    return curLang;
+  }
+
   /**
    * This func is used to get langs by their IDs
    * @param {string} ids Lang's IDs

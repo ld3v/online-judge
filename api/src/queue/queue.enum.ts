@@ -1,6 +1,6 @@
 export enum QueueName {
   SettingSyncAllData = 'syncAllData',
-  CodeRun = 'codeRun',
+  Submission = 'submission',
 };
 
 export enum QueueState {

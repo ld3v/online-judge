@@ -1,4 +1,4 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "fileUpload", "test", "dist", "**/*spec.ts"]
+  "exclude": ["node_modules", "upload", "test", "dist", "docs", ".vscode", "data", "scripts", "**/*spec.ts"]
 }

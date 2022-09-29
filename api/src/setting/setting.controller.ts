@@ -6,7 +6,7 @@ import { Role } from 'src/account/account.enum';
 import JwtAuthGuard from 'src/auth/gaurd/jwtAuth.gaurd';
 import RoleGuard from 'src/auth/gaurd/roles.gaurd';
 import { Queue as QueueEntity } from 'src/queue/entities/queue.entity';
-import { SYNC_PROCESS_KEY } from 'src/queue/processor/setting.processor';
+import { SYNC_PROCESS_KEY } from 'src/setting/setting.processor';
 import { QueueName, QueueState } from 'src/queue/queue.enum';
 import { QueueService } from 'src/queue/queue.service';
 import { SETTING_FIELDS_MAPPING } from 'utils/constants/settings';

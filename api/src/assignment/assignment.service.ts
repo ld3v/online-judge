@@ -9,6 +9,7 @@ import CustomLogger from 'src/logger/customLogger';
 import { Problem } from 'src/problem/entities/problem.entity';
 import { ProblemService } from 'src/problem/problem.service';
 import { TProblemWithAssignment } from 'src/problem/problem.types';
+import { QueueState } from 'src/queue/queue.enum';
 import { TJudgeAssignmentProblem } from 'src/setting/setting.utils';
 import { Submission } from 'src/submission/entities/submission.entity';
 import { SubmissionService } from 'src/submission/submission.service';
@@ -257,10 +258,13 @@ export class AssignmentService {
         .orderBy('assignment_problem.ordering', 'ASC')
         .where('assignment.id = :id', { id })
         .getOne();
-      if (!curAss && showErrIfErr) {
-        throw new Http400Exception('assignment.notfound', {
-          notFoundId: `${id}`,
-        });
+      if (!curAss) {
+        if (showErrIfErr) {
+          throw new Http400Exception('assignment.notfound', {
+            notFoundId: `${id}`,
+          });
+        }
+        return null;
       }
       const assignmentsWithCoef = await this.joinCoefficient([curAss]);
       return assignmentsWithCoef[0]
@@ -371,7 +375,7 @@ export class AssignmentService {
       // Problem status (Line 94-107: wecode/controller/View_problem.php)
       const subs = await this.submissionService.getFinalSubmissions(assignment);
       subs.forEach(finalSub => {
-        if (finalSub.status === 'PENDING') {
+        if (finalSub.queue.state === QueueState.Processing) {
           problemWithAssMapping[finalSub.problem.id].status = 'secondary';
           return;
         }

@@ -47,4 +47,5 @@ export default {
   'exception.time.start-finish.required': 'Vui lòng nhập thời gian bắt đầu và kết thúc!',
   'exception.time.start-after-finish': 'Thời gian kết thúc cần lớn hơn thời gian bắt đầu!',
   'exception.email.invalid': 'Định dạng email không phù hợp',
+  'exception.component.form.miss-data': 'Thiếu dữ liệu để xử lý yêu cầu này!',
 };

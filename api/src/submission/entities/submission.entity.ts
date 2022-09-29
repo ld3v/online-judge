@@ -7,12 +7,15 @@ import {
   DeleteDateColumn,
   BeforeInsert,
   ManyToOne,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { nanoid } from 'nanoid';
 import { Problem } from 'src/problem/entities/problem.entity';
 import { Assignment } from 'src/assignment/entities/assignment.entity';
 import { Account } from 'src/account/entities/account.entity';
 import { Language } from 'src/language/entities/language.entity';
+import { Queue } from 'src/queue/entities/queue.entity';
 
 @Entity({ name: 'submission' })
 export class Submission {
@@ -34,11 +37,11 @@ export class Submission {
   public pre_score: number;
 
   // [NEED-CHECK]
-  @Column({
-    name: 'status',
-    default: '',
-  })
-  public status: string;
+  // @Column({
+  //   name: 'status',
+  //   default: '',
+  // })
+  // public status: string;
 
   @Column({
     name: 'coefficient',
@@ -81,9 +84,18 @@ export class Submission {
   @ManyToOne(() => Language, (language) => language.submissions)
   language: Language;
 
+  @OneToOne(() => Queue)
+  @JoinColumn()
+  queue: Queue
+
   @BeforeInsert()
   updateID() {
     const idStr = nanoid(16);
-    this.id = `SMSx${idStr}`;
+    this.id = this.id || `SMSx${idStr}`;
+  }
+
+  public static genId() {
+    const idStr = nanoid(16);
+    return `SMSx${idStr}`;
   }
 }

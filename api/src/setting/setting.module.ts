@@ -8,9 +8,9 @@ import { AssignmentModule } from 'src/assignment/assignment.module';
 import { LanguageModule } from 'src/language/language.module';
 import { LoggerModule } from 'src/logger/logger.module';
 import { ProblemModule } from 'src/problem/problem.module';
-import { SettingProcessor } from 'src/queue/processor/setting.processor';
 import { QueueModule } from 'src/queue/queue.module';
 import { SettingController } from './setting.controller';
+import { SettingProcessor } from './setting.processor';
 import { SettingRepository } from './setting.repository';
 import { SettingService } from './setting.service';
 

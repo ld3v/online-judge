@@ -47,4 +47,5 @@ export default {
   'exception.time.start-finish.required': 'Please enter start time & finish-time!',
   'exception.time.start-after-finish': 'Start-time need to be after finish-time!',
   'exception.email.invalid': 'Email\'s format is invalid!',
+  'exception.component.form.miss-data': 'Miss data to handle this request!',
 };

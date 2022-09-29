@@ -1,5 +1,5 @@
 import { TAssignment } from '@/types/assignment';
-import { Modal, ModalProps, Skeleton } from 'antd';
+import { Form, Modal, ModalProps, notification, Skeleton } from 'antd';
 import { connect, useIntl } from 'umi';
 import AssignmentProblems from '../AssignmentProblems';
 import DoProblem from '../AssignmentProblems/DoProblem';
@@ -9,6 +9,7 @@ interface IModalViewProblems extends ModalProps {
   visible?: boolean;
   assignment?: TAssignment;
   assignmentId?: string;
+  isSubmittingCode?: boolean;
   dispatch?: any;
 }
 
@@ -26,12 +27,44 @@ const ModalViewProblems: React.FC<IModalViewProblems> = ({
   assignmentId,
   loading,
   visible,
+  isSubmittingCode,
   dispatch,
 }) => {
+  const [doProblemForm] = Form.useForm();
   const intl = useIntl();
 
   const handleClose = () => {
     dispatch({ type: 'assignments/setPreviewSelected' });
+    doProblemForm?.resetFields();
+  };
+
+  const handleChangeProblem = (problemId: string) => {
+    doProblemForm?.setFieldsValue({ problemId });
+  };
+
+  const handleSubmit = (values: any) => {
+    const { assignmentId, problemId, languageExtension, code } = values;
+    if (!assignmentId || !problemId || !languageExtension) {
+      console.log(values);
+      notification.error({
+        message: intl.formatMessage({ id: 'exception.component.form.miss-data' }),
+      });
+      return;
+    }
+    const submitCodeCb = (res: any, err?: any) => {
+      console.log(res);
+      if (err) console.error(err);
+    };
+    dispatch({
+      type: 'submission/createWithCode',
+      payload: {
+        assignmentId,
+        problemId,
+        languageExtension,
+        code,
+        callback: submitCodeCb,
+      },
+    });
   };
 
   const modalBaseProps: ModalProps = {
@@ -68,20 +101,29 @@ const ModalViewProblems: React.FC<IModalViewProblems> = ({
 
   return (
     <Modal {...modalBaseProps} title={assignment.name}>
-      <AssignmentProblems assignmentId={assignmentId} />
+      <AssignmentProblems assignmentId={assignmentId} onChangeProblem={handleChangeProblem} />
       <DoProblem
+        onFinish={handleSubmit}
         codeEditorProps={{
-          enableSnippets: true,
-          enableLiveAutocompletion: true,
-          enableBasicAutocompletion: true,
+          setOptions: {
+            enableSnippets: true,
+            enableLiveAutocompletion: true,
+            enableBasicAutocompletion: true,
+          },
+        }}
+        form={doProblemForm}
+        isSubmitting={isSubmittingCode}
+        initialValues={{
+          assignmentId,
         }}
       />
     </Modal>
   );
 };
 
-export default connect(({ assignments }: any) => {
+export default connect(({ assignments, loading }: any) => {
   return {
+    isSubmittingCode: loading.effects['submission/createWithCode'],
     visible: !!assignments.previewSelected,
     assignmentId: assignments.previewSelected,
     assignment: assignments.dic[assignments.previewSelected],

@@ -19,7 +19,6 @@ const DisableAccount: React.FC<IDisableAccount> = ({
   const intl = useIntl();
 
   if (!account || account.isRoot) {
-    console.log(account);
     return null;
   }
 

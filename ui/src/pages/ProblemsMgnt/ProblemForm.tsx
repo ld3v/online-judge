@@ -113,7 +113,6 @@ const ProblemForm: React.FC<IProblemForm> = ({
               ({ getFieldValue }) => ({
                 validator() {
                   const diffCommand = getFieldValue(['diff_command', 'command']);
-                  console.log(diffCommand);
                   if (diffCommand && diffCommand.trim() !== '') {
                     return Promise.resolve();
                   }

@@ -16,21 +16,21 @@ const startServer = spawn(/^win/.test(process.platform) ? 'npm.cmd' : 'npm', ['r
 
 startServer.stderr.on('data', (data) => {
   // eslint-disable-next-line
-  console.log(data.toString());
+  console.info(data.toString());
 });
 
 startServer.on('exit', () => {
   kill(process.env.PORT || 8000);
 });
 
-console.log('Starting development server for e2e tests...');
+console.info('Starting development server for e2e tests...');
 startServer.stdout.on('data', (data) => {
-  console.log(data.toString());
+  console.info(data.toString());
   // hack code , wait umi
   if (!once && data.toString().indexOf('Serving your umi project!') >= 0) {
     // eslint-disable-next-line
     once = true;
-    console.log('Development server is started, ready to run tests.');
+    console.info('Development server is started, ready to run tests.');
     const testCmd = spawn(
       /^win/.test(process.platform) ? 'npm.cmd' : 'npm',
       ['run', 'playwright'],
@@ -39,7 +39,7 @@ startServer.stdout.on('data', (data) => {
       },
     );
     testCmd.on('exit', (code) => {
-      console.log('服务已经退出，退出码：', code);
+      console.info('The service has exited, exit code:', code);
       startServer.kill();
       process.exit(code);
     });

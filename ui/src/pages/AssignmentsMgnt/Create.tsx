@@ -13,7 +13,6 @@ const CreateAssignmentPage: React.FC<ICreateAssignmentPage> = ({ dispatch }) => 
 
   const handleSubmit = (data: any) => {
     const callback = (res: any) => {
-      console.log(res);
       if (res) {
         notification.success({ message: intl.formatMessage({ id: 'assignment.create.success' }) });
         history.push('/assignments-manage');

@@ -1,12 +1,15 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bull';
+import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { AccountService } from 'src/account/account.service';
 import { AssignmentService } from 'src/assignment/assignment.service';
 import RequestWithAccount from 'src/auth/dto/reqWithAccount.interface';
 import JwtAuthGuard from 'src/auth/gaurd/jwtAuth.gaurd';
+import { LanguageService } from 'src/language/language.service';
 import { ProblemService } from 'src/problem/problem.service';
 import { isAdmin } from 'utils/func';
+import CreateDto from './dto/create.dto';
 import { SubmissionService } from './submission.service';
-import { SubmissionFilter } from './submission.types';
+import { IAddSubmission, SubmissionFilter } from './submission.types';
 
 @Controller('submission')
 export class SubmissionController {
@@ -15,6 +18,7 @@ export class SubmissionController {
     private readonly assignmentService: AssignmentService,
     private readonly accountService: AccountService,
     private readonly problemService: ProblemService,
+    private readonly languageService: LanguageService,
   ) {}
 
   @Get('')
@@ -53,6 +57,36 @@ export class SubmissionController {
         assignment: assignmentData,
         total,
       };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  async createSubmission (
+    @Req() { user }: RequestWithAccount,
+    @Body() data: CreateDto,
+  ) {
+    try {
+      // Get and check exist input
+      const assignment = await this.assignmentService.getById(data.assignmentId);
+      const problem = await this.problemService.getById(data.problemId);
+      const language = await this.languageService.getByExtension(data.languageExtension);
+
+      const submissionData: IAddSubmission = {
+        assignment,
+        problem,
+        language,
+        code: data.code,
+      };
+
+      const addSubmit = await this.submissionService.create(
+        submissionData,
+        user,
+        language.extension,
+      );
+      return addSubmit;
     } catch (err) {
       throw err;
     }

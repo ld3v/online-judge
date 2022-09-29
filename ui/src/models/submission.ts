@@ -1,4 +1,4 @@
-import { getSubmission } from '@/services/submission';
+import { getSubmission, submitCode } from '@/services/submission';
 import { array2Map } from '@/utils/funcs';
 import type { Model } from 'dva';
 import type { Effect, Reducer } from 'umi';
@@ -12,6 +12,7 @@ interface ISubmissionModel extends Model {
   state: TSubmission;
   effects: {
     search: Effect;
+    createWithCode: Effect;
   };
   reducers: {
     saveCurrent: Reducer;
@@ -26,6 +27,25 @@ const SubmissionModel: ISubmissionModel = {
     dic: {},
   },
   effects: {
+    *createWithCode({ payload }, { call, put }): Generator<any, any, any> {
+      const { assignmentId, problemId, languageExtension, code, callback } = payload || {};
+      try {
+        const res = yield call(submitCode, {
+          assignmentId,
+          problemId,
+          languageExtension,
+          code,
+        });
+        if (res.isError) {
+          callback?.(false, res);
+          return;
+        }
+        callback?.(res);
+      } catch (err) {
+        console.error('[ERROR] - [DISPATCH] - [SUBMISSION/SUBMIT]:', err);
+        callback?.(false, err);
+      }
+    },
     *search({ payload }, { call, put }): Generator<any, any, any> {
       const { assignmentId, accountId, problemId, langId, page, limit, callback } = payload || {};
       try {

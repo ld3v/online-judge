@@ -6,8 +6,8 @@ import { ProblemLanguage } from "src/problem/entities/problem_language.entity";
 import { ProblemService } from "src/problem/problem.service";
 import { SettingService } from "src/setting/setting.service";
 import { array2Map, reserveMapping } from "utils/func";
-import { QueueState } from "../queue.enum";
-import { QueueService } from "../queue.service";
+import { QueueState } from "../queue/queue.enum";
+import { QueueService } from "../queue/queue.service";
 
 export const SYNC_PROCESS_KEY = {
   ASSIGNMENT: "assignment",

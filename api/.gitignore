@@ -1,7 +1,7 @@
 # Folder need to ignore
 node_modules/
 dist/
-fileUpload/
+upload/
 
 # File need to ignore
 .env

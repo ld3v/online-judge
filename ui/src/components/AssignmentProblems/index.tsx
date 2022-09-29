@@ -9,7 +9,7 @@ import { TAssignment } from '@/types/assignment';
 import styles from './styles.less';
 
 interface IAssignmentProblems {
-  assignmentId: string;
+  assignmentId?: string;
   // From dispatch
   dispatch?: any;
   currentAccount?: any;
@@ -32,13 +32,17 @@ const AssignmentProblems: React.FC<IAssignmentProblems> = ({
 
   const [problemViewing, setProblemViewing] = useState<string>('');
 
+  const handleSelectProblem = (id: string) => {
+    setProblemViewing(id);
+    onChangeProblem?.(id);
+  };
+
   const handleGetProblems = (id: string) => {
     const callback = (res: any) => {
       if (!res) {
         return;
       }
-      console.log(res);
-      setProblemViewing(res.problemIds[0]);
+      handleSelectProblem(res.problemIds[0]);
     };
     dispatch({
       type: 'assignments/getProblems',
@@ -48,10 +52,6 @@ const AssignmentProblems: React.FC<IAssignmentProblems> = ({
       },
     });
   };
-  const handleSelectProblem = (id: string) => {
-    setProblemViewing(id);
-    onChangeProblem?.(id);
-  };
 
   useEffect(() => {
     if (assignmentId) {
@@ -59,7 +59,6 @@ const AssignmentProblems: React.FC<IAssignmentProblems> = ({
     }
   }, [assignmentId]);
 
-  console.log(assignmentId);
   if (!assignmentId) {
     return null;
   }
@@ -80,7 +79,6 @@ const AssignmentProblems: React.FC<IAssignmentProblems> = ({
 
   const renderProblemContent = () => {
     if (problemViewing) {
-      console.log(problemViewing);
       return (
         <>
           <div className={styles.ProblemTitle}>
@@ -123,7 +121,7 @@ const AssignmentProblems: React.FC<IAssignmentProblems> = ({
   );
 };
 
-export default connect(({ assignments, loading }: any, { assignmentId }: any) => {
+export default connect(({ assignments, loading }: any, { assignmentId }: IAssignmentProblems) => {
   const assignmentData = assignmentId ? assignments.dic[assignmentId] : { problems: [] };
   const { problems } = assignmentData || { problems: [] };
   return {

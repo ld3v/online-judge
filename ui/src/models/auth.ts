@@ -109,7 +109,6 @@ const AuthModel: IAuthModel = {
     *resetPassword({ payload }, { call }): Generator<any, any, any> {
       const { token, password, callback } = payload || {};
       const res = yield call(resetPassword, token, password);
-      console.log(res);
       if (res.isError) {
         callback?.(res, false);
         return;
@@ -119,7 +118,6 @@ const AuthModel: IAuthModel = {
     *validate({ payload }, { call }): Generator<any, any, any> {
       const { token, callback } = payload || {};
       const res = yield call(validateEmail, token);
-      console.log(res);
       if (res.isError) {
         callback?.(res, false);
         return;

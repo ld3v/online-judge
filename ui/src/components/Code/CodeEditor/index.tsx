@@ -1,11 +1,11 @@
 import { Select } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import AceEditor, { IAceEditorProps } from 'react-ace';
 
 import languages, { TCodeEditorLang } from './language';
 import themes from './themes';
 import styles from './styles.less';
-import { mapLang } from './utils';
+import { codeEditorLang2langExt, langExt2CodeEditorLang } from './utils';
 import { connect } from 'umi';
 
 // Load initial modes & themes
@@ -13,11 +13,17 @@ languages.forEach((lang) => {
   import(`ace-builds/src-noconflict/mode-${lang}`);
   import(`ace-builds/src-noconflict/snippets/${lang}`);
 });
+const languageExtSupported: string[] = languages.map((l) => codeEditorLang2langExt[l]).flat();
+
 themes.forEach((theme) => import(`ace-builds/src-noconflict/theme-${theme}`));
+import('ace-builds/src-noconflict/ext-searchbox');
+import('ace-builds/src-noconflict/ext-language_tools');
+import('ace-builds/webpack-resolver');
 
 export interface ICodeEditor extends IAceEditorProps {
-  languageAvailable?: TCodeEditorLang[];
-  langs?: any[];
+  languageExtensionAvailable?: TCodeEditorLang[];
+  onChangeLang?: (newLang: TCodeEditorLang) => void;
+  langs?: { ext: string; name: string }[];
   dispatch?: any;
 }
 
@@ -26,22 +32,39 @@ const themeOptions = themes.map((theme) => ({ value: theme, label: theme }));
 
 const CodeEditor: React.FC<ICodeEditor> = ({
   onChange,
+  onChangeLang,
   value,
-  languageAvailable,
+  languageExtensionAvailable,
   langs,
   dispatch,
   ...editorProps
 }) => {
-  const langExt = (langs || []).map((l) => l.ext);
-  const langExtAvailable = languageAvailable || langExt || [];
+  // langExtAvailable = "langExtSupported" JOIN (langExtensionAvailable from user | langExt from db)
+  const langExtAvailable = useMemo(() => {
+    const langExt = (langs || []).map((l) => l.ext);
+    const langExtensionAvailable = languageExtensionAvailable || langExt || [];
+    return langExtensionAvailable.length > 0
+      ? languageExtSupported.filter((ext) => langExtensionAvailable.includes(ext))
+      : languageExtSupported;
+  }, [langs, languageExtensionAvailable]);
 
-  const [codeLang, setLang] = useState<string>(
-    langExtAvailable.length > 0 ? langExtAvailable[0] : '',
-  );
+  const [codeLang, setLang] = useState<TCodeEditorLang | undefined>(undefined);
   const [codeTheme, setTheme] = useState<string>(themeDefault);
 
+  const handleChangeLang = (codeLang: TCodeEditorLang) => {
+    setLang(codeLang);
+    onChangeLang?.(codeLang);
+  };
+
   useEffect(() => {
-    dispatch({ type: 'language/get' });
+    const setLangCb = (langs: any) => {
+      if (Array.isArray(langs) && langs.length > 0) {
+        console.log(langExtAvailable, langs);
+        const langsSupported = langs.filter((l) => langExtAvailable.includes(l.extension));
+        handleChangeLang(langsSupported[0].extension);
+      }
+    };
+    dispatch({ type: 'language/get', payload: { callback: setLangCb } });
   }, []);
 
   // Language options
@@ -52,12 +75,16 @@ const CodeEditor: React.FC<ICodeEditor> = ({
   return (
     <div className={styles.CodeEditor}>
       <div className={styles.Header}>
-        <Select options={langOptions} onChange={(v) => setLang(v)} value={codeLang} />
+        <Select<TCodeEditorLang>
+          options={langOptions}
+          onChange={(v: TCodeEditorLang) => handleChangeLang(v)}
+          value={codeLang}
+        />
         <Select options={themeOptions} onChange={(v) => setTheme(v)} value={codeTheme} />
       </div>
       <div className={styles.Editor}>
         <AceEditor
-          mode={mapLang[codeLang]}
+          mode={codeLang ? langExt2CodeEditorLang[codeLang] : undefined}
           theme={codeTheme}
           onChange={onChange}
           name="ACE_CODE_EDITOR"

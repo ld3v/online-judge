@@ -14,7 +14,7 @@ export class LocalFileController {
   @Post('multi')
   @UseInterceptors(MultiFileInterceptor({
     fieldName: 'test',
-    path: '/test',
+    path: '/test-upload-feature',
     fileFilter: (_, file, callback) => {
       console.log(' ================ UPLOAD / INTERCEPTOR ================== ');
       console.log(' File:');

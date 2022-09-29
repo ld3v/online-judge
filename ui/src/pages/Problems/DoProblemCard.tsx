@@ -13,7 +13,7 @@ const DoProblemCard: React.FC<IDoProblem> = ({ disabled }) => {
   const intl = useIntl();
 
   const handleSubmit = (values: any) => {
-    console.log(values);
+    return;
   };
 
   return (
