@@ -1,7 +1,8 @@
 import ActionIcons from '@/components/ActionIcons';
 import CardWrapTable from '@/components/CardWrapTable';
 import { EMPTY_VALUE } from '@/utils/constants';
-import { TableProps } from 'antd';
+import { TablePaginationConfig, TableProps } from 'antd';
+import { SorterResult } from 'antd/lib/table/interface';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { connect, useIntl } from 'umi';
@@ -24,7 +25,36 @@ const MyAssignments: React.FC<IMyAssignments> = ({
   viewingId,
 }) => {
   const [currentIds, setCurrentIds] = useState<string[]>([]);
+  const [totalAssignments, setTotalAssignments] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const intl = useIntl();
+
+  const handleTableChange = (
+    { current }: TablePaginationConfig,
+    _: any,
+    sorter: SorterResult<any> | SorterResult<any>[],
+  ) => {
+    const { columnKey, order } = Array.isArray(sorter) ? sorter[0] : sorter;
+    const changePageCb = (data: any) => {
+      if (!data) {
+        return;
+      }
+      setCurrentIds(data.keys);
+      setTotalAssignments(data.total);
+      setCurrentPage(current || 1);
+    };
+    dispatch({
+      type: 'assignments/search',
+      payload: {
+        callback: changePageCb,
+        page: current || 1,
+        limit: 10,
+        sorter_field: columnKey || 'created_at',
+        sorter_type: order === 'ascend' ? 'ASC' : 'DESC',
+      },
+    });
+  };
+
   const columns: TableColumnsProps = [
     {
       title: intl.formatMessage({ id: 'component.table.name' }),
@@ -55,14 +85,16 @@ const MyAssignments: React.FC<IMyAssignments> = ({
     },
     {
       title: intl.formatMessage({ id: 'assignment.table.start-time' }),
-      key: 'start-time',
+      key: 'start_time',
+      sorter: true,
       width: 150,
       dataIndex: 'startTime',
       render: (time) => (time ? moment(time).format('DD/MM/YYYY HH:mm') : EMPTY_VALUE),
     },
     {
       title: intl.formatMessage({ id: 'assignment.table.finish-time' }),
-      key: 'finish-time',
+      key: 'finish_time',
+      sorter: true,
       width: 150,
       dataIndex: 'finishTime',
       render: (time) => (time ? moment(time).format('DD/MM/YYYY HH:mm') : EMPTY_VALUE),
@@ -104,9 +136,15 @@ const MyAssignments: React.FC<IMyAssignments> = ({
       loading={loadingAssignments}
       dataSource={currentIds.map((id) => assignmentDic[id])}
       tableLayout="fixed"
-      pagination={false}
+      pagination={{
+        current: currentPage,
+        total: totalAssignments,
+        pageSize: 10,
+        showSizeChanger: false,
+      }}
       scroll={{ x: '100%' }}
       rowKey="id"
+      onChange={handleTableChange}
     />
   );
 };

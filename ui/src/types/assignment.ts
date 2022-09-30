@@ -1,6 +1,9 @@
 import { TSearchQuery } from ".";
 
-export type TAssignmentSearchQuery = TSearchQuery;
+export type TAssignmentSearchQuery = TSearchQuery & {
+  sorter_field: string;
+  sorter_type: 'ASC' | 'DESC';
+};
 export type TAssignmentCoefficientRule = {
   start: Date,
   finish?: Date,

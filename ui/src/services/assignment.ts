@@ -13,13 +13,15 @@ export const getCoefficient = ({ rule, start, finish, extra }: TAssignmentCoeffi
   })
 }
 
-export const getAllAssignments = ({ keyword, except, page, limit }: TAssignmentSearchQuery): Promise<{ data: TAssignment[], total: number }> => {
+export const getAllAssignments = ({ keyword, except, page, limit, sorter_field, sorter_type }: TAssignmentSearchQuery): Promise<{ data: TAssignment[], total: number }> => {
   return request('/assignment', {
     params: {
       keyword: keyword || '',
       except: except?.join(',') || '',
       page,
-      limit
+      limit,
+      sorter_field,
+      sorter_type,
     },
   });
 };

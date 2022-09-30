@@ -74,7 +74,7 @@ export class NotificationService {
       .leftJoinAndSelect("notify.created_by", "account")
       .select(["notify.id", "notify.title", "notify.text", "notify.created_at", "account.display_name"])
       .orderBy("notify.created_at", "DESC")
-      .limit(limit)
+      .take(limit)
       .getMany();
     return notifications;
   }

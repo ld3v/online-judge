@@ -10,6 +10,7 @@ export default {
   'problem.delete.success': 'Delete problem successfully',
   'problem.search': 'Search with name, or note,...',
   'problem.assignment-using.extra': '+ {count} {count, plural, one {assignment}, other {assignments}',
+  'problem.lang-using.extra': '+ {count} {count, plural, one {language}, other {languages}',
   'problem.my.no-assignment-selected': 'No assignment was selected! Select an assignment to continue!',
   'problem.my.assignment-not-found': 'Assignment not found! Select an assignment to continue!',
   // Table

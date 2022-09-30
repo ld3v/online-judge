@@ -2,7 +2,8 @@ import ActionIcons from '@/components/ActionIcons';
 import CardWrapTable, { CardWrapTableAction } from '@/components/CardWrapTable';
 import ModalViewProblems from '@/components/Modal/ModalViewProblems';
 import { EMPTY_VALUE } from '@/utils/constants';
-import { notification, TableProps } from 'antd';
+import { notification, TablePaginationConfig, TableProps } from 'antd';
+import { SorterResult } from 'antd/lib/table/interface';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { connect, useHistory, useIntl } from 'umi';
@@ -21,6 +22,9 @@ const AssignmentMgntPage: React.FC<IAssignmentMgntPage> = ({
   loadingAssignments,
 }) => {
   const [currentAssignmentIds, setCurrentAssignmentIds] = useState<string[]>([]);
+  const [currentKeyword, setCurrentKeyword] = useState<string>('');
+  const [totalAssignment, setTotalAssignments] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const intl = useIntl();
   const history = useHistory();
 
@@ -91,15 +95,17 @@ const AssignmentMgntPage: React.FC<IAssignmentMgntPage> = ({
     },
     {
       title: intl.formatMessage({ id: 'assignment.table.start-time' }),
-      key: 'start-time',
-      width: 150,
+      key: 'start_time',
+      width: 170,
+      sorter: true,
       dataIndex: 'startTime',
       render: (time) => moment(time).format('DD/MM/YYYY HH:mm'),
     },
     {
       title: intl.formatMessage({ id: 'assignment.table.finish-time' }),
-      key: 'finish-time',
-      width: 150,
+      key: 'finish_time',
+      width: 170,
+      sorter: true,
       dataIndex: 'finishTime',
       render: (time) => (time ? moment(time).format('DD/MM/YYYY HH:mm') : EMPTY_VALUE),
     },
@@ -141,17 +147,51 @@ const AssignmentMgntPage: React.FC<IAssignmentMgntPage> = ({
   ];
 
   const handleSearch = (keyword?: string) => {
+    setCurrentKeyword(keyword || '');
     const callback = (data: any) => {
       if (!data) {
         return;
       }
       setCurrentAssignmentIds(data.keys);
+      setTotalAssignments(data.total);
+      setCurrentPage(1);
     };
     dispatch({
       type: 'assignments/search',
       payload: {
         callback,
         keyword,
+        page: 1,
+        limit: 10,
+        sorter_field: 'created_at',
+        sorter_type: 'DESC',
+      },
+    });
+  };
+
+  const handleTableChange = (
+    { current }: TablePaginationConfig,
+    _: any,
+    sorter: SorterResult<any> | SorterResult<any>[],
+  ) => {
+    const { columnKey, order } = Array.isArray(sorter) ? sorter[0] : sorter;
+    const changePageCb = (data: any) => {
+      if (!data) {
+        return;
+      }
+      setCurrentAssignmentIds(data.keys);
+      setTotalAssignments(data.total);
+      setCurrentPage(current || 1);
+    };
+    dispatch({
+      type: 'assignments/search',
+      payload: {
+        callback: changePageCb,
+        keyword: currentKeyword,
+        page: current || 1,
+        limit: 10,
+        sorter_field: columnKey || 'created_at',
+        sorter_type: order === 'ascend' ? 'ASC' : 'DESC',
       },
     });
   };
@@ -172,7 +212,13 @@ const AssignmentMgntPage: React.FC<IAssignmentMgntPage> = ({
           onSearch: (k) => handleSearch(k),
         }}
         tableLayout="fixed"
-        pagination={false}
+        pagination={{
+          total: totalAssignment,
+          current: currentPage,
+          pageSize: 10,
+          showSizeChanger: false,
+        }}
+        onChange={handleTableChange}
         scroll={{ x: '100%' }}
         rowKey="id"
       />

@@ -1,9 +1,10 @@
 import ActionIcons from '@/components/ActionIcons';
 import CardWrapTable, { CardWrapTableAction } from '@/components/CardWrapTable';
-import { MAX_ASSIGNMENTS_USING_PROBLEM } from '@/utils/constants';
-import { notification, TableProps, Tag, Tooltip } from 'antd';
+import MultiTags from '@/components/MultiTags';
+import { EMPTY_VALUE } from '@/utils/constants';
+import { notification, TablePaginationConfig, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
-import { connect, FormattedMessage, useHistory, useIntl } from 'umi';
+import { connect, useHistory, useIntl } from 'umi';
 
 type TableColumnsProps = TableProps<any>['columns'];
 
@@ -22,6 +23,8 @@ const ProblemMgntPage: React.FC<IProblemMgntPage> = ({
 }) => {
   const [currentKeyword, setCurrentKeyword] = useState<string>('');
   const [currentIds, setCurrentIds] = useState<string[]>([]);
+  const [total, setTotal] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const intl = useIntl();
   const history = useHistory();
 
@@ -64,6 +67,7 @@ const ProblemMgntPage: React.FC<IProblemMgntPage> = ({
       key: 'adminNote',
       width: 200,
       dataIndex: 'note',
+      render: (note) => note || EMPTY_VALUE,
     },
     {
       title: intl.formatMessage({ id: 'assignment.table.language' }),
@@ -71,44 +75,33 @@ const ProblemMgntPage: React.FC<IProblemMgntPage> = ({
       width: 120,
       dataIndex: 'languages',
       filters: filterLangs,
-      render: (langs) =>
-        Array.isArray(langs) && langs.length > 0
-          ? langs.map((lang) => <Tag key={lang.id}>{lang.name}</Tag>)
-          : intl.formatMessage({ id: 'problem.no-langs' }),
+      render: (languages) => (
+        <MultiTags
+          items={languages}
+          itemKey="id"
+          displayKey="name"
+          extraItemsMsgId="problem.lang-using.extra"
+          emptyMsgId="problem.no-langs"
+          numItemsDisplay={2}
+        />
+      ),
     },
     {
       title: intl.formatMessage({ id: 'assignment.table.problem-used-in-which-assignment' }),
       key: 'usedAssignments',
       width: 190,
       dataIndex: 'assignments',
-      render: (assignments) => {
-        const assLength = assignments.length;
-        if (!assLength) return intl.formatMessage({ id: 'problem.no-assignments' });
-        const extraItems = assignments
-          .slice(MAX_ASSIGNMENTS_USING_PROBLEM)
-          .map((assignment: any) => assignment.name)
-          .join(', ');
-        const extraItemsRender =
-          assLength - MAX_ASSIGNMENTS_USING_PROBLEM > 0 ? (
-            <Tooltip title={extraItems}>
-              <Tag>
-                <FormattedMessage
-                  id="problem.assignment-using.extra"
-                  values={{ count: assLength - MAX_ASSIGNMENTS_USING_PROBLEM }}
-                />
-              </Tag>
-            </Tooltip>
-          ) : null;
-        const renderItems = assignments
-          .slice(0, MAX_ASSIGNMENTS_USING_PROBLEM)
-          .map((assignment: any) => <Tag key={assignment.id}>{assignment.name}</Tag>);
-        return (
-          <>
-            {renderItems}
-            {extraItemsRender}
-          </>
-        );
-      },
+      render: (assignments) => (
+        <MultiTags
+          items={assignments}
+          itemKey="id"
+          displayKey="name"
+          extraItemsMsgId="problem.assignment-using.extra"
+          emptyMsgId="problem.no-assignments"
+          numItemsDisplay={1}
+          isOverflowText={true}
+        />
+      ),
     },
     {
       title: intl.formatMessage({ id: 'component.table.action' }),
@@ -132,6 +125,7 @@ const ProblemMgntPage: React.FC<IProblemMgntPage> = ({
   ];
 
   const handleSearch = (
+    page: number = 1,
     keyword?: string,
     filter?: { assignmentIds?: string[]; langIds?: string[] },
   ) => {
@@ -140,6 +134,8 @@ const ProblemMgntPage: React.FC<IProblemMgntPage> = ({
         return;
       }
       setCurrentIds(res.keys);
+      setTotal(res.total);
+      setCurrentPage(page);
     };
     dispatch({
       type: 'problem/search',
@@ -148,16 +144,18 @@ const ProblemMgntPage: React.FC<IProblemMgntPage> = ({
         keyword,
         assignmentIds: filter?.assignmentIds?.join(','),
         langIds: filter?.langIds?.join(','),
+        page,
+        limit: 10,
       },
     });
   };
 
-  const handleTableChange = (_: any, filters: any) => {
+  const handleTableChange = ({ current }: TablePaginationConfig, filters: any) => {
     const { usedLanguages } = filters;
     const filtersParams = {
       langIds: usedLanguages || [],
     };
-    handleSearch(currentKeyword, filtersParams);
+    handleSearch(current, currentKeyword, filtersParams);
   };
 
   useEffect(() => {
@@ -175,14 +173,19 @@ const ProblemMgntPage: React.FC<IProblemMgntPage> = ({
         placeholder: intl.formatMessage({ id: 'problem.search' }),
         onSearch: (k) => {
           setCurrentKeyword(k);
-          handleSearch(k);
+          handleSearch(1, k);
         },
       }}
       loading={loadingProblems}
       onChange={handleTableChange}
       tableLayout="fixed"
       scroll={{ x: '100%' }}
-      pagination={false}
+      pagination={{
+        current: currentPage,
+        total,
+        pageSize: 10,
+        showSizeChanger: false,
+      }}
       rowKey="id"
     />
   );

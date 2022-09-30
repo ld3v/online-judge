@@ -84,9 +84,9 @@ const AssignmentModel: IAssignmentModel = {
       }
     },
     *search({ payload }, { call, put }): Generator<any, any, any> {
-      const { keyword, except, page, limit, callback } = payload || {};
+      const { keyword, except, page, limit, sorter_field, sorter_type, callback } = payload || {};
       try {
-        const res = yield call(getAllAssignments, { keyword, except, page, limit });
+        const res = yield call(getAllAssignments, { keyword, except, page, limit, sorter_field, sorter_type });
         if (res.isError) {
           callback?.(false, res);
           return;

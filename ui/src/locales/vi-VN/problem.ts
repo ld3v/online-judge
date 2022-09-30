@@ -11,6 +11,7 @@ export default {
   'problem.do-problem.title': 'Bài làm',
   'problem.search': 'Tìm bằng tên hoặc chú thích,...',
   'problem.assignment-using.extra': '+ {count} bài thi',
+  'problem.lang-using.extra': '+ {count} ngôn ngữ',
   'problem.my.no-assignment-selected': 'Không có bài thi nào được chọn! Chọn 1 bài thi bên dưới để tiếp tục!',
   'problem.my.assignment-not-found': 'Không tìm thấy bài thi! Chọn 1 bài thi bên dưới để tiếp tục!',
   // Table

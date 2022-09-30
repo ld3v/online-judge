@@ -23,6 +23,8 @@ import { Assignment } from './entities/assignment.entity';
 import { AssignmentAccount } from './entities/assignment_account.entity';
 import { AssignmentProblem } from './entities/assignment_problem.entity';
 
+const SORTER_FIELDS = ['start_time', 'finish_time'];
+
 @Injectable()
 export class AssignmentService {
   constructor(
@@ -328,15 +330,18 @@ export class AssignmentService {
         { exceptIds }
       )
     }
-    if (sorter) {
-      assignmentQuery = assignmentQuery.orderBy(sorter.field, sorter.type);
+    if (sorter && SORTER_FIELDS.includes(sorter.field) && sorter.type) {
+      assignmentQuery = assignmentQuery.orderBy(
+        `assignment.${sorter.field}`,
+        sorter.type,
+      );
     }
     const countItems = await assignmentQuery.getCount();
     // Pagination
     const pageSkip = Number(page) - 1;
     const limitItem = Number(limit);
-    if (!Number.isNaN(pageSkip) && !Number.isNaN(limitItem) && limit > 0 && Number(page) > 0) {
-      assignmentQuery = assignmentQuery.limit(limit).skip(limit * (page - 1));
+    if (!Number.isNaN(pageSkip) && !Number.isNaN(limitItem) && limitItem > 0 && pageSkip >= 0) {
+      assignmentQuery = assignmentQuery.skip(limitItem * pageSkip).take(limitItem);
     }
 
     let assignments = await assignmentQuery.getMany();

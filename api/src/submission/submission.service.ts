@@ -116,8 +116,8 @@ export class SubmissionService {
     // Pagination
     const pageSkip = Number(page) - 1;
     const limitItem = Number(limit);
-    if (!Number.isNaN(pageSkip) && !Number.isNaN(limitItem) && limit > 0 && Number(page) > 0) {
-      submissionsQuery = submissionsQuery.limit(limit).skip(limit * (page - 1));
+    if (!Number.isNaN(pageSkip) && !Number.isNaN(limitItem) && limitItem > 0 && pageSkip >= 0) {
+      submissionsQuery = submissionsQuery.skip(limitItem * pageSkip).take(limitItem);
     }
     const submissions =  await submissionsQuery.getMany();
     return {

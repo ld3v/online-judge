@@ -173,8 +173,8 @@ export class ProblemService {
     const countItems = await problemItemsQuery.getCount();
     const pageSkip = Number(page) - 1;
     const limitItem = Number(limit);
-    if (!Number.isNaN(pageSkip) && !Number.isNaN(limitItem) && limit > 0 && Number(page) > 0) {
-      problemItemsQuery = problemItemsQuery.limit(limit).skip(limit * (page - 1));
+    if (!Number.isNaN(pageSkip) && !Number.isNaN(limitItem) && limitItem > 0 && pageSkip >= 0) {
+      problemItemsQuery = problemItemsQuery.skip(limitItem * pageSkip).take(limitItem);
     }
     const problems = await problemItemsQuery.getMany();
     return {
