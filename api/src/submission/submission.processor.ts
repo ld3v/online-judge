@@ -12,7 +12,7 @@ export class SubmissionProcessor {
   ) {}
 
   @Process('submission')
-  async handleSyncAllData(job: Job) {
+  async handleSubmission(job: Job) {
     try {
       this.logger.log(`Processing submission - job#${job.id} - queueEntity#${job.data.queueId}`, undefined, 0, "NEW");
       

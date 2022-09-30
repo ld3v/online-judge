@@ -12,10 +12,10 @@ interface IProblemList {
   // From dispatch
   currentAccount?: any;
   assignment?: TAssignment;
-  assignmentLoading?: boolean;
+  onChangeProblem?: (id: string) => void;
 }
 
-const ProblemList: React.FC<IProblemList> = ({ currentAccount, assignment, assignmentLoading }) => {
+const ProblemList: React.FC<IProblemList> = ({ currentAccount, assignment, onChangeProblem }) => {
   const { assignmentId }: any = useParams();
 
   if (!assignmentId && currentAccount?.selectedAssignment) {
@@ -48,7 +48,7 @@ const ProblemList: React.FC<IProblemList> = ({ currentAccount, assignment, assig
       }
       className={styles.ProblemList}
     >
-      <AssignmentProblems assignmentId={assignmentId} />
+      <AssignmentProblems assignmentId={assignmentId} onChangeProblem={onChangeProblem} />
     </Card>
   );
 };

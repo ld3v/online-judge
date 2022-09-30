@@ -58,6 +58,7 @@ export class Language {
     onDelete: 'CASCADE',
   })
   public problems: ProblemLanguage[];
+  
   @OneToMany(() => Submission, (submission) => submission.language, {
     onDelete: 'CASCADE',
   })

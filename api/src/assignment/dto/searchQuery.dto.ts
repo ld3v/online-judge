@@ -1,4 +1,5 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { TSortType } from 'utils/types';
 
 export class SearchQueryDto {
   @IsOptional()
@@ -16,6 +17,15 @@ export class SearchQueryDto {
   @IsOptional()
   @IsNumber()
   limit: number;
+
+  @IsOptional()
+  @IsString()
+  sorter_field: string;
+
+  @IsOptional()
+  @IsString()
+  @IsEnum(TSortType)
+  sorter_type: TSortType;
 }
 
 export default SearchQueryDto;

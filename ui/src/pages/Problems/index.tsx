@@ -2,17 +2,50 @@ import { TAssignment } from '@/types/assignment';
 import moment from 'moment';
 import { connect, useIntl } from 'umi';
 import AssignmentChild from '../Assignments/AssignmentChild';
-import DoProblemCard from './DoProblemCard';
 
 import styles from './styles.less';
 import ProblemList from './ProblemList';
+import { Form, notification } from 'antd';
+import Card from '@/components/Card';
+import DoProblem from '@/components/AssignmentProblems/DoProblem';
 
 interface IProblemsPage {
   assignment: TAssignment;
+  dispatch?: any;
 }
 
-const ProblemsPage: React.FC<IProblemsPage> = ({ assignment }) => {
+const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
+  const [form] = Form.useForm();
   const intl = useIntl();
+
+  const handleSubmitCode = (values: any) => {
+    const { assignmentId, problemId, languageExtension, code } = values;
+    if (!assignmentId || !problemId || !languageExtension) {
+      console.log(values);
+      notification.error({
+        message: intl.formatMessage({ id: 'exception.component.form.miss-data' }),
+      });
+      return;
+    }
+    const submitCodeCb = (res: any, err?: any) => {
+      console.log(res);
+      if (err) console.error(err);
+    };
+    dispatch({
+      type: 'submission/createWithCode',
+      payload: {
+        assignmentId,
+        problemId,
+        languageExtension,
+        code,
+        callback: submitCodeCb,
+      },
+    });
+  };
+
+  const handleChangeProblem = (problemId: string) => {
+    form?.setFieldsValue({ problemId });
+  };
 
   const renderDoProblem = () => {
     const now = moment();
@@ -22,7 +55,25 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ assignment }) => {
         (!!assignment.finishTime &&
           moment(assignment.finishTime).add(assignment.extraTime, 'minutes').isBefore(now));
 
-      return <DoProblemCard disabled={isAssignmentDisabled} />;
+      return (
+        <Card
+          cardTitle={intl.formatMessage({ id: 'problem.do-problem.title' })}
+          cardDescription={
+            isAssignmentDisabled
+              ? intl.formatMessage({ id: 'exception.assignment.no-do' })
+              : undefined
+          }
+        >
+          <DoProblem
+            onFinish={handleSubmitCode}
+            form={form}
+            notAllowedDo={isAssignmentDisabled}
+            initialValues={{
+              assignmentId: assignment.id,
+            }}
+          />
+        </Card>
+      );
     }
     return null;
   };
@@ -34,7 +85,7 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ assignment }) => {
       childName="problems"
       className={styles.ProblemPage}
     >
-      <ProblemList />
+      <ProblemList onChangeProblem={handleChangeProblem} />
       {renderDoProblem()}
     </AssignmentChild>
   );

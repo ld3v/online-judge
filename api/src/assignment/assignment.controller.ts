@@ -39,7 +39,7 @@ export class AssignmentController {
   @UseGuards(JwtAuthGuard)
   async getAssignments(
     @Req() { user }: RequestWithAccount,
-    @Query() { keyword: searchKeyword, except, page, limit }: SearchQueryDto,
+    @Query() { keyword: searchKeyword, except, page, limit, sorter_field, sorter_type }: SearchQueryDto,
   ) {
     try {
       let data;
@@ -48,10 +48,10 @@ export class AssignmentController {
 
       switch (user.role) {
         case Role.Admin:
-          data = await this.assignmentService.getAll(null, { keyword, exceptIds, page, limit });
+          data = await this.assignmentService.getAll(null, { keyword, exceptIds, page, limit, sorter: { field: sorter_field, type: sorter_type } });
           break;
         case Role.User:
-          data = await this.assignmentService.getAll(user, { page, limit });
+          data = await this.assignmentService.getAll(user, { page, limit, sorter: { field: sorter_field, type: sorter_type } });
           break;
         default:
           break;

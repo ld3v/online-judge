@@ -9,6 +9,7 @@ import { LoggerModule } from 'src/logger/logger.module';
 import { ProblemModule } from 'src/problem/problem.module';
 import { QueueModule } from 'src/queue/queue.module';
 import { SubmissionController } from './submission.controller';
+import { SubmissionProcessor } from './submission.processor';
 import { SubmissionRepository } from './submission.repository';
 import { SubmissionService } from './submission.service';
 
@@ -25,7 +26,7 @@ import { SubmissionService } from './submission.service';
     LoggerModule,
   ],
   controllers: [SubmissionController],
-  providers: [SubmissionService],
+  providers: [SubmissionService, SubmissionProcessor],
   exports: [SubmissionService],
 })
 export class SubmissionModule {}

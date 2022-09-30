@@ -310,7 +310,9 @@ export class AccountService {
   public transformAccountData (requester: Account, ...accounts: Account[]): IAccountTransformed[] {
     const ifAdmin = ifViewByAdmin(requester);
     return accounts.map(({problems_created, is_locked, created_at, is_root, ...info }) => {
-      const problemsTransformed = this.problemService.transformData(requester, ...problems_created);
+      const problemsTransformed = Array.isArray(problems_created)
+        ? this.problemService.transformData(requester, ...problems_created)
+        : undefined;
       return {
         id: info.id,
         username: info.username,

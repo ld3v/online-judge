@@ -1,16 +1,13 @@
-import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Queue } from 'bull';
 import * as path from 'path';
 import { Account } from 'src/account/entities/account.entity';
 import { Queue as QueueEntity } from 'src/queue/entities/queue.entity';
 import { Assignment } from 'src/assignment/entities/assignment.entity';
-import { addFile, isExist } from 'common/file.helper';
+import { addFile } from 'common/file.helper';
 import { QueueService } from 'src/queue/queue.service';
 import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { Http503Exception } from 'utils/Exceptions/http503.exception';
-import { ISubmission } from 'utils/types';
 import { Submission } from './entities/submission.entity';
 import { SubmissionRepository } from './submission.repository';
 import { IAddSubmission, SubmissionFilter } from './submission.types';
@@ -25,8 +22,6 @@ export class SubmissionService {
     @InjectRepository(SubmissionRepository)
     private readonly submissionRepository: SubmissionRepository,
     private readonly queueService: QueueService,
-    @InjectQueue('submission')
-    private readonly submissionQueue: Queue,
     private readonly logger: CustomLogger,
   ) {}
 
@@ -38,12 +33,13 @@ export class SubmissionService {
    * @param {Account} submitter Who submit
    * @returns 
    */
-  public async create (data: IAddSubmission, submitter: Account, fileExt: string) {
+  public async create (data: IAddSubmission, submitter: Account, queue: QueueEntity, fileExt: string) {
     const newSubmission = new Submission();
     newSubmission.assignment = data.assignment;
     newSubmission.problem = data.problem;
     newSubmission.language = data.language;
     newSubmission.submitter = submitter;
+    newSubmission.queue = queue;
     newSubmission.id = Submission.genId();
     // Handle write code to file
     await this.createCodeFile(
@@ -58,18 +54,6 @@ export class SubmissionService {
         `solution__${newSubmission.id}.${fileExt}`,
       )
     );
-
-    // Update submission info
-    const queueId = QueueEntity.genId();
-    const newJob = await this.submissionQueue.add({
-      queueId,
-    });
-    const newQueue = await this.queueService.add({
-      id: queueId,
-      jobId: newJob.id,
-      name: QueueName.Submission,
-    });
-    newSubmission.queue = newQueue;
     return await this.submissionRepository.save(newSubmission);
   }
 

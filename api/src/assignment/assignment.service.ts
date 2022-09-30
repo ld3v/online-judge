@@ -303,7 +303,7 @@ export class AssignmentService {
    * @param {boolean} withTransform Transform data to public. Default is `true`.
    * @returns 
    */
-  public async getAll(participant: Account = null, { keyword, exceptIds, page, limit }: TSearchQuery = {}, withCoef: boolean = true, withTransform: boolean = true) {
+  public async getAll(participant: Account = null, { keyword, exceptIds, page, limit, sorter }: TSearchQuery = {}, withCoef: boolean = true, withTransform: boolean = true) {
     let assignmentQuery = this.assignmentRepository.createQueryBuilder("assignment")
       .leftJoinAndSelect('assignment.accounts', 'participants')
       .leftJoinAndSelect('participants.account', 'account')
@@ -327,6 +327,9 @@ export class AssignmentService {
         'assignment.id NOT IN (:...exceptIds)',
         { exceptIds }
       )
+    }
+    if (sorter) {
+      assignmentQuery = assignmentQuery.orderBy(sorter.field, sorter.type);
     }
     const countItems = await assignmentQuery.getCount();
     // Pagination

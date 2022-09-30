@@ -81,17 +81,16 @@ export class Submission {
   @ManyToOne(() => Account, (account) => account.submissions)
   submitter: Account;
 
-  @ManyToOne(() => Language, (language) => language.submissions)
-  language: Language;
+  @ManyToOne(() => Language, (language) => language.submissions, { onDelete: 'CASCADE'})
+  language: Language; 
 
-  @OneToOne(() => Queue)
+  @OneToOne(() => Queue, { onDelete: 'CASCADE' })
   @JoinColumn()
   queue: Queue
 
   @BeforeInsert()
   updateID() {
-    const idStr = nanoid(16);
-    this.id = this.id || `SMSx${idStr}`;
+    this.id = this.id || Queue.genId();
   }
 
   public static genId() {

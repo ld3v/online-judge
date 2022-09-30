@@ -1,4 +1,5 @@
 import { Submission } from "src/submission/entities/submission.entity";
+import { TSortType } from "utils/types";
 import { Assignment } from "./entities/assignment.entity";
 import { AssignmentAccount } from "./entities/assignment_account.entity";
 import { AssignmentProblem } from "./entities/assignment_problem.entity";
@@ -53,4 +54,8 @@ export type TSearchQuery = {
   exceptIds?: string[];
   page?: number;
   limit?: number;
+  sorter?: {
+    field: string;
+    type: TSortType;
+  }
 }

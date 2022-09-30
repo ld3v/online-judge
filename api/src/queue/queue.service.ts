@@ -69,7 +69,7 @@ export class QueueService {
   public async getCurrentProcess (queueName: QueueName): Promise<Queue> {
     const currentQueueProcess = await this.queueRepository.createQueryBuilder("q")
       .where("q.name = :queueName", { queueName })
-      .where('q.state NOT IN (:...doneStates)', { doneStates: [QueueState.Done, QueueState.Error] })
+      .andWhere('q.state NOT IN (:...doneStates)', { doneStates: [QueueState.Done, QueueState.Error] })
       .orderBy("q.created_at", "DESC")
       .getOne();
     return currentQueueProcess;
@@ -78,7 +78,7 @@ export class QueueService {
   public async getHistoryProcesses (queueName: QueueName): Promise<Queue[]> {
     const currentQueueProcess = await this.queueRepository.createQueryBuilder("q")
       .where("q.name = :queueName", { queueName })
-      .where('q.state IN (:...doneStates)', { doneStates: [QueueState.Done, QueueState.Error] })
+      .andWhere('q.state IN (:...doneStates)', { doneStates: [QueueState.Done, QueueState.Error] })
       .orderBy("q.created_at", "DESC")
       .getMany();
     return currentQueueProcess;

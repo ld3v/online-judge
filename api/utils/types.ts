@@ -96,3 +96,7 @@ export interface SuccessAndFailed<Type = any> {
 export type TMap = Record<any, any>;
 export type TParamId = { id: string };
 
+export enum TSortType {
+  Asc = "ASC",
+  Desc = "DESC",
+};

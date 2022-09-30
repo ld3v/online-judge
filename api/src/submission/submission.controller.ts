@@ -1,11 +1,15 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Queue } from 'bull';
 import { AccountService } from 'src/account/account.service';
 import { AssignmentService } from 'src/assignment/assignment.service';
 import RequestWithAccount from 'src/auth/dto/reqWithAccount.interface';
 import JwtAuthGuard from 'src/auth/gaurd/jwtAuth.gaurd';
 import { LanguageService } from 'src/language/language.service';
 import { ProblemService } from 'src/problem/problem.service';
+import { Queue as QueueEntity } from 'src/queue/entities/queue.entity';
+import { QueueName } from 'src/queue/queue.enum';
+import { QueueService } from 'src/queue/queue.service';
 import { isAdmin } from 'utils/func';
 import CreateDto from './dto/create.dto';
 import { SubmissionService } from './submission.service';
@@ -19,6 +23,9 @@ export class SubmissionController {
     private readonly accountService: AccountService,
     private readonly problemService: ProblemService,
     private readonly languageService: LanguageService,
+    @InjectQueue('submission')
+    private readonly submissionQueue: Queue,
+    private readonly queueService: QueueService,
   ) {}
 
   @Get('')
@@ -74,16 +81,27 @@ export class SubmissionController {
       const problem = await this.problemService.getById(data.problemId);
       const language = await this.languageService.getByExtension(data.languageExtension);
 
+      const queueId = QueueEntity.genId();
+      const job = await this.submissionQueue.add('submission', {
+        queueId,
+      });
+      const newQueue = await this.queueService.add({
+        id: queueId,
+        jobId: job.id,
+        name: QueueName.Submission,
+      });
+      // Add submission to db
       const submissionData: IAddSubmission = {
         assignment,
         problem,
         language,
+        queue: newQueue,
         code: data.code,
       };
-
       const addSubmit = await this.submissionService.create(
         submissionData,
         user,
+        newQueue,
         language.extension,
       );
       return addSubmit;
