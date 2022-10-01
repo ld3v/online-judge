@@ -33,13 +33,12 @@ export class SubmissionService {
    * @param {Account} submitter Who submit
    * @returns 
    */
-  public async create (data: IAddSubmission, submitter: Account, queue: QueueEntity, fileExt: string) {
+  public async create (data: IAddSubmission, submitter: Account, fileExt: string) {
     const newSubmission = new Submission();
     newSubmission.assignment = data.assignment;
     newSubmission.problem = data.problem;
     newSubmission.language = data.language;
     newSubmission.submitter = submitter;
-    newSubmission.queue = queue;
     newSubmission.id = Submission.genId();
     // Handle write code to file
     await this.createCodeFile(

@@ -23,8 +23,6 @@ export class SubmissionController {
     private readonly accountService: AccountService,
     private readonly problemService: ProblemService,
     private readonly languageService: LanguageService,
-    @InjectQueue('submission')
-    private readonly submissionQueue: Queue,
     private readonly queueService: QueueService,
   ) {}
 
@@ -81,27 +79,16 @@ export class SubmissionController {
       const problem = await this.problemService.getById(data.problemId);
       const language = await this.languageService.getByExtension(data.languageExtension);
 
-      const queueId = QueueEntity.genId();
-      const job = await this.submissionQueue.add('submission', {
-        queueId,
-      });
-      const newQueue = await this.queueService.add({
-        id: queueId,
-        jobId: job.id,
-        name: QueueName.Submission,
-      });
       // Add submission to db
       const submissionData: IAddSubmission = {
         assignment,
         problem,
         language,
-        queue: newQueue,
         code: data.code,
       };
       const addSubmit = await this.submissionService.create(
         submissionData,
         user,
-        newQueue,
         language.extension,
       );
       return addSubmit;
