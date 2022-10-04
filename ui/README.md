@@ -23,6 +23,11 @@ Before start, make sure that you are running with node@16, if not, run `nvm use`
 
 - Create a new ENV file by - `cp .env.example .env`. By default, your app will run on port 11000.
 
+## Deployment
+
+- First, build this app with command: `yarn build` or `npm run build`.
+- Run your app with `pm2`: `pm2 start production.js`.
+
 ---
 
 This document was created to guide how to start this project:  
