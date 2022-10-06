@@ -77,11 +77,17 @@ if [[ "$DIFFOPTION" != "identical" && "$DIFFOPTION" != "ignore" ]]; then
 	DIFFARGUMENT=$DIFFOPTION
 fi
 
-echo "" >$LOGFILE
 function logfile
 {
 	if $LOG_ON; then
 		echo -e "$@" >>$LOGFILE
+	fi
+}
+
+function logfile_jail
+{
+	if $LOG_ON; then
+		echo -e "$@" >>"../$LOGFILE"
 	fi
 }
 
@@ -91,6 +97,14 @@ function logfile_finish
 	# Get Current Time (in milliseconds)
 	END=$(($(date +%s%N)/1000000));
 	logfile "\nTotal Execution Time: $((END-START)) ms"
+	echo $@
+	exit 0
+}
+function logfile_finish_jail
+{
+	# Get Current Time (in milliseconds)
+	END=$(($(date +%s%N)/1000000));
+	logfile_jail "\nTotal Execution Time: $((END-START)) ms"
 	echo $@
 	exit 0
 }
