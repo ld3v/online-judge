@@ -2,7 +2,6 @@ import { QueueName, QueueState } from "./queue.enum";
 
 export interface IAddQueue {
   id?: string;
-  jobId?: number | string;
   name: QueueName;
   note?: string;
   process?: Record<string, QueueState>;
@@ -10,7 +9,6 @@ export interface IAddQueue {
 }
 export type TQueueTransformed = {
   id: string;
-  jobId: number | string;
   name: string;
   note: string;
   process: Record<string, QueueState>;

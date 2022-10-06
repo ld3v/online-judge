@@ -2,11 +2,14 @@ import { Process, Processor } from "@nestjs/bull";
 import { Job } from "bull";
 import * as childProcess from "child_process";
 import { addDir, addFile } from "common/file.helper";
+import * as moment from "moment";
+import * as path from "path";
 import CustomLogger from "src/logger/customLogger";
 import { QueueState } from "src/queue/queue.enum";
 import { QueueService } from "src/queue/queue.service";
 import { SettingService } from "src/setting/setting.service";
 import { promisify } from "util";
+import { LOGS_PATH, PROBLEM_SOLUTIONS_PATH, USER_SOLUTIONS_PATH } from "utils/constants/path";
 import { SETTING_FIELDS_MAPPING } from "utils/constants/settings";
 const exec = promisify(childProcess.exec);
 
@@ -61,20 +64,23 @@ export class SubmissionProcessor {
         );
         return;
       }
+
+      const solutionLogFile = `solution_${submissionId}.log`;
       
       const settingOutputSizeLimit = settingMapping[SETTING_FIELDS_MAPPING.output_size_limit];
       const outputSizeLimit = Number(settingOutputSizeLimit) * 1024;
       const testerPath = './common/run-code';
       // When run with upload dir, script will run at './common/run-code/jail-{random-str}' -> Need add prefix '../../../' for dir path.
-      const problemSolutionsDir = `../../../upload/solutions-result/${problemId}`;
-      const userSolutionsDir = `../../../upload/solutions/${username}`;
+      const problemSolutionsDir = path.join('..', '..', '..', PROBLEM_SOLUTIONS_PATH, problemId);
+      const userSolutionsDir = path.join('..', '..', '..', USER_SOLUTIONS_PATH, username);
       // Diff with upload path, when run logs, script will run at './common/run-code' -> Just need add prefix '../../' for this path.
-      const logFilePath = `../../logs/solution_${submissionId}.log`;
+      const logFilePath = path.join('..', '..', LOGS_PATH, solutionLogFile);
+      
       const logEnabled = settingFieldKeysNotFound[SETTING_FIELDS_MAPPING.enable_log] ? "1" : "0";
       
-      await addFile('./logs', `solution_${submissionId}.log`, `${Date.now()}`);
-      await addDir(problemSolutionsDir);
-      await addDir(userSolutionsDir);
+      await addFile(LOGS_PATH, solutionLogFile, `Run code at ${moment().format('DD/MM/YYYY - HH:mm:ss')} ---------\n`);
+      await addDir(path.join(PROBLEM_SOLUTIONS_PATH, problemId));
+      await addDir(path.join(USER_SOLUTIONS_PATH, username));
       
       /**
        * ### SHELL COMMAND DESCRIPTION:                                                                                                               

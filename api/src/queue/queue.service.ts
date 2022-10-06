@@ -14,29 +14,14 @@ export class QueueService {
     private readonly logger: CustomLogger,
   ) {}
 
-  public async add({ id, jobId, name, note, state, process }: IAddQueue) {
+  public async add({ id, name, note, state, process }: IAddQueue) {
     const newQueue = new Queue();
     newQueue.id = id;
-    newQueue.job_id = jobId ? `${jobId}` : undefined;
     newQueue.name = name;
     newQueue.note = note;
     newQueue.state = state;
     newQueue.process = process ? JSON.stringify(process) : undefined;
     return await this.queueRepository.save(newQueue);
-  }
-
-  public async updateJobId(queueId: string, jobId: number | string ) {
-    if (!queueId) {
-      this.logger.errorCustom(new Error(`Cannot update process because queueId is empty`));
-      return null;
-    }
-    const queueProcess = await this.queueRepository.findOne(queueId);
-    if (!queueProcess) {
-      this.logger.errorCustom(new Error(`Cannot update process because queueId is not exist ("#${queueId}")`));
-      return null;
-    }
-    queueProcess.job_id = jobId ? `${jobId}` : undefined;
-    return await this.queueRepository.save(queueProcess);
   }
 
   public async update(queueId: string, processState?: [string, string], state?: string, ) {
@@ -88,7 +73,6 @@ export class QueueService {
     return queues.map(({ id, job_id, name, note, state, process, created_at }) => {
       return {
         id,
-        jobId: job_id,
         name,
         note,
         state,

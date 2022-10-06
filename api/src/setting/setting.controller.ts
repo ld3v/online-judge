@@ -98,12 +98,9 @@ export class SettingController {
         throw new Http400Exception("setting.sync-all-data.processing");
       }
       const queueId = QueueEntity.genId();
-      const job = await this.settingQueue.add('syncAllData', {
-        queueId,
-      });
+      await this.settingQueue.add('syncAllData', {},{ jobId: queueId });
       const queueRes = await this.queueService.add({
         id: queueId,
-        jobId: job.id,
         name: QueueName.SettingSyncAllData,
         process: {
           [SYNC_PROCESS_KEY.ACCOUNT]: QueueState.Processing,

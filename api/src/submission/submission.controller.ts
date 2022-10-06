@@ -10,6 +10,7 @@ import { ProblemService } from 'src/problem/problem.service';
 import { Queue as QueueEntity } from 'src/queue/entities/queue.entity';
 import { QueueName } from 'src/queue/queue.enum';
 import { QueueService } from 'src/queue/queue.service';
+import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { isAdmin } from 'utils/func';
 import CreateDto from './dto/create.dto';
 import { SubmissionService } from './submission.service';
@@ -80,14 +81,25 @@ export class SubmissionController {
       const assignment = await this.assignmentService.getById(data.assignmentId);
       const problem = await this.problemService.getById(data.problemId);
       const language = await this.languageService.getByExtension(data.languageExtension);
+      // Get 'score' from Assignment-Problem relation.
+      const assProb = await this.assignmentService.getAssProbByAssAndProb(assignment, problem);
+      if (!assProb) {
+        throw new Http400Exception('submission.assignment-problem.notfound', {
+          msg: 'The problem that you try to solve, is NOT IN any assignments!'
+        })
+      }
+
+      // Get 'timeLimit' & 'memoryLimit' from Problem-Language relation.
+      const probLang = await this.problemService.getProbLangByProbAndLang(problem, language);
+      if (!probLang) {
+        throw new Http400Exception('submission.language.not-allowed', {
+          msg: 'The language you use to solve the problem is NOT ALLOWED for this assignment!'
+        })
+      }
 
       const queueId = QueueEntity.genId();
-      const job = await this.submissionQueue.add('submission', {
-        queueId,
-      });
       const newQueue = await this.queueService.add({
         id: queueId,
-        jobId: job.id,
         name: QueueName.Submission,
       });
       // Add submission to db
@@ -103,6 +115,27 @@ export class SubmissionController {
         user,
         newQueue,
         language.extension,
+      );
+      // Add job to queue
+      const timeLimit = Math.round(probLang.time_limit) / 1000;
+      const timeLimitInt = Math.floor(timeLimit) + 1;
+
+      await this.submissionQueue.add(
+        'submission',
+        {
+          username: user.username,
+          filename: `solution_${addSubmit.id}`,
+          fileExtension: language.extension,
+          problemId: problem.id,
+          submissionId: addSubmit.id,
+          timeLimit,
+          timeLimitInt,
+          memoryLimit: probLang.memory_limit,
+          diffCmd: problem.diff_cmd,
+          diffArg: problem.diff_arg,
+          problemScore: assProb.score,
+        },
+        { jobId: queueId }
       );
       return addSubmit;
     } catch (err) {

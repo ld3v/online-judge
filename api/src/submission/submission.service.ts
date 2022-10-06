@@ -11,8 +11,8 @@ import { Http503Exception } from 'utils/Exceptions/http503.exception';
 import { Submission } from './entities/submission.entity';
 import { SubmissionRepository } from './submission.repository';
 import { IAddSubmission, SubmissionFilter } from './submission.types';
-import { QueueName } from 'src/queue/queue.enum';
 import CustomLogger from 'src/logger/customLogger';
+import { USER_SOLUTIONS_PATH } from 'utils/constants/path';
 
 
 
@@ -21,7 +21,6 @@ export class SubmissionService {
   constructor(
     @InjectRepository(SubmissionRepository)
     private readonly submissionRepository: SubmissionRepository,
-    private readonly queueService: QueueService,
     private readonly logger: CustomLogger,
   ) {}
 
@@ -42,17 +41,15 @@ export class SubmissionService {
     newSubmission.queue = queue;
     newSubmission.id = Submission.genId();
     // Handle write code to file
+    const userSolutionFile = `solution_${newSubmission.id}.${fileExt}`;
     await this.createCodeFile(
       data.code,
-      './upload/problems-solutions',
-      `solution__${newSubmission.id}.${fileExt}`,
+      USER_SOLUTIONS_PATH,
+      userSolutionFile,
     );
     this.logger.log(
-      'Saved code to file:' +
-      path.join(
-        '/upload/problems-solutions',
-        `solution__${newSubmission.id}.${fileExt}`,
-      )
+      'Saved code to file: ' +
+      path.join(USER_SOLUTIONS_PATH, userSolutionFile)
     );
     return await this.submissionRepository.save(newSubmission);
   }
@@ -208,7 +205,7 @@ export class SubmissionService {
       return resCreateFile;
     } catch (err) {
       console.error(err);
-      throw new Http503Exception('local-file.unknown', { err });
+      throw new Http503Exception('submission.save-code.unknown', { err });
     }
   }
 }

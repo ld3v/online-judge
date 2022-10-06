@@ -47,9 +47,7 @@ export const addFile = async (
   fileName: string,
   data: string,
 ): Promise<void> => {
-  if (!isExist(dirPath)) {
-    fs.mkdirSync(dirPath);
-  }
+  addDir(dirPath);
 
   const writeFile = promisify(fs.writeFile);
   return await writeFile(`${dirPath}/${fileName}`, data, 'utf8');
@@ -59,7 +57,7 @@ export const addDir = async (
   dirPath: string,
 ): Promise<void> => {
   if (!isExist(dirPath)) {
-    fs.mkdirSync(dirPath);
+    fs.mkdirSync(dirPath, { recursive: true });
   }
 }
 
