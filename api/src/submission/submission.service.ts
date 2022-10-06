@@ -44,12 +44,12 @@ export class SubmissionService {
     const userSolutionFile = `solution_${newSubmission.id}.${fileExt}`;
     await this.createCodeFile(
       data.code,
-      USER_SOLUTIONS_PATH,
+      path.join(USER_SOLUTIONS_PATH, submitter.username),
       userSolutionFile,
     );
     this.logger.log(
       'Saved code to file: ' +
-      path.join(USER_SOLUTIONS_PATH, userSolutionFile)
+      path.join(USER_SOLUTIONS_PATH, submitter.username, userSolutionFile)
     );
     return await this.submissionRepository.save(newSubmission);
   }
