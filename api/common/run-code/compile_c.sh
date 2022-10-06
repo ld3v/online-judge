@@ -42,7 +42,7 @@ else
     cp $USERDIR/$FILENAME.$EXT code.c
 fi
 
-shj_log "Compiling as $EXT"
+logfile "Compiling as $EXT"
 
 if [ $NEEDCOMPILE -eq 0 ]; then
     EXITCODE=110
@@ -54,13 +54,13 @@ else
 fi
 
 COMPILE_END_TIME=$(($(date +%s%N)/1000000));
-shj_log "Compiled. Exit Code=$EXITCODE  Execution Time: $((COMPILE_END_TIME-COMPILE_BEGIN_TIME)) ms"
+logfile "Compiled. Exit Code=$EXITCODE  Execution Time: $((COMPILE_END_TIME-COMPILE_BEGIN_TIME)) ms"
 if [ $EXITCODE -ne 0 ]; then
-    shj_log "Compile Error"
-    #shj_log "$(cat cerr | head -10)"
-    shj_log "$(cat cerr )"
-    echo '<span class="text-primary">Compile Error<br>Error Messages: (line numbers are not correct)</span>' >$RESULTFILE
-    echo '<span class="text-danger">' >> $RESULTFILE
+    logfile "Compile Error"
+    #logfile "$(cat cerr | head -10)"
+    logfile "$(cat cerr )"
+    # echo '<span class="text-primary">Compile Error<br>Error Messages: (line numbers are not correct)</span>' >$RESULTFILE
+    # echo '<span class="text-danger">' >> $RESULTFILE
 
     echo -e "\n" >> cerr
     echo "" > cerr2
@@ -77,9 +77,9 @@ if [ $EXITCODE -ne 0 ]; then
 
     (cat cerr2 | head -10 | sed 's/themainmainfunction/main/g' ) > cerr;
 
-    (cat cerr | sed 's/&/\&amp;/g' | sed 's/</\&lt;/g' | sed 's/>/\&gt;/g' | sed 's/"/\&quot;/g') >> $RESULTFILE
-    echo "</span>" >> $RESULTFILE
+    # (cat cerr | sed 's/&/\&amp;/g' | sed 's/</\&lt;/g' | sed 's/>/\&gt;/g' | sed 's/"/\&quot;/g') >> $RESULTFILE
+    # echo "</span>" >> $RESULTFILE
     cd ..
     rm -r $JAIL >/dev/null 2>/dev/null
-    shj_finish "Compilation Error"
+    logfile_finish "Compilation Error"
 fi

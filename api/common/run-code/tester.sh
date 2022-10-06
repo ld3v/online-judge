@@ -1,24 +1,5 @@
 #!/bin/bash
 
-#    In the name of ALLAH
-#    Sharif Judge
-#    Copyright (C) 2014  Mohammad Javad Naderi <mjnaderi@gmail.com>
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-
 ##################### Example Usage #####################
 # tester.sh /home/mohammad/judge/homeworks/hw6/p1 mjn problem problem c 1 1 50000 1000000 diff -bB 1 1 1 0 1 1
 # In this example judge assumes that the file is located at:
@@ -44,56 +25,36 @@
 START=$(($(date +%s%N)/1000000));
 
 
-################### Getting Arguments ###################
 # Tester directory
 tester_dir="$(pwd)"
 # problem directory
 PROBLEMPATH=${1}
 # username
 USERDIR=${2}
-
-RESULTFILE=${3}
-LOGFILE=${4}
-# main file name (used only for java)
-#MAINFILENAME=${3}
+# RESULTFILE=${3}
+LOGFILE=${3}
 # file name without extension
-FILENAME=${5}
+FILENAME=${4}
 # file extension
-EXT=${6}
+EXT=${5}
 # time limit in seconds
-TIMELIMIT=${7}
+TIMELIMIT=${6}
 # integer time limit in seconds (should be an integer greater than TIMELIMIT)
-TIMELIMITINT=${8}
+TIMELIMITINT=${7}
 # memory limit in kB
-MEMLIMIT=${9}
+MEMLIMIT=${8}
 # output size limit in Bytes
-OUTLIMIT=${10}
+OUTLIMIT=${9}
 # diff tool (default: diff)
-DIFFTOOL=${11}
+DIFFTOOL=${10}
 # diff options (default: -bB)
-DIFFOPTION=${12}
+DIFFOPTION=${11}
 # enable/disable judge log
-if [ ${13} = "1" ]; then
+if [ ${12} = "1" ]; then
 	LOG_ON=true
 else
 	LOG_ON=false
 fi
-# enable/disable easysandbox
-# if [ ${13} = "1" ]; then
-# 	SANDBOX_ON=true
-# else
-# 	SANDBOX_ON=false
-# fi
-
-
-# enable/disable java security manager
-# if [ ${14} = "1" ]; then
-# 	JAVA_POLICY="-Djava.security.manager -Djava.security.policy=java.policy"
-# else
-# 	JAVA_POLICY=""
-# fi
-
-# enable/disable displaying java exception to students
 
 
 DISPLAY_JAVA_EXCEPTION_ON=true
@@ -117,7 +78,7 @@ if [[ "$DIFFOPTION" != "identical" && "$DIFFOPTION" != "ignore" ]]; then
 fi
 
 echo "" >$LOGFILE
-function shj_log
+function logfile
 {
 	if $LOG_ON; then
 		echo -e "$@" >>$LOGFILE
@@ -125,11 +86,11 @@ function shj_log
 }
 
 
-function shj_finish
+function logfile_finish
 {
 	# Get Current Time (in milliseconds)
 	END=$(($(date +%s%N)/1000000));
-	shj_log "\nTotal Execution Time: $((END-START)) ms"
+	logfile "\nTotal Execution Time: $((END-START)) ms"
 	echo $@
 	exit 0
 }
@@ -138,36 +99,36 @@ function shj_finish
 
 #################### Initialization #####################
 
-shj_log "Starting tester..."
-shj_log $@
+logfile "Starting tester..."
+logfile $@
 # detecting existence of perl
 
-shj_log "diff argu $DIFFOPTION"
+logfile "diff argu $DIFFOPTION"
 
 PERL_EXISTS=true
 hash perl 2>/dev/null || PERL_EXISTS=false
 if ! $PERL_EXISTS; then
-	shj_log "Warning: perl not found. We continue without perl..."
+	logfile "Warning: perl not found. We continue without perl..."
 fi
 JAIL=jail-$RANDOM
 if ! mkdir $JAIL; then
-	shj_log "Error: Folder 'tester' is not writable! Exiting..."
-	shj_finish "Judge Error"
+	logfile "Error: Folder 'tester' is not writable! Exiting..."
+	logfile_finish "Judge Error"
 fi
 cd $JAIL
 
-shj_log "$(date)"
-shj_log "Language: $EXT"
-shj_log "Time Limit: $TIMELIMIT s"
-shj_log "Memory Limit: $MEMLIMIT kB"
-shj_log "Output size limit: $OUTLIMIT bytes"
+logfile "$(date)"
+logfile "Language: $EXT"
+logfile "Time Limit: $TIMELIMIT s"
+logfile "Memory Limit: $MEMLIMIT kB"
+logfile "Output size limit: $OUTLIMIT bytes"
 if [[ $EXT = "c" || $EXT = "cpp" ]]; then
-	shj_log "C/C++ Shield: $C_SHIELD_ON"
+	logfile "C/C++ Shield: $C_SHIELD_ON"
 elif [[ $EXT = "py2" || $EXT = "py3" ]]; then
-	shj_log "Python Shield: $PY_SHIELD_ON"
+	logfile "Python Shield: $PY_SHIELD_ON"
 elif [[ $EXT = "java" ]]; then
-	shj_log "JAVA_POLICY: \"$JAVA_POLICY\""
-	shj_log "DISPLAY_JAVA_EXCEPTION_ON: $DISPLAY_JAVA_EXCEPTION_ON"
+	logfile "JAVA_POLICY: \"$JAVA_POLICY\""
+	logfile "DISPLAY_JAVA_EXCEPTION_ON: $DISPLAY_JAVA_EXCEPTION_ON"
 fi
 
 ########################################################################################################
@@ -193,13 +154,11 @@ fi
 TST="$(ls $PROBLEMPATH/in/input*.txt | wc -l)"  # Number of Test Cases
 
 
-shj_log "\nTesting..."
-shj_log "$TST test cases found"
-
-echo "" >$RESULTFILE
+logfile "\nTesting..."
+logfile "$TST test cases found"
 
 if [ -f "$PROBLEMPATH/tester.cpp" ] && [ ! -f "$PROBLEMPATH/tester.executable" ]; then
-	shj_log "Tester file found. Compiling tester..."
+	logfile "Tester file found. Compiling tester..."
 	TST_COMPILE_BEGIN_TIME=$(($(date +%s%N)/1000000));
 	# An: 20160321 change
 	# no optimization when compile tester code
@@ -207,18 +166,18 @@ if [ -f "$PROBLEMPATH/tester.cpp" ] && [ ! -f "$PROBLEMPATH/tester.executable" ]
 	EC=$?
 	TST_COMPILE_END_TIME=$(($(date +%s%N)/1000000));
 	if [ $EC -ne 0 ]; then
-		shj_log "Compiling tester failed."
-		shj_log `cat cerr`
+		logfile "Compiling tester failed."
+		logfile `cat cerr`
 		cd ..
 		rm -r $JAIL >/dev/null 2>/dev/null
-		shj_finish "Invalid Tester Code"
+		logfile_finish "Invalid Tester Code"
 	else
-		shj_log "Tester compiled. Execution Time: $((TST_COMPILE_END_TIME-TST_COMPILE_BEGIN_TIME)) ms"
+		logfile "Tester compiled. Execution Time: $((TST_COMPILE_END_TIME-TST_COMPILE_BEGIN_TIME)) ms"
 	fi
 fi
 
 if [ -f "$PROBLEMPATH/tester.executable" ]; then
-	shj_log "Copying tester executable to current directory"
+	logfile "Copying tester executable to current directory"
 	cp $PROBLEMPATH/tester.executable shj_tester
 	chmod +x shj_tester
 fi
@@ -247,8 +206,7 @@ errors["SHJ_SIGNAL"]="Killed by a signal"
 errors["SHJ_OUTSIZE"]="Output Size Limit Exceeded"
 
 for((i=1;i<=TST;i++)); do
-	shj_log "\n=== TEST $i ==="
-	echo "<span class=\"text-primary\">Test $i</span>" >>$RESULTFILE
+	logfile "\n=== TEST $i ==="
 
 	touch err
 
@@ -260,10 +218,10 @@ for((i=1;i<=TST;i++)); do
 	chmod +x runcode.sh
 
 	if [ ! ${languages_to_comm[$EXT]+_} ]; then
-		shj_log "File Format Not Supported"
+		logfile "File Format Not Supported"
 		cd ..
 		rm -r $JAIL >/dev/null 2>/dev/null
-		shj_finish "File Format Not Supported"
+		logfile_finish "File Format Not Supported"
 	fi
 	command=${languages_to_comm[$EXT]}
 
@@ -274,50 +232,50 @@ for((i=1;i<=TST;i++)); do
 		runcode="./runcode.sh $EXT $MEMLIMIT $TIMELIMIT $TIMELIMITINT ./input$i.txt $command"
 	fi
 
-	shj_log "$tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $runcode"
+	logfile "$tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $runcode"
 	
 	$tester_dir/run_judge_in_docker.sh `pwd` ${languages_to_docker[$EXT]} > run_judge_error $runcode 2>&1
 	EXITCODE=$?
 
-	shj_log `cat run_judge_error`
+	logfile `cat run_judge_error`
 	rm run_judge_error
 
 
-	shj_log "exit code $EXITCODE"
+	logfile "exit code $EXITCODE"
 ##################################################################
 ############## Process error code and error log ##################
 ##################################################################
 
 	if [ "$EXT" = "java" ]; then
 		if grep -iq -m 1 "Too small initial heap" out || grep -q -m 1 "java.lang.OutOfMemoryError" err; then
-			shj_log "Memory Limit Exceeded java"
-			shj_log `cat out`
-			echo "<span class=\"text-warning\">Memory Limit Exceeded</span>" >>$RESULTFILE
+			logfile "Memory Limit Exceeded java"
+			logfile `cat out`
 			continue
 		fi
 		if grep -q -m 1 "Exception in" err; then # show Exception
 			javaexceptionname=`grep -m 1 "Exception in" err | grep -m 1 -oE 'java\.[a-zA-Z\.]*' | head -1 | head -c 80`
-			javaexceptionplace=`grep -m 1 "$MAINFILENAME.java" err | head -1 | head -c 80`
-			shj_log "Exception: $javaexceptionname\nMaybe at:$javaexceptionplace"
+			javaexceptionplace=`grep -m 1 "$FILENAME.java" err | head -1 | head -c 80`
+			logfile "Exception: $javaexceptionname\nMaybe at:$javaexceptionplace"
 			# if DISPLAY_JAVA_EXCEPTION_ON is true and the exception is in the trusted list, we show the exception name
 			if $DISPLAY_JAVA_EXCEPTION_ON && grep -q -m 1 "^$javaexceptionname\$" ../java_exceptions_list; then
-				echo "<span class=\"text-warning\">Runtime Error ($javaexceptionname)</span>" >>$RESULTFILE
+				logfile "Runtime Error ($javaexceptionname)"
+				echo "Runtime Error ($javaexceptionname).\n"
 			else
-				echo "<span class=\"text-warning\">Runtime Error</span>" >>$RESULTFILE
+				logfile "Runtime Error"
+				echo "Runtime Error.\n"
 			fi
 			continue
 		fi
 	fi
 
-	shj_log "Exit Code = $EXITCODE"
-	shj_log "err file:`cat err`"
+	logfile "Exit Code = $EXITCODE"
+	logfile "err file:`cat err`"
 
 	t=`grep "SHJ_" err|cut -d" " -f3`
 	m=`grep "SHJ_" err|cut -d" " -f5`
 	m2=`grep "SHJ_" err|cut -d" " -f7`
 	m=$((m>m2?m:m2))
-	echo "<span class=\"text-muted\"><small>$t s and $m KiB</small></span>" >>$RESULTFILE
-	# echo "<span class=\"text-secondary\">Used $m KiB</span>" >>$RESULTFILE
+	logfile "$t s and $m KiB"
 	found_error=0
 
 	if ! grep -q "FINISHED" err; then
@@ -325,8 +283,7 @@ for((i=1;i<=TST;i++)); do
 		for K in "${!errors[@]}"
 		do
 			if grep -q "$K" err; then
-				shj_log ${errors[$K]}
-				echo "<span class=\"text-warning\">${errors[$K]}</span>" >>$RESULTFILE
+				logfile ${errors[$K]}
 				found_error=1
 				break
 			fi
@@ -334,22 +291,20 @@ for((i=1;i<=TST;i++)); do
 			
 	fi
 
-	shj_log "Time: $t s"
-	shj_log "Mem: $m kib"
+	logfile "Time: $t s"
+	logfile "Mem: $m kib"
 	if [ $found_error = "1" ]; then
 		continue
-		shj_log "found error"
+		logfile "found error"
 	fi
 
 	if [ $EXITCODE -eq 137 ]; then
-		shj_log "Killed"
-		echo "<span class=\"text-warning\">Killed</span>" >>$RESULTFILE
+		logfile "Killed"
 		continue
 	fi
 
 	if [ $EXITCODE -ne 0 ]; then
-		shj_log "Runtime Error"
-		echo "<span class=\"text-warning\">Runtime Error</span>" >>$RESULTFILE
+		logfile "Runtime Error"
 		continue
 	fi
 ############################################################################
@@ -363,8 +318,8 @@ for((i=1;i<=TST;i++)); do
 		ulimit -t $(($TIMELIMITINT*5))
 		./shj_tester $PROBLEMPATH/in/input$i.txt $PROBLEMPATH/out/output$i.txt out 2>cerr
 		EC=$?
-		shj_log "$EC"
-		shj_log `cat cerr`
+		logfile "$EC"
+		logfile `cat cerr`
 		if [ $EC -eq 0 ]; then
 			ACCEPTED=true
 		fi
@@ -380,7 +335,7 @@ for((i=1;i<=TST;i++)); do
 		echo "" >> out
 		echo "" >> correctout
 
-		shj_log `diff out correctout | grep -e "^[0-9]" | head -n 5 `
+		logfile `diff out correctout | grep -e "^[0-9]" | head -n 5 `
 
 		if [ "$DIFFTOOL" = "diff" ]; then
 			# Add -q to diff options (for faster diff)
@@ -393,12 +348,10 @@ for((i=1;i<=TST;i++)); do
 	fi
 
 	if $ACCEPTED; then
-		shj_log "ACCEPTED"
-		echo "<span class=\"text-success\">ACCEPT</span>" >>$RESULTFILE
+		logfile "ACCEPTED"
 		((PASSEDTESTS=PASSEDTESTS+1))
 	else
-		shj_log "WRONG"
-		echo "<span class=\"text-danger\">WRONG</span>" >>$RESULTFILE
+		logfile "WRONG"
 	fi
 done
 
@@ -421,6 +374,6 @@ rm -r $JAIL >/dev/null 2>/dev/null # removing files
 
 
 ((SCORE=PASSEDTESTS*10000/TST)) # give score from 10,000
-shj_log "\nScore from 10000: $SCORE"
+logfile "\nScore from 10000: $SCORE"
 
-shj_finish $SCORE
+logfile_finish $SCORE

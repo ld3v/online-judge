@@ -55,6 +55,14 @@ export const addFile = async (
   return await writeFile(`${dirPath}/${fileName}`, data, 'utf8');
 };
 
+export const addDir = async (
+  dirPath: string,
+): Promise<void> => {
+  if (!isExist(dirPath)) {
+    fs.mkdirSync(dirPath);
+  }
+}
+
 /**
  * Delete file at the given path via a promise interface
  */
