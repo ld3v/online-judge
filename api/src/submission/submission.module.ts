@@ -8,6 +8,7 @@ import { LanguageModule } from 'src/language/language.module';
 import { LoggerModule } from 'src/logger/logger.module';
 import { ProblemModule } from 'src/problem/problem.module';
 import { QueueModule } from 'src/queue/queue.module';
+import { SettingModule } from 'src/setting/setting.module';
 import { SubmissionController } from './submission.controller';
 import { SubmissionProcessor } from './submission.processor';
 import { SubmissionRepository } from './submission.repository';
@@ -19,6 +20,7 @@ import { SubmissionService } from './submission.service';
     BullModule.registerQueue({ name: 'submission' }),
     forwardRef(() => AssignmentModule),
     forwardRef(() => AccountModule),
+    forwardRef(() => SettingModule),
     ProblemModule,
     LanguageModule,
     QueueModule,
