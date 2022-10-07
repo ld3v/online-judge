@@ -42,7 +42,7 @@ else
     cp $USERDIR/$FILENAME.$EXT code.c
 fi
 
-logfile "Compiling as $EXT"
+logfile_jail "Compiling as $EXT"
 
 if [ $NEEDCOMPILE -eq 0 ]; then
     EXITCODE=110
@@ -54,11 +54,11 @@ else
 fi
 
 COMPILE_END_TIME=$(($(date +%s%N)/1000000));
-logfile "Compiled. Exit Code=$EXITCODE  Execution Time: $((COMPILE_END_TIME-COMPILE_BEGIN_TIME)) ms"
+logfile_jail "Compiled. Exit Code=$EXITCODE  Execution Time: $((COMPILE_END_TIME-COMPILE_BEGIN_TIME)) ms"
 if [ $EXITCODE -ne 0 ]; then
-    logfile "Compile Error"
-    #logfile "$(cat cerr | head -10)"
-    logfile "$(cat cerr )"
+    logfile_jail "Compile Error"
+    #logfile_jail "$(cat cerr | head -10)"
+    logfile_jail "$(cat cerr )"
     # echo '<span class="text-primary">Compile Error<br>Error Messages: (line numbers are not correct)</span>' >$RESULTFILE
     # echo '<span class="text-danger">' >> $RESULTFILE
 

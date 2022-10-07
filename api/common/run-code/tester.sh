@@ -100,14 +100,6 @@ function logfile_finish
 	echo $@
 	exit 0
 }
-function logfile_finish_jail
-{
-	# Get Current Time (in milliseconds)
-	END=$(($(date +%s%N)/1000000));
-	logfile_jail "\nTotal Execution Time: $((END-START)) ms"
-	echo $@
-	exit 0
-}
 
 
 
@@ -131,18 +123,18 @@ if ! mkdir $JAIL; then
 fi
 cd $JAIL
 
-logfile "$(date)"
-logfile "Language: $EXT"
-logfile "Time Limit: $TIMELIMIT s"
-logfile "Memory Limit: $MEMLIMIT kB"
-logfile "Output size limit: $OUTLIMIT bytes"
+logfile_jail "$(date)"
+logfile_jail "Language: $EXT"
+logfile_jail "Time Limit: $TIMELIMIT s"
+logfile_jail "Memory Limit: $MEMLIMIT kB"
+logfile_jail "Output size limit: $OUTLIMIT bytes"
 if [[ $EXT = "c" || $EXT = "cpp" ]]; then
-	logfile "C/C++ Shield: $C_SHIELD_ON"
+	logfile_jail "C/C++ Shield: $C_SHIELD_ON"
 elif [[ $EXT = "py2" || $EXT = "py3" ]]; then
-	logfile "Python Shield: $PY_SHIELD_ON"
+	logfile_jail "Python Shield: $PY_SHIELD_ON"
 elif [[ $EXT = "java" ]]; then
-	logfile "JAVA_POLICY: \"$JAVA_POLICY\""
-	logfile "DISPLAY_JAVA_EXCEPTION_ON: $DISPLAY_JAVA_EXCEPTION_ON"
+	logfile_jail "JAVA_POLICY: \"$JAVA_POLICY\""
+	logfile_jail "DISPLAY_JAVA_EXCEPTION_ON: $DISPLAY_JAVA_EXCEPTION_ON"
 fi
 
 ########################################################################################################
@@ -167,12 +159,11 @@ fi
 
 TST="$(ls $PROBLEMPATH/in/input*.txt | wc -l)"  # Number of Test Cases
 
-
-logfile "\nTesting..."
-logfile "$TST test cases found"
+logfile_jail "\nTesting..."
+logfile_jail "$TST test cases found"
 
 if [ -f "$PROBLEMPATH/tester.cpp" ] && [ ! -f "$PROBLEMPATH/tester.executable" ]; then
-	logfile "Tester file found. Compiling tester..."
+	logfile_jail "Tester file found. Compiling tester..."
 	TST_COMPILE_BEGIN_TIME=$(($(date +%s%N)/1000000));
 	# An: 20160321 change
 	# no optimization when compile tester code
@@ -180,20 +171,20 @@ if [ -f "$PROBLEMPATH/tester.cpp" ] && [ ! -f "$PROBLEMPATH/tester.executable" ]
 	EC=$?
 	TST_COMPILE_END_TIME=$(($(date +%s%N)/1000000));
 	if [ $EC -ne 0 ]; then
-		logfile "Compiling tester failed."
-		logfile `cat cerr`
+		logfile_jail "Compiling tester failed."
+		logfile_jail `cat cerr`
 		cd ..
 		rm -r $JAIL >/dev/null 2>/dev/null
 		logfile_finish "Invalid Tester Code"
 	else
-		logfile "Tester compiled. Execution Time: $((TST_COMPILE_END_TIME-TST_COMPILE_BEGIN_TIME)) ms"
+		logfile_jail "Tester compiled. Execution Time: $((TST_COMPILE_END_TIME-TST_COMPILE_BEGIN_TIME)) ms"
 	fi
 fi
 
 if [ -f "$PROBLEMPATH/tester.executable" ]; then
-	logfile "Copying tester executable to current directory"
-	cp $PROBLEMPATH/tester.executable shj_tester
-	chmod +x shj_tester
+	logfile_jail "Copying tester executable to current directory"
+	cp $PROBLEMPATH/tester.executable code_tester
+	chmod +x code_tester
 fi
 
 
@@ -213,14 +204,14 @@ languages_to_comm["py3"]="python3 -O $FILENAME.py3"
 languages_to_comm["numpy"]="python3 -O $FILENAME.numpy"
 languages_to_comm["java"]="java -mx${MEMLIMIT}k solution"
 declare -A errors
-errors["SHJ_TIME"]="Time Limit Exceeded"
-errors["SHJ_MEM"]="Memory Limit Exceeded"
-errors["SHJ_HANGUP"]="Process hanged up"
-errors["SHJ_SIGNAL"]="Killed by a signal"
-errors["SHJ_OUTSIZE"]="Output Size Limit Exceeded"
+errors["EXCEPTION_TIME"]="Time Limit Exceeded"
+errors["EXCEPTION_MEM"]="Memory Limit Exceeded"
+errors["EXCEPTION_HANGUP"]="Process hanged up"
+errors["EXCEPTION_SIGNAL"]="Killed by a signal"
+errors["EXCEPTION_OUTSIZE"]="Output Size Limit Exceeded"
 
 for((i=1;i<=TST;i++)); do
-	logfile "\n=== TEST $i ==="
+	logfile_jail "\n=== TEST $i ==="
 
 	touch err
 
@@ -232,7 +223,7 @@ for((i=1;i<=TST;i++)); do
 	chmod +x runcode.sh
 
 	if [ ! ${languages_to_comm[$EXT]+_} ]; then
-		logfile "File Format Not Supported"
+		logfile_jail "File Format Not Supported"
 		cd ..
 		rm -r $JAIL >/dev/null 2>/dev/null
 		logfile_finish "File Format Not Supported"
@@ -246,50 +237,50 @@ for((i=1;i<=TST;i++)); do
 		runcode="./runcode.sh $EXT $MEMLIMIT $TIMELIMIT $TIMELIMITINT ./input$i.txt $command"
 	fi
 
-	logfile "$tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $runcode"
+	logfile_jail "$tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $runcode"
 	
 	$tester_dir/run_judge_in_docker.sh `pwd` ${languages_to_docker[$EXT]} > run_judge_error $runcode 2>&1
 	EXITCODE=$?
 
-	logfile `cat run_judge_error`
+	logfile_jail `cat run_judge_error`
 	rm run_judge_error
 
 
-	logfile "exit code $EXITCODE"
+	logfile_jail "exit code $EXITCODE"
 ##################################################################
 ############## Process error code and error log ##################
 ##################################################################
 
 	if [ "$EXT" = "java" ]; then
 		if grep -iq -m 1 "Too small initial heap" out || grep -q -m 1 "java.lang.OutOfMemoryError" err; then
-			logfile "Memory Limit Exceeded java"
-			logfile `cat out`
+			logfile_jail "Memory Limit Exceeded java"
+			logfile_jail `cat out`
 			continue
 		fi
 		if grep -q -m 1 "Exception in" err; then # show Exception
 			javaexceptionname=`grep -m 1 "Exception in" err | grep -m 1 -oE 'java\.[a-zA-Z\.]*' | head -1 | head -c 80`
 			javaexceptionplace=`grep -m 1 "$FILENAME.java" err | head -1 | head -c 80`
-			logfile "Exception: $javaexceptionname\nMaybe at:$javaexceptionplace"
+			logfile_jail "Exception: $javaexceptionname\nMaybe at:$javaexceptionplace"
 			# if DISPLAY_JAVA_EXCEPTION_ON is true and the exception is in the trusted list, we show the exception name
 			if $DISPLAY_JAVA_EXCEPTION_ON && grep -q -m 1 "^$javaexceptionname\$" ../java_exceptions_list; then
-				logfile "Runtime Error ($javaexceptionname)"
+				logfile_jail "Runtime Error ($javaexceptionname)"
 				echo "Runtime Error ($javaexceptionname).\n"
 			else
-				logfile "Runtime Error"
+				logfile_jail "Runtime Error"
 				echo "Runtime Error.\n"
 			fi
 			continue
 		fi
 	fi
 
-	logfile "Exit Code = $EXITCODE"
-	logfile "err file:`cat err`"
+	logfile_jail "Exit Code = $EXITCODE"
+	logfile_jail "err file:`cat err`"
 
-	t=`grep "SHJ_" err|cut -d" " -f3`
-	m=`grep "SHJ_" err|cut -d" " -f5`
-	m2=`grep "SHJ_" err|cut -d" " -f7`
+	t=`grep "EXCEPTION_" err|cut -d" " -f3`
+	m=`grep "EXCEPTION_" err|cut -d" " -f5`
+	m2=`grep "EXCEPTION_" err|cut -d" " -f7`
 	m=$((m>m2?m:m2))
-	logfile "$t s and $m KiB"
+	logfile_jail "$t s and $m KiB"
 	found_error=0
 
 	if ! grep -q "FINISHED" err; then
@@ -297,7 +288,7 @@ for((i=1;i<=TST;i++)); do
 		for K in "${!errors[@]}"
 		do
 			if grep -q "$K" err; then
-				logfile ${errors[$K]}
+				logfile_jail ${errors[$K]}
 				found_error=1
 				break
 			fi
@@ -305,20 +296,20 @@ for((i=1;i<=TST;i++)); do
 			
 	fi
 
-	logfile "Time: $t s"
-	logfile "Mem: $m kib"
+	logfile_jail "Time: $t s"
+	logfile_jail "Mem: $m kib"
 	if [ $found_error = "1" ]; then
 		continue
-		logfile "found error"
+		logfile_jail "found error"
 	fi
 
 	if [ $EXITCODE -eq 137 ]; then
-		logfile "Killed"
+		logfile_jail "Killed"
 		continue
 	fi
 
 	if [ $EXITCODE -ne 0 ]; then
-		logfile "Runtime Error"
+		logfile_jail "Runtime Error"
 		continue
 	fi
 ############################################################################
@@ -326,14 +317,14 @@ for((i=1;i<=TST;i++)); do
 ############################################################################
 
 	ACCEPTED=false
-	if [ -f shj_tester ]; then
+	if [ -f code_tester ]; then
 		#Limit the amount of time tester run.
 		#Perhaps 5 times longer than the solution timelimit is enough
 		ulimit -t $(($TIMELIMITINT*5))
-		./shj_tester $PROBLEMPATH/in/input$i.txt $PROBLEMPATH/out/output$i.txt out 2>cerr
+		./code_tester $PROBLEMPATH/in/input$i.txt $PROBLEMPATH/out/output$i.txt out 2>cerr
 		EC=$?
-		logfile "$EC"
-		logfile `cat cerr`
+		logfile_jail "$EC"
+		logfile_jail `cat cerr`
 		if [ $EC -eq 0 ]; then
 			ACCEPTED=true
 		fi
@@ -349,7 +340,7 @@ for((i=1;i<=TST;i++)); do
 		echo "" >> out
 		echo "" >> correctout
 
-		logfile `diff out correctout | grep -e "^[0-9]" | head -n 5 `
+		logfile_jail `diff out correctout | grep -e "^[0-9]" | head -n 5 `
 
 		if [ "$DIFFTOOL" = "diff" ]; then
 			# Add -q to diff options (for faster diff)
@@ -362,10 +353,10 @@ for((i=1;i<=TST;i++)); do
 	fi
 
 	if $ACCEPTED; then
-		logfile "ACCEPTED"
+		logfile_jail "ACCEPTED"
 		((PASSEDTESTS=PASSEDTESTS+1))
 	else
-		logfile "WRONG"
+		logfile_jail "WRONG"
 	fi
 done
 
