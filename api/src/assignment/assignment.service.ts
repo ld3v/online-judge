@@ -473,10 +473,7 @@ export class AssignmentService {
    */
   private async joinCoefficient(assignments: Assignment[]): Promise<(Assignment & ICoefficientInfo)[]> {
     const assWithCoef = assignments.map(async (ass: Assignment) => {
-      const { late_rule, start_time, finish_time, extra_time } = ass;
-      const start = new Date(start_time);
-      const finish = finish_time ? new Date(finish_time) : undefined;
-      const coef = await this.getCoefficient(late_rule, extra_time, start, finish);
+      const coef = await this.getCoefficientByAssignment(ass);
       return Object.assign(ass, coef);
     });
     const assWithCoefData = await Promise.all(assWithCoef);
@@ -488,9 +485,9 @@ export class AssignmentService {
    * @param {string} rule Assignment's `late_rule`. <?PHP code ?>.
    * @param {Date} start Assignment's start-time. TIME string.
    * @param {Date} finish Assignment's finish-time. TIME string.
-   * @param {number} extra_time Assignment's extra_time.
+   * @param {number} extra_time Assignment's extra_time (minutes).
    */
-  public async getCoefficient(rule: string, extra_time: number, start: Date, finish?: Date, ): Promise<ICoefficientInfo> {
+  public async getCoefficient(rule: string, extra_time: number, start: Date, finish?: Date ): Promise<ICoefficientInfo> {
     const start_time = moment(start).format('YYYY-MM-DD HH:mm:ss');
     // In judge, the assignment never finish when finish before start.
     const finish_time = finish
@@ -503,7 +500,7 @@ export class AssignmentService {
       }
       const url = `${this.configService.get('JUDGE_URL')}/third_party/coefficient`;
       const res = await this.httpService.axiosRef.get(url, {
-        params: { rule, start_time, finish_time, extra_time },
+        params: { rule, start_time, finish_time, extra_time: (extra_time || 0) * 60 },
       });
       const { is_error, msg, coefficient, finished }: any = res.data || {};
       if (is_error) {
@@ -524,5 +521,14 @@ export class AssignmentService {
         finished: false,
       }
     }
+  }
+
+  public async getCoefficientByAssignment(assignment: Assignment) {
+    return await this.getCoefficient(
+      assignment.late_rule,
+      assignment.extra_time,
+      new Date(assignment.start_time),
+      !!assignment.finish_time && new Date(assignment.finish_time),
+    );
   }
 }
