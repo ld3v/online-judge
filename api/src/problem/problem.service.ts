@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/account/account.enum';
 import { Account } from 'src/account/entities/account.entity';
 import { Language } from 'src/language/entities/language.entity';
+import CustomLogger from 'src/logger/customLogger';
 import { TJudgeProblemLang, TJudgeProblemTransformed } from 'src/setting/setting.utils';
 import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { Http503Exception } from 'utils/Exceptions/http503.exception';
@@ -19,6 +20,7 @@ export class ProblemService {
     private readonly problemRepository: ProblemRepository,
     @InjectRepository(ProblemLangRepository)
     private readonly problemLangRepository: ProblemLangRepository,
+    private readonly logger: CustomLogger,
   ) {}
 
   public async create ({ note, ...data }: IProblem, author: Account): Promise<Problem> {
@@ -210,6 +212,30 @@ export class ProblemService {
       foundKeys: problemLangFoundIds,
       notFoundKeys: problemLangNotFoundIds,
     };
+  }
+
+  /**
+   * This func will return all of data for ProblemLanguage.
+   * ### -> Need transform to PUBLIC data before send to user.
+   * 
+   * @param {Problem} problem Problem
+   * @param {Language} language Language
+   * @returns {Promise<ProblemLanguage>}
+   */
+   public async getProbLangByProbAndLang(problem: Problem, language: Language): Promise<ProblemLanguage> {
+    try {
+      if (!language || !problem) {
+        return null;
+      }
+      const probLang = await this.problemLangRepository.findOne({
+        language,
+        problem,
+      });
+      return probLang;
+    } catch (err) {
+      this.logger.error(err);
+      throw new Http503Exception('getProbLang-by-Prob&Lang.unknown-error');
+    }
   }
 
   public async addProblemLangs(problem: Problem, langs: Language[], langMapping: Record<string, ILangAddProblem>) {

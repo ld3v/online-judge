@@ -7,13 +7,13 @@ import { AccountService } from 'src/account/account.service';
 import { Account } from 'src/account/entities/account.entity';
 import CustomLogger from 'src/logger/customLogger';
 import { Problem } from 'src/problem/entities/problem.entity';
-import { ProblemService } from 'src/problem/problem.service';
 import { TProblemWithAssignment } from 'src/problem/problem.types';
 import { QueueState } from 'src/queue/queue.enum';
 import { TJudgeAssignmentProblem } from 'src/setting/setting.utils';
 import { Submission } from 'src/submission/entities/submission.entity';
 import { SubmissionService } from 'src/submission/submission.service';
 import { Http400Exception } from 'utils/Exceptions/http400.exception';
+import { Http503Exception } from 'utils/Exceptions/http503.exception';
 import { Http506Exception } from 'utils/Exceptions/http506.exception';
 import { array2Map } from 'utils/func';
 import { FoundAndNotFoundResult, IAssignment, SuccessAndFailed } from 'utils/types';
@@ -35,12 +35,11 @@ export class AssignmentService {
     @InjectRepository(AssignmentProblemRepository)
     private readonly assignmentProblemRepository: AssignmentProblemRepository,
 
-    private readonly problemService: ProblemService,
     private readonly accountService: AccountService,
     private readonly submissionService: SubmissionService,
     private readonly httpService: HttpService,
-    private readonly configService: ConfigService,
     private readonly logger: CustomLogger,
+    private readonly configService: ConfigService,
   ) {}
 
   public async create (data: IAssignment): Promise<Assignment> {
@@ -397,6 +396,30 @@ export class AssignmentService {
       return Object.values(problemWithAssMapping);
     } catch (err) {
       throw err;
+    }
+  }
+
+  /**
+   * This func will return all of data for AssignmentProblem.
+   * ### -> Need transform to PUBLIC data before send to user.
+   * 
+   * @param {Assignment} assignment Assignment
+   * @param {Problem} problem Problem
+   * @returns {Promise<AssignmentProblem>}
+   */
+  public async getAssProbByAssAndProb(assignment: Assignment, problem: Problem): Promise<AssignmentProblem> {
+    try {
+      if (!assignment || !problem) {
+        return null;
+      }
+      const assProb = await this.assignmentProblemRepository.findOne({
+        assignment,
+        problem,
+      });
+      return assProb;
+    } catch (err) {
+      this.logger.error(err);
+      throw new Http503Exception('getAssProb-by-Ass&Prob.unknown-error');
     }
   }
 

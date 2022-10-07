@@ -14,7 +14,7 @@ export const SETTING_FIELDS_AVAILABLE = [
   'enable_py2_shield',
   'enable_py3_shield',
   // 'enable_java_policy', // This field & `javaexceptions` field in assignment -> Unknown meaning, use for what?
-  // 'enable_log', // Currently, it not support!
+  'enable_log',
   'submit_penalty',
   'enable_registration',
   // 'registration_code', // Unknown meaning, use for what?
@@ -44,4 +44,5 @@ export const SETTING_FIELDS_MAPPING = {
   'submit_penalty': 'submit_penalty',
   'enable_registration': 'enable_registration',
   'moss_userid': 'moss_userid',
+  'enable_log': 'enable_log',
 };
