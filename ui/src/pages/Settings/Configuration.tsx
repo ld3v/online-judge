@@ -56,26 +56,6 @@ const Configuration: React.FC<IConfiguration> = ({
       <Row gutter={[20, 20]}>
         <Col span={12}>
           <Form.Item
-            name="concurent_queue_process"
-            label={intl.formatMessage({
-              id: 'settings.form.configuration.concurent_queue_process.label',
-            })}
-            rules={[
-              {
-                required: true,
-                message: intl.formatMessage({
-                  id: 'settings.form.configuration.concurent_queue_process.required',
-                }),
-              },
-            ]}
-          >
-            <Input
-              placeholder={intl.formatMessage({
-                id: 'settings.form.configuration.concurent_queue_process.placeholder',
-              })}
-            />
-          </Form.Item>
-          <Form.Item
             name="file_size_limit"
             label={intl.formatMessage({
               id: 'settings.form.configuration.file_size_limit.label',

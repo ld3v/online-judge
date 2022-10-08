@@ -1,11 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as moment from 'moment';
 import { Http314Exception } from 'utils/Exceptions/http314.exception';
+import { Http503Exception } from 'utils/Exceptions/http503.exception';
 import { ResponseWithData } from 'utils/responseFormat';
 import { Role } from './account/account.enum';
 import { AccountService } from './account/account.service';
 import { AppService } from './app.service';
+import CustomLogger from './logger/customLogger';
+import { SettingService } from './setting/setting.service';
 
 @Controller()
 export class AppController {
@@ -13,6 +16,8 @@ export class AppController {
     private readonly appService: AppService,
     private readonly configService: ConfigService,
     private readonly accountService: AccountService,
+    private readonly settingService: SettingService,
+    private readonly logger: CustomLogger,
   ) {}
 
   @Get()
@@ -38,31 +43,13 @@ export class AppController {
 
   @Get('init')
   public async initApp(): Promise<string> {
-    const username = this.configService.get('APP_ACCOUNT_USER');
-    const display_name = this.configService.get('APP_ACCOUNT_NAME') || 'Admin';
-    const password = this.configService.get('APP_ACCOUNT_PASS');
-
     try {
-      const existed = await this.accountService.getByFields(
-        { username },
-        true,
-      );
-      if (existed) {
-        return 'Hi, I am here!';
-      }
-      const adminAccount = await this.accountService.create(
-        { username, display_name, password, role: Role.Admin, email: '', is_root: true },
-      );
-      if (!adminAccount) {
-        return 'Ohh! Where am I! Can I see me!?';
-      }
-      return 'Thank for awake me up!';
+      const initAccountMsg = await this.accountService.initDefaultAccount();
+      const initSettingMsg = await this.settingService.initDefaultSetting();
+      
+      return `${initAccountMsg}<br>${initSettingMsg}`;
     } catch (err) {
-      if (err && err.message === 'Email was existed in database') {
-        return `So early, now is ${moment().format('HH:mm - DD/MM/YY')}`;
-      }
-      console.error('[ERR] - Error when run init: ', err);
-      return 'Ohh! I think i have COVID-19 virus!!';
+      throw new Http503Exception('app.init.unknown')
     }
   }
 }

@@ -2,9 +2,6 @@ import { IsBoolean, IsNumber, IsString } from 'class-validator';
 
 class SettingDto {
   @IsNumber()
-  concurent_queue_process: number;
-
-  @IsNumber()
   file_size_limit: number;
 
   @IsNumber()

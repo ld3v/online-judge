@@ -4,10 +4,6 @@ export default {
   // Form
   'settings.form.configuration.title': 'Configuration',
 
-  'settings.form.configuration.concurent_queue_process.label': 'Number of queue process',
-  'settings.form.configuration.concurent_queue_process.placeholder': '2',
-  'settings.form.configuration.concurent_queue_process.required': 'Not allow empty',
-
   'settings.form.configuration.file_size_limit.label': 'File size limit (kB)',
   'settings.form.configuration.file_size_limit.placeholder': '50000',
   'settings.form.configuration.file_size_limit.required': 'Not allow empty',

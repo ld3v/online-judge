@@ -39,14 +39,9 @@ export const FORMAT_DATETIME = 'DD/MM/YYYY HH:mm';
 // Setting
 export const MAX_ASSIGNMENTS_USING_PROBLEM = 1;
 export const SETTING_FIELDS_MAPPING = {
-  'concurent_queue_process': 'concurent_queue_process',
   'file_size_limit': 'file_size_limit',
   'output_size_limit': 'output_size_limit',
   'default_late_rule': 'default_late_rule',
-  'enable_c_shield': 'enable_c_shield',
-  'enable_cpp_shield': 'enable_cpp_shield',
-  'enable_py2_shield': 'enable_py2_shield',
-  'enable_py3_shield': 'enable_py3_shield',
   'submit_penalty': 'submit_penalty',
   'enable_registration': 'enable_registration',
   'moss_userid': 'moss_userid',
