@@ -1,23 +1,8 @@
-//'concurent_queue_process': 'concurent_queue_process',
-// 'file_size_limit': 'file_size_limit',
-// 'output_size_limit': 'output_size_limit',
-// 'default_late_rule': 'default_late_rule',
-// 'enable_c_shield': 'enable_c_shield',
-// 'enable_cpp_shield': 'enable_cpp_shield',
-// 'enable_py2_shield': 'enable_py2_shield',
-// 'enable_py3_shield': 'enable_py3_shield',
-// 'submit_penalty': 'submit_penalty',
-// 'enable_registration': 'enable_registration',
-// 'moss_userid': 'moss_userid',
 export default {
   // Main
   'settings.update-info.success': 'Cập nhật cấu hình hệ thống thành công!',
   // Form
   'settings.form.configuration.title': 'Cấu hình ứng dụng',
-
-  'settings.form.configuration.concurent_queue_process.label': 'Số tiến trình hàng đợi',
-  'settings.form.configuration.concurent_queue_process.placeholder': '2',
-  'settings.form.configuration.concurent_queue_process.required': 'Không được để trống',
 
   'settings.form.configuration.file_size_limit.label': 'Giới hạn kích thước tệp (kB)',
   'settings.form.configuration.file_size_limit.placeholder': '50000',

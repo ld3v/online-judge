@@ -14,7 +14,7 @@ import CustomLogger from 'src/logger/customLogger';
 import { Problem } from 'src/problem/entities/problem.entity';
 import { ProblemLanguage } from 'src/problem/entities/problem_language.entity';
 import { ProblemService } from 'src/problem/problem.service';
-import { SETTING_FIELDS_AVAILABLE } from 'utils/constants/settings';
+import { DEFAULT_SETTING_VALUES, SETTING_FIELDS_AVAILABLE } from 'utils/constants/settings';
 import { Http502Exception } from 'utils/Exceptions/http502.exception';
 import { Http506Exception } from 'utils/Exceptions/http506.exception';
 import { array2Map } from 'utils/func';
@@ -298,14 +298,26 @@ export class SettingService {
     }
   }
 
+  public async initDefaultSetting(): Promise<string> {
+    try {
+      // Check currently status
+      const currentSetting = await this.get();
+      if (Object.keys(currentSetting).length > 0) {
+        return 'My son is already here!';
+      }
+      const res = await this.update(DEFAULT_SETTING_VALUES);
+      return Object.keys(res).length > 0
+        ? 'Do you known my son\' name? He was just born!'
+        : 'My son is in HCM Hospital! He has COVID-19 virus!';
+    } catch (err) {
+      this.logger.error(err);
+      return 'Oh no! Where is my son! Do you see him?';
+    }
+  }
+
   public transformSetting(settings: Record<string, string>): Record<string, any> {
     return {
       ...settings,
-      concurent_queue_process: Number(settings.concurent_queue_process),
-      enable_c_shield: `${settings.enable_c_shield}` === "true",
-      enable_cpp_shield: `${settings.enable_cpp_shield}` === "true",
-      enable_py2_shield: `${settings.enable_py2_shield}` === "true",
-      enable_py3_shield: `${settings.enable_py3_shield}` === "true",
       enable_registration: `${settings.enable_registration}` === "true",
       file_size_limit: Number(settings.file_size_limit),
       output_size_limit: Number(settings.output_size_limit),

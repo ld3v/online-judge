@@ -15,6 +15,7 @@ import { Http503Exception } from 'utils/Exceptions/http503.exception';
 import { Role } from './account.enum';
 import { ProblemService } from 'src/problem/problem.service';
 import CustomLogger from 'src/logger/customLogger';
+import * as moment from 'moment';
 
 const { HASH_SALT_DEFAULT } = defaultValues;
 const ACC_SELECTED_FIELDS = [
@@ -36,7 +37,6 @@ export class AccountService {
     @InjectRepository(AccountRepository)
     private readonly accountRepository: AccountRepository,
     @Inject(forwardRef(() => AuthService))
-    private readonly authService: AuthService,
     private readonly problemService: ProblemService,
     private readonly configSrv: ConfigService,
     private readonly logger: CustomLogger,
@@ -305,6 +305,34 @@ export class AccountService {
     const accountsNeedRemove = await this.accountRepository.find({ is_root: false });
     const res = await this.accountRepository.remove(accountsNeedRemove);
     return res;
+  }
+
+  public async initDefaultAccount(): Promise<string> {
+    const username = this.configSrv.get('APP_ACCOUNT_USER');
+    const display_name = this.configSrv.get('APP_ACCOUNT_NAME') || 'Admin';
+    const password = this.configSrv.get('APP_ACCOUNT_PASS');
+    try {
+      const existed = await this.getByFields(
+        { username },
+        true,
+      );
+      if (existed) {
+        return 'Hi, I am here!';
+      }
+      const adminAccount = await this.create(
+        { username, display_name, password, role: Role.Admin, email: '', is_root: true },
+      );
+      if (!adminAccount) {
+        return 'Ohh! Where am I! Can I see me!?';
+      }
+      return 'Thank for awake me up!';
+    } catch (err) {
+      if (err && err.message === 'Email was existed in database') {
+        return `So early, now is ${moment().format('HH:mm - DD/MM/YY')}`;
+      }
+      this.logger.error(err);
+      return 'Ohh! I think i have COVID-19 virus!!';
+    }
   }
 
   public transformAccountData (requester: Account, ...accounts: Account[]): IAccountTransformed[] {
