@@ -2,6 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { isJSON } from 'class-validator';
 import * as moment from 'moment';
 import { AccountService } from 'src/account/account.service';
 import { Account } from 'src/account/entities/account.entity';
@@ -15,10 +16,10 @@ import { SubmissionService } from 'src/submission/submission.service';
 import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { Http503Exception } from 'utils/Exceptions/http503.exception';
 import { Http506Exception } from 'utils/Exceptions/http506.exception';
-import { array2Map } from 'utils/func';
+import { array2Map, isArrNumbers, isObj, jsonParsed } from 'utils/func';
 import { FoundAndNotFoundResult, IAssignment, SuccessAndFailed } from 'utils/types';
 import { AssignmentAccountRepository, AssignmentProblemRepository, AssignmentRepository } from './assignment.repository';
-import { IAssignmentEntity, IAssignmentProblemInput, IAssignmentTransformed, ICoefficientInfo, TSearchQuery } from './assignment.types';
+import { IAssignmentEntity, IAssignmentProblemInput, IAssignmentTransformed, ICoefficientInfo, ICoefficientRule, TSearchQuery } from './assignment.types';
 import { Assignment } from './entities/assignment.entity';
 import { AssignmentAccount } from './entities/assignment_account.entity';
 import { AssignmentProblem } from './entities/assignment_problem.entity';
@@ -43,8 +44,8 @@ export class AssignmentService {
   ) {}
 
   public async create (data: IAssignment): Promise<Assignment> {
-    const newProb = this.assignmentRepository.create(data);
-    return await this.assignmentRepository.save(newProb);
+    const newAss = this.assignmentRepository.create(data);
+    return await this.assignmentRepository.save(newAss);
   }
 
   public async createMulti (
@@ -267,8 +268,8 @@ export class AssignmentService {
         }
         return null;
       }
-      const assignmentsWithCoef = await this.joinCoefficient([curAss]);
-      return assignmentsWithCoef[0]
+      // const assignmentsWithCoef = await this.joinCoefficient([curAss]);
+      return curAss
     } catch (err) {
       throw err;
     }
@@ -304,7 +305,7 @@ export class AssignmentService {
    * @param {boolean} withTransform Transform data to public. Default is `true`.
    * @returns 
    */
-  public async getAll(participant: Account = null, { keyword, exceptIds, page, limit, sorter }: TSearchQuery = {}, withCoef: boolean = true, withTransform: boolean = true) {
+  public async getAll(participant: Account = null, { keyword, exceptIds, page, limit, sorter }: TSearchQuery = {}, withTransform: boolean = true) {
     let assignmentQuery = this.assignmentRepository.createQueryBuilder("assignment")
       .leftJoinAndSelect('assignment.accounts', 'participants')
       .leftJoinAndSelect('participants.account', 'account')
@@ -344,9 +345,9 @@ export class AssignmentService {
     }
 
     let assignments = await assignmentQuery.getMany();
-    if (withCoef) {
-      assignments = await this.joinCoefficient(assignments);
-    }
+    // if (withCoef) {
+    //   assignments = await this.joinCoefficient(assignments);
+    // }
     return {
       data: withTransform ? this.transformData(...assignments) : assignments,
       total: countItems,
@@ -530,5 +531,45 @@ export class AssignmentService {
       new Date(assignment.start_time),
       !!assignment.finish_time && new Date(assignment.finish_time),
     );
+  }
+
+  public validateCoefficientRules(rulesStr: string): ICoefficientRule[] {
+    const rulesParsed = jsonParsed(rulesStr) || []; 
+    if (!Array.isArray(rulesParsed) || rulesParsed.length === 0) throw new Http400Exception('assignment.coefficient-rules.invalid', { errors: ['Rules is not a valid array (or empty)!'] });
+    const errors = [];
+    rulesParsed.forEach((v, i) => {
+      const index = i + 1;
+      const ruleName = `Rule#${index}`;
+      if (!isObj(v)) {
+        console.log(rulesParsed, v);
+        errors.push(`${ruleName} should be an Object`);
+        return;
+      }
+      if (!v.DELAY_RANGE || !isArrNumbers(v.DELAY_RANGE, 2)) {
+        errors.push(
+          !v.DELAY_RANGE
+            ? `Property 'DELAY_RANGE' is not exist in ${ruleName}`
+            : `Property 'DELAY_RANGE' should be an array [Number, Number]`
+        );
+      }
+      if ((!v.CONST && !v.VARIANT_OVER_TIME) || (v.CONST && v.VARIANT_OVER_TIME)) {
+        const errCnt = (!v.CONST && !v.VARIANT_OVER_TIME)
+          ? "should have"
+          : "only need"
+        errors.push(`${ruleName} ${errCnt} 1 of 2 properties 'CONST' or 'VARIANT_OVER_TIME'`);
+        return;
+      }
+      // Need update this validate rule.
+      if (v.CONST && (typeof v.CONST !== 'number' || isNaN(v.CONST))) {
+        errors.push(`${ruleName} - Property 'CONST' should be a Number.`);
+      }
+      if (v.VARIANT_OVER_TIME && !isArrNumbers(v.DELAY_RANGE, 2)) {
+        errors.push(`${ruleName} - Property 'VARIANT_OVER_TIME' should be an array [Number, Number].`);
+      }
+    });
+    if (errors.length > 0) {
+      throw new Http400Exception('assignment.coefficient-rules.invalid', { errors });
+    }
+    return rulesParsed;
   }
 }

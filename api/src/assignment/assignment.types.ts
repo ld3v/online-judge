@@ -59,3 +59,10 @@ export type TSearchQuery = {
     type: TSortType;
   }
 }
+
+export interface ICoefficientRule {
+  DELAY_RANGE: [number, number];
+  BASE_MINS?: number;
+  CONST?: number;
+  VARIANT_OVER_TIME?: [number, number];
+}

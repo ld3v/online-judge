@@ -32,7 +32,7 @@ const CreateNotificationModal: React.FC<ICreateNotificationModal> = ({ visible, 
   };
   return (
     <Modal
-      visible={visible}
+      open={visible}
       title={intl.formatMessage({ id: 'notification.create' })}
       closable
       onCancel={() => handleClose()}

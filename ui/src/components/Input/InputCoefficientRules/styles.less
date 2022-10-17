@@ -1,0 +1,173 @@
+.InputCoefficientRules {
+  .InputCoefficientRulesInput {
+    width: 100%;
+    padding: 10px;
+    border: 1px dashed #e1e1e1;
+
+    .InputCoefficientRulesWarning {
+      height: auto;
+      margin-bottom: 0;
+
+      :global {
+        .ant-form-item-control-input {
+          min-height: auto;
+        }
+        .ant-alert {
+          margin-top: 10px;
+        }
+      }
+    }
+  }
+  .InputCoefficientRulesActions {
+    display: flex;
+
+    :global {
+      .ant-button {
+        margin-right: 10px;
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+  .InputCoefficientRulesValidatorWarn {
+    margin-top: 20px;
+  }
+}
+
+.CoefficientRuleItem {
+  position: relative;
+  display: flex;
+  align-self: center;
+  justify-content: space-between;
+
+  :global {
+    .coefficientRule-inputs {
+      display: flex;
+
+      .coefficientRule-inputRange,
+      .coefficientRule-inputType,
+      .coefficientRule-inputBaseMins,
+      .coefficientRule-inputTypeValue,
+      .coefficientRule-checking {
+        &.ant-form-item {
+          margin-bottom: 10px;
+        }
+      }
+      .coefficientRule-inputRange {
+        width: 165px;
+        margin-right: 5px;
+      }
+      .coefficientRule-inputBaseMins {
+        width: 120px;
+        margin-right: 10px;
+      }
+      .coefficientRule-inputType {
+        width: 150px;
+        margin-right: 5px;
+      }
+      .coefficientRule-inputTypeValue {
+        width: 105px;
+        margin-right: 10px;
+      }
+    }
+    .coefficientRule-remove {
+      .remove {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        background-color: #fff;
+        border: 1px solid #ff7d7d;
+        border-radius: 50%;
+        cursor: pointer;
+        opacity: 0;
+        transition: 300ms;
+
+        span.anticon {
+          color: #ff7d7d;
+        }
+
+        &:hover {
+          background-color: #ff7d7d;
+
+          span.anticon {
+            color: #fff;
+          }
+        }
+      }
+
+      &.ant-form-item {
+        margin-bottom: 10px;
+      }
+    }
+  }
+
+  &::before {
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    z-index: 0;
+    width: calc(100% + 10px);
+    height: 100%; // Include 10px margin -> Not need add 10px;
+    border: 1px dashed #fff0;
+    border-radius: 5px;
+    transform: translateX(-50%);
+    transition: 300ms;
+    content: '';
+  }
+  &:global([data-label='true'])::before {
+    top: 25px;
+    height: calc(100% - 30px);
+  }
+  &:hover {
+    :global(.coefficientRule-remove .remove) {
+      opacity: 1;
+    }
+
+    &::before {
+      border-color: #cfcfcf;
+    }
+  }
+}
+
+.InputRange {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+
+  :global {
+    .ant-input {
+      width: calc(50% - 2.5px);
+
+      &[data-index='1'] {
+        text-align: right;
+      }
+    }
+    span.anticon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 2;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  &::before {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px 0 rgba(77, 77, 77, 0.5);
+    transform: translate(-50%, -50%);
+    content: '';
+  }
+}

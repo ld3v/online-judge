@@ -107,3 +107,8 @@ export const getOriginFiles = (files: UploadFile[] = []) => {
     .map(f => f && f.originFileObj && f.originFileObj instanceof File ? f.originFileObj : undefined)
     .filter(f => f);
 }
+
+// Support validation
+export const isNotZero = (inp?: Number) => {
+  return !!inp && inp !== 0
+}

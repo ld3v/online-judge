@@ -16,6 +16,7 @@ import { Role } from './account.enum';
 import { ProblemService } from 'src/problem/problem.service';
 import CustomLogger from 'src/logger/customLogger';
 import * as moment from 'moment';
+import { AuthRepository } from 'src/auth/auth.repository';
 
 const { HASH_SALT_DEFAULT } = defaultValues;
 const ACC_SELECTED_FIELDS = [
@@ -37,6 +38,7 @@ export class AccountService {
     @InjectRepository(AccountRepository)
     private readonly accountRepository: AccountRepository,
     @Inject(forwardRef(() => AuthService))
+    private readonly authRepository: AuthRepository,
     private readonly problemService: ProblemService,
     private readonly configSrv: ConfigService,
     private readonly logger: CustomLogger,

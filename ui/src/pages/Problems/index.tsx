@@ -21,14 +21,12 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
   const handleSubmitCode = (values: any) => {
     const { assignmentId, problemId, languageExtension, code } = values;
     if (!assignmentId || !problemId || !languageExtension) {
-      console.log(values);
       notification.error({
         message: intl.formatMessage({ id: 'exception.component.form.miss-data' }),
       });
       return;
     }
     const submitCodeCb = (res: any, err?: any) => {
-      console.log(res);
       if (err) console.error(err);
     };
     dispatch({

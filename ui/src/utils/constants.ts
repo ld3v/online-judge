@@ -1,4 +1,5 @@
 import { TAccountRole } from '@/types/account';
+import { TCoefficientRuleField, TCoefficientRuleType } from '@/types/assignment';
 
 // ROLE
 export const ROLES: Record<'admin' | 'user', TAccountRole> = {
@@ -45,6 +46,13 @@ export const SETTING_FIELDS_MAPPING = {
   'submit_penalty': 'submit_penalty',
   'enable_registration': 'enable_registration',
   'moss_userid': 'moss_userid',
+};
+export const COEFFICIENT_RULE_TYPES: TCoefficientRuleType[] = ["VARIANT_OVER_TIME", "CONST"];
+export const COEFFICIENT_RULE_FIELD_MAPPING: { [field: string]: TCoefficientRuleField } = {
+  delayRange: "DELAY_RANGE",
+  baseMins: "BASE_MINS",
+  variantOverTime: "VARIANT_OVER_TIME",
+  const: "CONST",
 };
 
 // REGEX

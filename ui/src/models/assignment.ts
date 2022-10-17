@@ -119,7 +119,6 @@ const AssignmentModel: IAssignmentModel = {
       const { data, callback } = payload || {};
       try {
         const res = yield call(createAssignment, data);
-        console.log(res);
         if (res.isError) {
           callback?.(false, res);
           return;

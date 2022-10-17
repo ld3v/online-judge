@@ -39,9 +39,22 @@ export default {
   'component.actions-icon.lock-me': 'Khoá tài khoản của tôi',
   'component.actions-icon.lock-me.title': 'Khoá chính mình và đăng xuất khỏi tài khoản này?',
   'component.actions-icon.list': 'Xem danh sách',
+  // Input coefficient rule
+  'component.input-coefficient-rule.label': 'Thiết lập hệ số',
+  'component.input-coefficient-rule.description': '- Thứ tự ưu tiên từ trên xuống dưới.<br>- Mặc định (không có thiết lập), hệ số là <b>100</b>.<br>- Để hiểu rõ và biết cách sử dụng, đọc <a href="#">ở đây</a>.',
+  'component.input-coefficient-rule.delay-range': 'Phạm vi trễ',
+  'component.input-coefficient-rule.type': 'Loại hệ số',
+  'component.input-coefficient-rule.base-mins': 'Thời gian nền',
+  'component.input-coefficient-rule.const': 'Giá trị',
+  'component.input-coefficient-rule.variant-over-time': 'Phạm vi',
+  'component.input-coefficient-rule.type.CONST': 'Không đổi',
+  'component.input-coefficient-rule.type.VARIANT_OVER_TIME': 'Biến thiên',
+  'component.input-coefficient-rule.add': 'Thêm điều kiện',
   // Loading
   'component.loading.modal.title': 'Đang tải...',
   // Exception
+  // Common
+  'exception.component.data-render-error': 'Một lỗi nào đó đã xảy ra trong quá trình hiển thị dữ liệu cho bạn! Vui lòng tải lại trang và thử lại sau!',
   // Exception - Time
   'exception.time.start.required': 'Vui lòng nhập thời gian bắt đầu!',
   'exception.time.start-finish.required': 'Vui lòng nhập thời gian bắt đầu và kết thúc!',

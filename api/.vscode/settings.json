@@ -25,7 +25,7 @@
     "titleBar.inactiveForeground": "#e7e7e799",
     "statusBar.background": "#fd7575",
     "statusBarItem.hoverBackground": "#626262",
-    "statusBar.foreground": "#fd7575",
+    "statusBar.foreground": "#ffffff",
   },
   "workbench.preferredLightColorTheme": "Default Dark+"
 }
