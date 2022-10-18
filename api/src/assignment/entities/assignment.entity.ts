@@ -68,6 +68,12 @@ export class Assignment {
   public late_rule: string;
 
   @Column({
+    name: 'coefficient_rules',
+    default: '',
+  })
+  public coefficient_rules: string;
+
+  @Column({
     name: 'moss_update',
     default: '',
   })

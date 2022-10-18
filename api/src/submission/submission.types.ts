@@ -19,4 +19,5 @@ export interface IAddSubmission {
   language: Language;
   queue: Queue;
   code: string;
+  coefficient?: string;
 }

@@ -32,6 +32,8 @@ export const SETTING_FIELDS_AVAILABLE = [
   // 'results_per_page_final',
   // Not use in currently.
   // 'week_start',
+  // New field for this version
+  'default_coefficient_rules',
 ];
 
 export const SETTING_FIELDS_MAPPING: Record<string, TSettingField> = {
@@ -79,6 +81,7 @@ export const DEFAULT_SETTING_VALUES: Record<TSettingField, any> = {
    elseif ($delay > $extra_time)
      // too late
      $coefficient = 0;`,
+  default_coefficient_rules: '',
   enable_registration: false,
   moss_userid: 0,
   submit_penalty: 300,

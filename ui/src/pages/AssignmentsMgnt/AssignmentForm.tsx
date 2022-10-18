@@ -56,7 +56,7 @@ const AssignmentFormPage: React.FC<IAssignmentFormPage> = ({
   const intl = useIntl();
 
   const initialValues = {
-    lateRules: defaultValues?.lateRules ? JSON.parse(defaultValues.lateRules) : [],
+    lateRules: defaultValues?.lateRules || [],
     problems: [],
     is_public: true,
     extra_time: 0,
@@ -155,7 +155,7 @@ const AssignmentFormPage: React.FC<IAssignmentFormPage> = ({
     const data = {
       ...values,
       description: description || '',
-      late_rule: lateRules,
+      late_rules: lateRules,
       start_time: time.startTime ? time.startTime.toDate() : undefined,
       finish_time: time.finishTime ? time.finishTime.toDate() : undefined,
       problems: problemsTransformed,
@@ -339,7 +339,7 @@ const AssignmentFormPage: React.FC<IAssignmentFormPage> = ({
           </Form.Item>
         </Col>
       </Row>
-      <InputCoefficientRules form={form} defaultRules={defaultLateRule} />
+      <InputCoefficientRules form={form} defaultRules={defaultLateRule} needToVerifyRules />
       <Form.Item
         label={problemsLabel}
         name="problems"
@@ -420,7 +420,7 @@ const AssignmentFormPage: React.FC<IAssignmentFormPage> = ({
 };
 
 export default connect(({ settings, account, problem, loading }: any) => ({
-  defaultLateRule: settings.dic[SETTING_FIELDS_MAPPING.default_late_rule],
+  defaultLateRule: settings.dic[SETTING_FIELDS_MAPPING.default_coefficient_rules],
   searchingProblems: loading.effects['problem/search'],
   searchingAccounts: loading.effects['account/search'],
   problemStateDic: problem.dic,

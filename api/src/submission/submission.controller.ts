@@ -102,11 +102,17 @@ export class SubmissionController {
         id: queueId,
         name: QueueName.Submission,
       });
+      const { coefficient } = this.assignmentService.getCoefficient(
+        assignment.coefficient_rules ? JSON.parse(assignment.coefficient_rules) : [],
+        assignment.extra_time,
+        assignment.finish_time
+      );
       // Add submission to db
       const submissionData: IAddSubmission = {
         assignment,
         problem,
         language,
+        coefficient: `${coefficient}`,
         queue: newQueue,
         code: data.code,
       };

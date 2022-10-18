@@ -100,16 +100,16 @@ export class AssignmentService {
     // Update submissions's coefficient if 'rule', 'start_time, 'finish_time', or 'extra_time' changed.
     let coefficientValue = '0';
     if (
-      curAss.late_rule !== data.late_rule ||
+      curAss.coefficient_rules !== data.coefficient_rules ||
       curAss.start_time !== data.start_time ||
       curAss.finish_time !== data.finish_time ||
       curAss.extra_time !== data.extra_time
     ) {
       // Update submissions's coefficient.
+      const coefficientRules = updateData.coefficient_rules ? JSON.parse(updateData.coefficient_rules) : [];
       const { coefficient } = await this.getCoefficient(
-        updateData.late_rule,
+        coefficientRules,
         updateData.extra_time,
-        updateData.start_time,
         updateData.finish_time,
       );
       if (coefficient && coefficient !== "error") {
@@ -305,7 +305,7 @@ export class AssignmentService {
    * @param {boolean} withTransform Transform data to public. Default is `true`.
    * @returns 
    */
-  public async getAll(participant: Account = null, { keyword, exceptIds, page, limit, sorter }: TSearchQuery = {}, withTransform: boolean = true) {
+  public async getAll(participant: Account = null, { keyword, exceptIds, page, limit, sorter }: TSearchQuery = {}, withCoef: boolean = true, withTransform: boolean = true) {
     let assignmentQuery = this.assignmentRepository.createQueryBuilder("assignment")
       .leftJoinAndSelect('assignment.accounts', 'participants')
       .leftJoinAndSelect('participants.account', 'account')
@@ -345,9 +345,9 @@ export class AssignmentService {
     }
 
     let assignments = await assignmentQuery.getMany();
-    // if (withCoef) {
-    //   assignments = await this.joinCoefficient(assignments);
-    // }
+    if (withCoef) {
+      assignments = await this.joinCoefficient(assignments);
+    }
     return {
       data: withTransform ? this.transformData(...assignments) : assignments,
       total: countItems,
@@ -428,7 +428,7 @@ export class AssignmentService {
   // Transform assignment to public data
   public transformData(...assignments: IAssignmentEntity[]): IAssignmentTransformed[] {
     return assignments.map((assignment: IAssignmentEntity) => {
-      const { problems, accounts, submissions, ...info } = assignment;
+      const { problems, accounts, submissions, coefficient_rules, ...info } = assignment;
       // Problems
       const problemData = (Array.isArray(problems) && problems.length > 0) ? problems.map((assProb: AssignmentProblem) => ({
           id: assProb.problem.id,
@@ -446,6 +446,8 @@ export class AssignmentService {
       const submissionData = (Array.isArray(submissions) && submissions.length > 0) ? submissions.map((sub: Submission) => ({
         id: sub.id,
       })) : [];
+      // Late rules
+      const lateRules = coefficient_rules ? JSON.parse(coefficient_rules) : [];
       return {
         id: info.id,
         name: info.name,
@@ -453,7 +455,7 @@ export class AssignmentService {
         startTime: info.start_time,
         finishTime: info.finish_time,
         extraTime: info.extra_time,
-        lateRule: info.late_rule,
+        lateRules,
         open: info.open,
         createdAt: info.created_at,
         coefficient: info.coefficient,
@@ -483,93 +485,118 @@ export class AssignmentService {
 
   /**
    * This func will call to `JUDGE` to get coefficient value by running `late_rule`.
-   * @param {string} rule Assignment's `late_rule`. <?PHP code ?>.
-   * @param {Date} start Assignment's start-time. TIME string.
-   * @param {Date} finish Assignment's finish-time. TIME string.
+   * @param {ICoefficientRule[]} rules Assignment's `coefficient_rules`..
    * @param {number} extra_time Assignment's extra_time (minutes).
+   * @param {Date} finish Assignment's finish-time. TIME string.
    */
-  public async getCoefficient(rule: string, extra_time: number, start: Date, finish?: Date ): Promise<ICoefficientInfo> {
-    const start_time = moment(start).format('YYYY-MM-DD HH:mm:ss');
-    // In judge, the assignment never finish when finish before start.
-    const finish_time = finish
-      ? moment(finish).format('YYYY-MM-DD HH:mm:ss')
-      : moment(start).subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss');
-    try {
-      const judgeURL = this.configService.get('JUDGE_URL');
-      if (!judgeURL) {
-        throw new Http506Exception("judge.no-url");
+  public getCoefficient(rules: ICoefficientRule[], extra_time: number, finish?: Date ): ICoefficientInfo {
+    const now = moment();
+    const finish_time = finish ? moment(finish) : null;
+
+    // Not finish assignment
+    if (!finish_time || now.isBefore(finish_time, 'seconds')) {
+      return {
+        coefficient: 100,
+        finished: false,
       }
-      const url = `${this.configService.get('JUDGE_URL')}/third_party/coefficient`;
-      const res = await this.httpService.axiosRef.get(url, {
-        params: { rule, start_time, finish_time, extra_time: (extra_time || 0) * 60 },
-      });
-      const { is_error, msg, coefficient, finished }: any = res.data || {};
-      if (is_error) {
-        console.error('[EXCEPTION.JUDGE.ERR-REQUEST]', msg);
+    }
+
+    // Finished
+    const finishTimeWithExtra = finish_time.clone().add(extra_time, 'minutes');
+    if (now.isAfter(finishTimeWithExtra)) {
+      return {
+        coefficient: 0,
+        finished: true,
+      }
+    }
+
+    if (!Array.isArray(rules) || rules.length === 0) {
+      return {
+        coefficient: now.isAfter(finishTimeWithExtra) ? 0 : 100,
+        finished: false,
+      }
+    }
+
+    // Run through rules
+    const delayMins = now.diff(finish_time, 'minutes');
+    const ruleLength = rules.length;
+    for (let i = 0; i < ruleLength; i += 1) {
+      const rule = rules[i];
+      // Check delay-range
+      const delayRange = [
+        rule.DELAY_RANGE[0] + (rule.BASE_MINS || 0),
+        rule.DELAY_RANGE[1] + (rule.BASE_MINS || 0),
+      ];
+      const delaySpace = rule.DELAY_RANGE[1] - rule.DELAY_RANGE[0];
+      const delayMinsInRange = delayMins - delayRange[0];
+
+      if (delayRange[0] > delayMins || delayRange[1] < delayMins) {
+        // Not in this range
+        continue;
+      }
+      // Check value type = "VOT" or "CONST"
+      if (Array.isArray(rule.VARIANT_OVER_TIME) && rule.VARIANT_OVER_TIME.length === 2) {
+        const votSpace = rule.VARIANT_OVER_TIME[1] - rule.VARIANT_OVER_TIME[0];
+        const coefVOT = rule.VARIANT_OVER_TIME[1] - ((delayMinsInRange / delaySpace) * votSpace);
+
         return {
-          coefficient: '--',
+          coefficient: coefVOT,
           finished: false,
-        }
+        };
       }
       return {
-        coefficient,
-        finished
-      }
-    } catch (err) {
-      console.error('[EXCEPTION.JUDGE.NO-CONNECT]', err);
-      return {
-        coefficient: '--',
+        coefficient: rule.CONST,
         finished: false,
       }
     }
   }
 
   public async getCoefficientByAssignment(assignment: Assignment) {
+    const rules = assignment.coefficient_rules ? JSON.parse(assignment.coefficient_rules) : [];
     return await this.getCoefficient(
-      assignment.late_rule,
+      rules,
       assignment.extra_time,
-      new Date(assignment.start_time),
       !!assignment.finish_time && new Date(assignment.finish_time),
     );
   }
 
-  public validateCoefficientRules(rulesStr: string): ICoefficientRule[] {
-    const rulesParsed = jsonParsed(rulesStr) || []; 
-    if (!Array.isArray(rulesParsed) || rulesParsed.length === 0) throw new Http400Exception('assignment.coefficient-rules.invalid', { errors: ['Rules is not a valid array (or empty)!'] });
-    const errors = [];
-    rulesParsed.forEach((v, i) => {
+  public validateCoefficientRules(rules: ICoefficientRule[]): ICoefficientRule[] {
+    if (!Array.isArray(rules)) {
+      throw new Http400Exception('assignment.form.coefficient-rules.invalid', {
+        errors: [{
+          msg: 'assignment.form.coefficient-rules.invalid',
+          value: { e: 'format' }
+        }]});
+    }
+    const errors: { msg: string, value?: { i: number, e?: string } }[] = [];
+    rules.forEach((v, i) => {
       const index = i + 1;
-      const ruleName = `Rule#${index}`;
       if (!isObj(v)) {
-        console.log(rulesParsed, v);
-        errors.push(`${ruleName} should be an Object`);
+        errors.push({ msg: 'assignment.form.coefficient-rule.invalid', value: { i: index } });
         return;
       }
       if (!v.DELAY_RANGE || !isArrNumbers(v.DELAY_RANGE, 2)) {
-        errors.push(
-          !v.DELAY_RANGE
-            ? `Property 'DELAY_RANGE' is not exist in ${ruleName}`
-            : `Property 'DELAY_RANGE' should be an array [Number, Number]`
-        );
+        const delayRangeErr = !v.DELAY_RANGE ? 'format' : 'logic';
+        errors.push({ msg: 'assignment.form.coefficient-rule.time-range.invalid', value: { i: index, e: delayRangeErr } });
       }
       if ((!v.CONST && !v.VARIANT_OVER_TIME) || (v.CONST && v.VARIANT_OVER_TIME)) {
-        const errCnt = (!v.CONST && !v.VARIANT_OVER_TIME)
-          ? "should have"
-          : "only need"
-        errors.push(`${ruleName} ${errCnt} 1 of 2 properties 'CONST' or 'VARIANT_OVER_TIME'`);
+        const errProblem = (!v.CONST && !v.VARIANT_OVER_TIME)
+          ? "empty"
+          : "conflict"
+        errors.push({ msg: `assignment.form.coefficient-rule.coefficient-value.${errProblem}`, value: { i: index } });
         return;
       }
       // Need update this validate rule.
       if (v.CONST && (typeof v.CONST !== 'number' || isNaN(v.CONST))) {
-        errors.push(`${ruleName} - Property 'CONST' should be a Number.`);
+        errors.push({ msg: 'assignment.form.coefficient-rule.coefficient-value.const-invalid', value: { i: index, e: 'const_is-nan'} });
       }
       if (v.VARIANT_OVER_TIME && !isArrNumbers(v.DELAY_RANGE, 2)) {
-        errors.push(`${ruleName} - Property 'VARIANT_OVER_TIME' should be an array [Number, Number].`);
+        errors.push({ msg: 'assignment.form.coefficient-rule.coefficient-value.vot-invalid', value: { i: index, e: 'vot_is-not_range' }});
       }
     });
     if (errors.length > 0) {
       throw new Http400Exception('assignment.coefficient-rules.invalid', { errors });
     }
-    return rulesParsed;
+    return rules;
   }
 }

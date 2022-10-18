@@ -2,7 +2,8 @@ import { ErrorBoundary } from '@/components/Boundary';
 import { LabelWithDesc } from '@/components/CardWrapForm/Input';
 import { ICoefficientRule } from '@/types/assignment';
 import { COEFFICIENT_RULE_FIELD_MAPPING } from '@/utils/constants';
-import { Alert, Button, Form, FormInstance, notification } from 'antd';
+import { Alert, Button, Form, FormInstance, FormItemProps, notification } from 'antd';
+import moment from 'moment';
 import { FormattedHTMLMessage, FormattedMessage, useIntl } from 'umi';
 import CoefficientRuleChecking from './CoefficientRuleChecking';
 import CoefficientRuleItem from './CoefficientRuleItem';
@@ -13,12 +14,23 @@ import { checkCoefficientRules } from './utils';
 interface IInputCoefficientRules {
   form: FormInstance;
   defaultRules?: ICoefficientRule[];
+  label?: FormItemProps['label'];
+  needToVerifyRules?: boolean;
 }
 
-const InputCoefficientRules: React.FC<IInputCoefficientRules> = ({ form }) => {
+/**
+ * ### Coefficient rules configure
+ *
+ * Property **needToVerifyRules** use to verify rules when use in assignment form. (Have value for finish-time, extra-time).
+ */
+const InputCoefficientRules: React.FC<IInputCoefficientRules> = ({
+  label,
+  form,
+  needToVerifyRules,
+}) => {
   const intl = useIntl();
-  // [For test only]
-  const inputLabel = (
+
+  const inputLabel = label || (
     <LabelWithDesc
       label={intl.formatMessage({ id: 'component.input-coefficient-rule.label' })}
       description={<FormattedHTMLMessage id="component.input-coefficient-rule.description" />}
@@ -33,16 +45,21 @@ const InputCoefficientRules: React.FC<IInputCoefficientRules> = ({ form }) => {
             rules={[
               {
                 validator() {
-                  const finishTime = form.getFieldValue(['time', 'finishTime']);
-                  const extraTime = form.getFieldValue('extra_time');
-                  const rules = form.getFieldValue('lateRules');
+                  // If not verify -> Finish time is end of day (today).
+                  const finishTime = needToVerifyRules
+                    ? form.getFieldValue(['time', 'finishTime'])
+                    : moment().endOf('day');
+                  // If not verify -> Extra time is 30 days
+                  const extraTime = needToVerifyRules
+                    ? form.getFieldValue('extra_time')
+                    : 60 * 24 * 30;
+                  const rules = form.getFieldValue('lateRules') || [];
 
                   const { important: importErrs, byRule: ruleErrs } = checkCoefficientRules(
                     rules,
                     finishTime,
                     Number(extraTime),
                   );
-                  console.log();
                   if (importErrs.length > 0) {
                     const errorMsg = intl.formatMessage({
                       id: 'exception.component.data-render-error',
@@ -128,7 +145,12 @@ const InputCoefficientRules: React.FC<IInputCoefficientRules> = ({ form }) => {
               return isDiffExtra || isDiffFinish || isDiffRule;
             }}
           >
-            {({ getFieldValue }) => <CoefficientRuleChecking onGetFieldValue={getFieldValue} />}
+            {({ getFieldValue }) => (
+              <CoefficientRuleChecking
+                onGetFieldValue={getFieldValue}
+                needToVerify={needToVerifyRules}
+              />
+            )}
           </Form.Item>
         </div>
       </Form.Item>

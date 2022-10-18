@@ -119,6 +119,8 @@ export const judgeAssignment2Assignment = (
     newAss.extra_time = Number(extra_time || 0);
     newAss.start_time = startTime;
     newAss.finish_time = finishTime;
+    // Old rule is not available for this version! It still save to database, but not use in any cases!
+    // To use new rule, check doc here: https://github.com/nqhd3v/online-judge/blob/main/api/docs/eval-coefficient.md
     newAss.late_rule = late_rule;
     newAss.open = !!open && open === "1";
     newAss.javaexceptions = !!javaexceptions && javaexceptions === "1";

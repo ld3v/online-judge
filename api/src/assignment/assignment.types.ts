@@ -4,7 +4,7 @@ import { Assignment } from "./entities/assignment.entity";
 import { AssignmentAccount } from "./entities/assignment_account.entity";
 import { AssignmentProblem } from "./entities/assignment_problem.entity";
 
-export interface ICoefficientInfo {coefficient: any; finished: boolean};
+export interface ICoefficientInfo {coefficient: any; finished: boolean, isLate?: boolean };
 
 export interface  IAssignmentProblemTransformed {
   id: string; // problem.id
@@ -25,7 +25,7 @@ export interface IAssignmentTransformed {
   startTime: Date,
   finishTime: Date,
   extraTime: number,
-  lateRule: string,
+  lateRules: ICoefficientRule[],
   open: boolean;
   createdAt: Date,
   problems: IAssignmentProblemTransformed[],
@@ -61,8 +61,8 @@ export type TSearchQuery = {
 }
 
 export interface ICoefficientRule {
-  DELAY_RANGE: [number, number];
+  DELAY_RANGE: number[];
   BASE_MINS?: number;
   CONST?: number;
-  VARIANT_OVER_TIME?: [number, number];
+  VARIANT_OVER_TIME?: number[];
 }

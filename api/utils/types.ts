@@ -60,7 +60,7 @@ export interface IAssignment {
   start_time?: any;
   finish_time?: any;
   extra_time?: any;
-  late_rule?: string;
+  coefficient_rules?: string;
   moss_update?: string;
   is_public?: boolean;
   // Relations data

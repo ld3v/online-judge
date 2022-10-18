@@ -64,8 +64,8 @@ export default {
   'exception.assignment.form.coefficient-rule.time-range.smaller-extra': '<b>Rule#{i}</b>: Extra-time is too short with <code>delay-range</code> and <code>base-mins</code> (<code>Delay-range max</code> + <code>Base mins</code> <= <code>Extra-time</code>).',
   'exception.assignment.form.coefficient-rule.coefficient-value.empty': 'Please fill your coefficient value!',
   'exception.assignment.form.coefficient-rule.coefficient-value.conflict': 'Unexpected error appeared when you change type of coefficient! Reload page and try again!',
-  'exception.assignment.form.coefficient-rule.coefficient-value.const-out-range': 'Constant value is invalid (0 <= <code>Coefficient</code> <= 100).',
-  'exception.assignment.form.coefficient-rule.coefficient-value.vot-out-range': 'Variant over time (VOT) is invalid (0 <= <code>VOT min</code> < <code>VOT max</code> <= 100)',
+  'exception.assignment.form.coefficient-rule.coefficient-value.const-invalid': 'Constant value is invalid (0 <= <code>Coefficient</code> <= 100).',
+  'exception.assignment.form.coefficient-rule.coefficient-value.vot-invalid': 'Variant over time (VOT) is invalid (0 <= <code>VOT min</code> < <code>VOT max</code> <= 100)',
   // Exceptions
   'exception.assignment.notfound':
     '{ isMany, select, true {These assignments are} other {This assignment is} } not existed in our system!',

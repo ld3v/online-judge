@@ -66,8 +66,8 @@ export default {
   'exception.assignment.form.coefficient-rule.time-range.smaller-extra': 'Thời gian thêm của bạn quá ngắn so với phạm vi trễ và thời gian nền (<code>Phạm vi trễ</code> + <code>Thời gian nền</code> <= <code>Thời gian thêm</code>).',
   'exception.assignment.form.coefficient-rule.coefficient-value.empty': 'Vui lòng không để trống giá trị hệ số!',
   'exception.assignment.form.coefficient-rule.coefficient-value.conflict': 'Một lỗi nào đó đã xảy ra khiến thiết lập này bị lỗi! Tải lại trang để thử lại!',
-  'exception.assignment.form.coefficient-rule.coefficient-value.const-out-range': 'Giá trị hệ số không hợp lệ (0 <= <code>Hệ số</code> <= 100).',
-  'exception.assignment.form.coefficient-rule.coefficient-value.vot-out-range': 'Giá trị biến thêm không hợp lệ (0 <= <code>Giá trị biến thiên đầu</code> < <code>Giá trị biến thiên cuối</code> <= 100)',
+  'exception.assignment.form.coefficient-rule.coefficient-value.const-invalid': 'Giá trị hệ số không hợp lệ (0 <= <code>Hệ số</code> <= 100).',
+  'exception.assignment.form.coefficient-rule.coefficient-value.vot-invalid': 'Giá trị biến thêm không hợp lệ (0 <= <code>Giá trị biến thiên đầu</code> < <code>Giá trị biến thiên cuối</code> <= 100)',
   // Exceptions
   'exception.assignment.notfound':
     '{ isMany, select, true {Các b} other {B} }ài thi này không tồn tại trong hệ thống!',

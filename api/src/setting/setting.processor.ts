@@ -30,13 +30,13 @@ export class SettingProcessor {
   @Process('syncAllData')
   async handleSyncAllData(job: Job) {
     try {
-      this.logger.log(`Processing job#${job.id} - queueEntity#${job.data.queueId}`, undefined, 0, "NEW");
+      this.logger.log(`Processing job#${job.id} - queueEntity#${`${job.id}`}`, undefined, 0, "NEW");
       
       // SYNC ACCOUNTS ===================
       this.logger.log(`Handle update accounts`, undefined, 1, "PROCESSING");
       const { success: accCreated, failed: accCreateFailed } = await this.settingService.syncAccountsByJudge();
       await this.queueService.update(
-        job.data.queueId,
+        `${job.id}`,
         [
           SYNC_PROCESS_KEY.ACCOUNT,
           (!accCreated && !accCreateFailed) || (accCreated && accCreateFailed && accCreateFailed.length > accCreated.length)
@@ -60,7 +60,7 @@ export class SettingProcessor {
       this.logger.log(`Handle update languages`, undefined, 1, "PROCESSING");
       const { success: langCreated } = await this.settingService.syncLanguagesByJudge();
       await this.queueService.update(
-        job.data.queueId,
+        `${job.id}`,
         [
           SYNC_PROCESS_KEY.LANGUAGE,
           langCreated ? QueueState.Done : QueueState.Error,
@@ -85,7 +85,7 @@ export class SettingProcessor {
         judgeAssIdMap2JudgeAssProblems,
       } = await this.settingService.syncAssignmentsByJudge();
         await this.queueService.update(
-          job.data.queueId,
+          `${job.id}`,
           [
             SYNC_PROCESS_KEY.ASSIGNMENT,
             (!assCreated && !assCreateFailed) || (assCreated && assCreateFailed && assCreateFailed.length > assCreated.length)
@@ -115,7 +115,7 @@ export class SettingProcessor {
         judgeProbIdMap2Langs,
       } = await this.settingService.syncProblemsByJudge();
       await this.queueService.update(
-        job.data.queueId,
+        `${job.id}`,
         [
           SYNC_PROCESS_KEY.PROBLEM,
           (!probCreated && !probCreateFailed) || (probCreated && probCreateFailed && probCreateFailed.length > probCreated.length)
@@ -148,7 +148,7 @@ export class SettingProcessor {
         langMappingByName,
       );
       await this.queueService.update(
-        job.data.queueId,
+        `${job.id}`,
         [
           SYNC_PROCESS_KEY.PROBLEM_LANGUAGES,
           (!resAddProblemLangSuccess && !resAddProblemLangFailed) ||
@@ -182,7 +182,7 @@ export class SettingProcessor {
         problemMapById,
       );
       await this.queueService.update(
-        job.data.queueId,
+        `${job.id}`,
         [
           SYNC_PROCESS_KEY.ASSIGNMENT_PROBLEMS,
           (!resAssProbCreated && !resAssProbFailed) ||
@@ -204,17 +204,12 @@ export class SettingProcessor {
       }
 
       // SYNC DONE -> RE-UPDATE QUEUE ENTITY IN DB
-      await this.queueService.update(job.data.queueId, undefined, QueueState.Done);
+      await this.queueService.update(`${job.id}`, undefined, QueueState.Done);
       this.logger.log(`Synced all data!`, undefined, 0, "DONE");
     } catch (err) {
       this.logger.log(`\x1b[31mSync all-data failed!\x1b[0m`, undefined, 0, "ERR");
       console.error(err);
-      await this.queueService.update(job.data.queueId, undefined, QueueState.Error);
+      await this.queueService.update(`${job.id}`, undefined, QueueState.Error);
     }
   }
-
-  // @OnQueueActive()
-  // onActive(job: Job) {
-  //   this.logger.log(`Processing job "${job.id}"...`);
-  // }
 }

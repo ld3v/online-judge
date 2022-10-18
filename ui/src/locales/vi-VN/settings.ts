@@ -12,9 +12,10 @@ export default {
   'settings.form.configuration.output_size_limit.placeholder': '1024',
   'settings.form.configuration.output_size_limit.required': 'Không được để trống',
 
-  'settings.form.configuration.default_late_rule.label': 'Coefficient-rule mặc định',
-  'settings.form.configuration.default_late_rule.placeholder': 'default_late_rule',
-  'settings.form.configuration.default_late_rule.required': 'Không được để trống',
+  'settings.form.configuration.default_coefficient_rules.label': 'Thiết lập hệ số mặc định',
+  'settings.form.configuration.default_coefficient_rules.placeholder': 'default_coefficient_rules',
+  'settings.form.configuration.default_coefficient_rules.required': 'Không được để trống',
+  'settings.form.configuration.default_coefficient_rules.description': '- Đọc tài liệu <a href="">này</a> để hiểu rõ về cách sử dụng và cách hoạt động.',
 
   'settings.form.configuration.submit_penalty.label': 'Submit penaly',
   'settings.form.configuration.submit_penalty.placeholder': '300',

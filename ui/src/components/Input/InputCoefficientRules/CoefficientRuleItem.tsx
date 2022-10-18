@@ -46,7 +46,7 @@ const InputRange = ({
       <InputNumber
         value={displayValue[0]}
         data-index="0"
-        onChange={(v) => onChange?.([valueWithZero(v, displayValue[0]) || 0, displayValue[0] || 0])}
+        onChange={(v) => onChange?.([valueWithZero(v, displayValue[0]) || 0, displayValue[1] || 0])}
         {...(inpProps?.min || {})}
       />
       <InputNumber

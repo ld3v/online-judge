@@ -25,6 +25,7 @@ export const checkCoefficientRules = (
 
   if (!Array.isArray(rules)) {
     important.push({ msg: 'exception.assignment.form.coefficient-rules.invalid' });
+    return { normal, byRule, important };
   }
   if (rules.length === 0) {
     return { normal, byRule, important };
@@ -68,7 +69,7 @@ export const checkCoefficientRules = (
         rule.VARIANT_OVER_TIME[0] >= rule.VARIANT_OVER_TIME[1]
       ) {
         // VOT has value -> Check out of range for VOT.
-        byRule.push({ msg: 'exception.assignment.form.coefficient-rule.coefficient-value.vot-out-range', value: { i, e: 'vot_out-of-range' } });
+        byRule.push({ msg: 'exception.assignment.form.coefficient-rule.coefficient-value.vot-invalid', value: { i, e: 'vot_out-of-range' } });
       }
     } else {
       // CONST has value -> Check CONST
@@ -77,7 +78,7 @@ export const checkCoefficientRules = (
         byRule.push({ msg: 'exception.assignment.form.coefficient-rule.coefficient-value.conflict', value: { i, e: 'conflict-values' } });
       } else if (rule.CONST < 0 || rule.CONST > 100) {
         // CONST has value -> Check out of range for CONST
-        byRule.push({ msg: 'exception.assignment.form.coefficient-rule.coefficient-value.const-out-range', value: { i, e: 'const_out-of-range' } });
+        byRule.push({ msg: 'exception.assignment.form.coefficient-rule.coefficient-value.const-invalid', value: { i, e: 'const_out-of-range' } });
       }
     }
   });

@@ -39,6 +39,7 @@ export class SubmissionService {
     newSubmission.language = data.language;
     newSubmission.submitter = submitter;
     newSubmission.queue = queue;
+    newSubmission.coefficient = data.coefficient;
     newSubmission.id = Submission.genId();
     // Handle write code to file
     const userSolutionFile = `solution_${newSubmission.id}.${fileExt}`;

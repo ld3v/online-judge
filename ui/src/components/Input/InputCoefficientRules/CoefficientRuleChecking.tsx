@@ -1,17 +1,24 @@
 import { ICoefficientRule } from '@/types/assignment';
 import { Alert, FormInstance } from 'antd';
+import moment from 'moment';
 import { FormattedHTMLMessage } from 'umi';
 import { checkCoefficientRules } from './utils';
 
 interface ICoefficientRuleChecking {
   value?: ICoefficientRule[];
   onGetFieldValue: FormInstance['getFieldValue'];
+  needToVerify?: boolean;
 }
 
-const CoefficientRuleChecking: React.FC<ICoefficientRuleChecking> = ({ onGetFieldValue }) => {
-  const finishTime = onGetFieldValue(['time', 'finishTime']);
-  const extraTime = onGetFieldValue('extra_time');
-  const rules = onGetFieldValue('lateRules');
+const CoefficientRuleChecking: React.FC<ICoefficientRuleChecking> = ({
+  onGetFieldValue,
+  needToVerify,
+}) => {
+  // If not verify -> Finish is end of day (today)
+  const finishTime = needToVerify ? onGetFieldValue(['time', 'finishTime']) : moment().endOf('day');
+  // If not verify -> Extra time is 1 month
+  const extraTime = needToVerify ? onGetFieldValue('extra_time') : 60 * 24 * 30;
+  const rules = onGetFieldValue('lateRules') || [];
 
   const {
     important: mainErrs,

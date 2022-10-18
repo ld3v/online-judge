@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsArray, IsBoolean, IsDate, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { CoefficientRule } from 'src/setting/dto/setting.dto';
 
 class AssignmentProblemDto {
   @IsString()
@@ -37,8 +38,10 @@ export class CreateDto {
   @IsNumber()
   extra_time: number;
 
-  @IsString()
-  late_rule: string;
+  @IsArray()
+  @ValidateNested()
+  @Type(() => CoefficientRule)
+  late_rules: CoefficientRule[];
 
   @IsOptional()
   @IsString()
