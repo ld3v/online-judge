@@ -63,3 +63,26 @@ export const reserveMapping = (mapping: Record<string | number, (string | number
   });
   return mappingReserved;
 }
+
+
+export const isObj = (inp: any): boolean => {
+  return typeof inp === "object" && !Array.isArray(inp);
+}
+export const jsonParsed = (str: string): false | string => {
+  try {
+    const res = JSON.parse(str);
+    return res;
+  } catch (e) {
+    return false;
+  }
+}
+export const isArrNumbers = (arr: any[], length?: number): boolean => {
+  const isArrNum = (
+    Array.isArray(arr) &&
+    !arr.find(arrItem => typeof arrItem !== "number" || isNaN(arrItem))
+  );
+  if (length !== undefined) {
+    return isArrNum && arr.length === length;
+  }
+  return isArrNum
+}

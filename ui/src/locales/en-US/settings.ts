@@ -12,9 +12,10 @@ export default {
   'settings.form.configuration.output_size_limit.placeholder': '1024',
   'settings.form.configuration.output_size_limit.required': 'Not allow empty',
 
-  'settings.form.configuration.default_late_rule.label': 'Default coefficient rule',
-  'settings.form.configuration.default_late_rule.placeholder': 'PHP Script without <?php ?>',
-  'settings.form.configuration.default_late_rule.required': 'Not allow empty',
+  'settings.form.configuration.default_coefficient_rules.label': 'Default coefficient rule',
+  'settings.form.configuration.default_coefficient_rules.placeholder': 'PHP Script without <?php ?>',
+  'settings.form.configuration.default_coefficient_rules.required': 'Not allow empty',
+  'settings.form.configuration.default_coefficient_rules.description': '- Read document <a href="">here</a> to understand clearly about how to use, and how it work!',
 
   'settings.form.configuration.submit_penalty.label': '',
   'settings.form.configuration.submit_penalty.placeholder': '300',

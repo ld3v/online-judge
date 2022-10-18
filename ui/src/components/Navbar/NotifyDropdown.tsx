@@ -127,8 +127,8 @@ const NotifyDropdown: FC<NotifyDropdownProps> = ({
       overlayClassName={`${styles.DropdownContentWrapper} notifications`}
       placement="bottomRight"
       trigger={['click']}
-      onVisibleChange={handleOpenChange}
-      visible={overlayVisible}
+      onOpenChange={handleOpenChange}
+      open={overlayVisible}
     >
       <div className={`${styles.Action} notifications`}>
         <div className="bell">

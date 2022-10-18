@@ -11,6 +11,7 @@ import { TParamId } from 'utils/types';
 import { SubmissionService } from 'src/submission/submission.service';
 import { array2Map } from 'utils/func';
 import SearchQueryDto from './dto/searchQuery.dto';
+import { Http400Exception } from 'utils/Exceptions/http400.exception';
 
 @Controller('assignment')
 export class AssignmentController {
@@ -18,17 +19,16 @@ export class AssignmentController {
     private readonly assignmentService: AssignmentService,
     private readonly accountService: AccountService,
     private readonly problemService: ProblemService,
-    private readonly submissionService: SubmissionService,
   ) {}
 
   @Get('/coefficient')
   @UseGuards(JwtAuthGuard)
   @UseGuards(RoleGaurd(Role.Admin))
   async getCoefficient(
-    @Query() { rule, start, finish, extra }: any,
+    @Query() { rule, finish, extra }: any,
   ) {
     try {
-      const res = await this.assignmentService.getCoefficient(rule, extra, start, finish);
+      const res = await this.assignmentService.getCoefficient(rule, extra, finish);
       return res;
     } catch (err) {
       throw err;
@@ -115,20 +115,19 @@ export class AssignmentController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @UseGuards(RoleGaurd(Role.Admin))
-  // async createAssignment(@Body() data: CreateDto): Promise<IAssignmentTransformed> {
   async createAssignment(@Body() data: CreateDto): Promise<any> {
     try {
-      const { participants: participantIds, problems, ...baseData } = data;
+      const { participants: participantIds, problems, late_rules, ...baseData } = data;
       const { keys: problemIds, map: problemInputMapping } = array2Map(problems, "id", true);
       const { found: participants } = await this.accountService.getByIds(participantIds || []);
       const { found: problemsData } = await this.problemService.getByIds(problemIds || []);
-      // return {
-      //   problemInputMapping,
-      //   participants,
-      //   problemsData,
-      // }
+      // Validate late_rule
+      const lateRules = this.assignmentService.validateCoefficientRules(late_rules);
       // Create a new assignment
-      const newAssignment = await this.assignmentService.create(baseData);
+      const newAssignment = await this.assignmentService.create({
+        ...baseData,
+        coefficient_rules: JSON.stringify(lateRules),
+      });
       // Add participants & problem to current assignment
       if (participants.length > 0) {
         await this.assignmentService.updateParticipants(newAssignment, participants);
@@ -150,20 +149,20 @@ export class AssignmentController {
   async updateAssignment(
     @Param() { id }: TParamId,
     @Body() data: CreateDto,
-  // ): Promise<{ assignment: IAssignmentTransformed, coefficient?: string }> {
   ): Promise<any> {
     try {
-      const { participants: participantIds, problems, ...baseData } = data;
+      const { participants: participantIds, problems, late_rules, ...baseData } = data;
       const { keys: problemIds, map: problemInputMapping } = array2Map(problems, "id", true);
       const { found: participants } = await this.accountService.getByIds(participantIds || []);
       const { found: problemsData } = await this.problemService.getByIds(problemIds || []);
+      // Validate rule
+      const lateRules = this.assignmentService.validateCoefficientRules(late_rules);
       // Get assignment need to update
-      // return {
-      //   problemInputMapping,
-      //   problemsData,
-      // };
       const assignment = await this.assignmentService.getById(id);
-      const { assignment: res, coefficient } = await this.assignmentService.update(assignment, baseData);
+      const { assignment: res, coefficient } = await this.assignmentService.update(assignment, {
+        ...baseData,
+        coefficient_rules: JSON.stringify(lateRules),
+      });
       // Update participants & problem to current assignment
       if (participants.length > 0) {
         await this.assignmentService.updateParticipants(assignment, participants);

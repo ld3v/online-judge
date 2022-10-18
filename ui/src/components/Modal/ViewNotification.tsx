@@ -18,7 +18,7 @@ const ViewNotificationModal: React.FC<IViewNotificationModal> = ({
 
   return (
     <MarkdownModalView
-      visible={visible}
+      open={visible}
       onCancel={handleClose}
       title={selected?.title}
       children={selected?.text}

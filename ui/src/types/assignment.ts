@@ -18,7 +18,7 @@ export type TAssignment = {
   startTime: string;
   finishTime?: string;
   extraTime: number;
-  lateRule: string;
+  lateRules: string;
   open: boolean;
   createdAt: string;
   coefficient: string;
@@ -35,3 +35,12 @@ export type TAssignmentProblem = {
   problemName: string; // assignment-problem's name
   score: number;
 };
+
+export type TCoefficientRuleType = "VARIANT_OVER_TIME" | "CONST";
+export interface ICoefficientRule {
+  DELAY_RANGE: [number, number];
+  BASE_MINS?: number;
+  VARIANT_OVER_TIME?: [number, number];
+  CONST?: number;
+}
+export type TCoefficientRuleField = "DELAY_RANGE" | "BASE_MINS" | "VARIANT_OVER_TIME" | "CONST";

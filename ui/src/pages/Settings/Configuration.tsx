@@ -1,7 +1,9 @@
 import Card from '@/components/Card';
 import CardWrapForm from '@/components/CardWrapForm';
+import { LabelWithDesc } from '@/components/CardWrapForm/Input';
+import InputCoefficientRules from '@/components/Input/InputCoefficientRules';
 import { Checkbox, Col, Form, Input, notification, Row, Skeleton } from 'antd';
-import { connect, FormattedMessage, useIntl } from 'umi';
+import { connect, FormattedHTMLMessage, FormattedMessage, useIntl } from 'umi';
 
 interface IConfiguration {
   dispatch?: any;
@@ -18,6 +20,7 @@ const Configuration: React.FC<IConfiguration> = ({
   updateSettings,
   className,
 }) => {
+  const [form] = Form.useForm();
   const intl = useIntl();
 
   if (Object.keys(settings).length === 0 || loadSettings) {
@@ -28,7 +31,18 @@ const Configuration: React.FC<IConfiguration> = ({
     );
   }
 
-  const handleUpdate = (data: any) => {
+  const coefficientRulesLabel = (
+    <LabelWithDesc
+      label={intl.formatMessage({
+        id: 'settings.form.configuration.default_coefficient_rules.label',
+      })}
+      description={
+        <FormattedHTMLMessage id="settings.form.configuration.default_coefficient_rules.description" />
+      }
+    />
+  );
+
+  const handleUpdate = ({ lateRules, ...data }: any) => {
     const callback = (res: any) => {
       if (res) {
         notification.success({
@@ -39,10 +53,17 @@ const Configuration: React.FC<IConfiguration> = ({
     dispatch({
       type: 'settings/update',
       payload: {
-        data,
+        data: {
+          default_coefficient_rules: lateRules,
+          ...data,
+        },
         callback,
       },
     });
+  };
+  const initialValues = {
+    ...settings,
+    lateRules: settings.default_coefficient_rules,
   };
 
   return (
@@ -50,8 +71,9 @@ const Configuration: React.FC<IConfiguration> = ({
       cardTitle={intl.formatMessage({ id: 'settings.form.configuration.title' })}
       submitting={updateSettings}
       onFinish={handleUpdate}
-      initialValues={settings}
+      initialValues={initialValues}
       classNameWrapper={className || ''}
+      form={form}
     >
       <Row gutter={[20, 20]}>
         <Col span={12}>
@@ -95,6 +117,8 @@ const Configuration: React.FC<IConfiguration> = ({
               })}
             />
           </Form.Item>
+        </Col>
+        <Col span={12}>
           <Form.Item
             name="submit_penalty"
             label={intl.formatMessage({ id: 'settings.form.configuration.submit_penalty.label' })}
@@ -113,29 +137,6 @@ const Configuration: React.FC<IConfiguration> = ({
               })}
             />
           </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item
-            name="default_late_rule"
-            label={intl.formatMessage({
-              id: 'settings.form.configuration.default_late_rule.label',
-            })}
-            rules={[
-              {
-                required: true,
-                message: intl.formatMessage({
-                  id: 'settings.form.configuration.default_late_rule.required',
-                }),
-              },
-            ]}
-          >
-            <Input.TextArea
-              autoSize={{ minRows: 9, maxRows: 9 }}
-              placeholder={intl.formatMessage({
-                id: 'settings.form.configuration.default_late_rule.placeholder',
-              })}
-            />
-          </Form.Item>
           <Form.Item
             name="enable_registration"
             label={intl.formatMessage({
@@ -147,8 +148,34 @@ const Configuration: React.FC<IConfiguration> = ({
               <FormattedMessage id="settings.form.configuration.enable_registration.description" />
             </Checkbox>
           </Form.Item>
+          {/* <Form.Item
+            name="default_coefficient_rules"
+            label={intl.formatMessage({
+              id: 'settings.form.configuration.default_coefficient_rules.label',
+            })}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({
+                  id: 'settings.form.configuration.default_coefficient_rules.required',
+                }),
+              },
+            ]}
+          >
+            <Input.TextArea
+              autoSize={{ minRows: 9, maxRows: 9 }}
+              placeholder={intl.formatMessage({
+                id: 'settings.form.configuration.default_coefficient_rules.placeholder',
+              })}
+            />
+          </Form.Item> */}
         </Col>
       </Row>
+      <InputCoefficientRules
+        label={coefficientRulesLabel}
+        form={form}
+        defaultRules={settings.default_coefficient_rules}
+      />
     </CardWrapForm>
   );
 };

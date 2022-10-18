@@ -5,6 +5,9 @@ import {
   TableSearchSelect,
   TimeRangeInput,
 } from '@/components/CardWrapForm/Input';
+import InputCoefficientRules from '@/components/Input/InputCoefficientRules';
+import InputNumber from '@/components/Input/InputNumber';
+import { ICoefficientRule } from '@/types/assignment';
 import { SETTING_FIELDS_MAPPING } from '@/utils/constants';
 import { sumItems } from '@/utils/funcs';
 import { Col, Empty, Form, Input, Row, Switch } from 'antd';
@@ -19,7 +22,7 @@ interface IAssignmentFormPage {
   preLoading?: boolean;
   submitting?: boolean;
   // Connect props
-  defaultLateRule?: string;
+  defaultLateRule?: ICoefficientRule[];
   searchingProblems?: boolean;
   searchingAccounts?: boolean;
   problemStateDic?: Record<string, any>;
@@ -53,7 +56,7 @@ const AssignmentFormPage: React.FC<IAssignmentFormPage> = ({
   const intl = useIntl();
 
   const initialValues = {
-    late_rule: defaultLateRule || '',
+    lateRules: defaultValues?.lateRules || [],
     problems: [],
     is_public: true,
     extra_time: 0,
@@ -140,10 +143,9 @@ const AssignmentFormPage: React.FC<IAssignmentFormPage> = ({
     time,
     problems,
     participants,
-    lateRule,
+    lateRules,
     ...values
   }: any) => {
-    // console.log({ description, time, problems, participants, ...values });
     const problemsTransformed = (problems || []).map((p: any, idx: number) => ({
       id: p.id,
       name: p.problemName || `Exercise ${idx}`,
@@ -153,7 +155,7 @@ const AssignmentFormPage: React.FC<IAssignmentFormPage> = ({
     const data = {
       ...values,
       description: description || '',
-      late_rule: lateRule,
+      late_rules: lateRules,
       start_time: time.startTime ? time.startTime.toDate() : undefined,
       finish_time: time.finishTime ? time.finishTime.toDate() : undefined,
       problems: problemsTransformed,
@@ -193,12 +195,6 @@ const AssignmentFormPage: React.FC<IAssignmentFormPage> = ({
           />
         </>
       }
-    />
-  );
-  const lateRuleLabel = (
-    <LabelWithDesc
-      label={intl.formatMessage({ id: 'assignment.form.late-rule.label' })}
-      description={<FormattedHTMLMessage id="assignment.form.late-rule.description" />}
     />
   );
   const problemsLabel = (
@@ -337,21 +333,13 @@ const AssignmentFormPage: React.FC<IAssignmentFormPage> = ({
             name="extra_time"
             label={intl.formatMessage({ id: 'assignment.form.extra-time.label' })}
           >
-            <Input
-              type="number"
-              min="0"
+            <InputNumber
               placeholder={intl.formatMessage({ id: 'assignment.form.extra-time.placeholder' })}
-            />
-          </Form.Item>
-          <Form.Item label={lateRuleLabel} name="lateRule">
-            <Input.TextArea
-              rows={8}
-              autoSize={{ maxRows: 10 }}
-              placeholder={intl.formatMessage({ id: 'assignment.form.late-rule.placeholder' })}
             />
           </Form.Item>
         </Col>
       </Row>
+      <InputCoefficientRules form={form} defaultRules={defaultLateRule} needToVerifyRules />
       <Form.Item
         label={problemsLabel}
         name="problems"
@@ -432,7 +420,7 @@ const AssignmentFormPage: React.FC<IAssignmentFormPage> = ({
 };
 
 export default connect(({ settings, account, problem, loading }: any) => ({
-  defaultLateRule: settings.dic[SETTING_FIELDS_MAPPING.default_late_rule],
+  defaultLateRule: settings.dic[SETTING_FIELDS_MAPPING.default_coefficient_rules],
   searchingProblems: loading.effects['problem/search'],
   searchingAccounts: loading.effects['account/search'],
   problemStateDic: problem.dic,

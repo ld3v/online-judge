@@ -39,9 +39,22 @@ export default {
   'component.actions-icon.lock-me': 'Lock my account',
   'component.actions-icon.lock-me.title': 'Lock your account and sign-out?',
   'component.actions-icon.list': 'View list',
+  // Input coefficient rule
+  'component.input-coefficient-rule.label': 'Coefficient-rules configure',
+  'component.input-coefficient-rule.description': '- Order of precedence from top to bottom.<br>- By the default (no-configuration), coefficient is <b>100</b>.<br>- Read more to known how to configure coefficient-rules, read <a href="#">here</a>.',
+  'component.input-coefficient-rule.delay-range': 'Delay range',
+  'component.input-coefficient-rule.type': 'Coefficient type',
+  'component.input-coefficient-rule.base-mins': 'Base minute(s)',
+  'component.input-coefficient-rule.const': 'Value',
+  'component.input-coefficient-rule.variant-over-time': 'Range',
+  'component.input-coefficient-rule.type.CONST': 'Constant',
+  'component.input-coefficient-rule.type.VARIANT_OVER_TIME': 'Over time',
+  'component.input-coefficient-rule.add': 'Add new rule',
   // Loading
   'component.loading.modal.title': 'Loading...',
   // Exception
+  // Common
+  'exception.component.data-render-error': 'Unexpected error appeared when show data for you! Please reload and try again!',
   // Exception - Time
   'exception.time.start.required': 'Please enter start-time!',
   'exception.time.start-finish.required': 'Please enter start time & finish-time!',

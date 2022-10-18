@@ -1,4 +1,5 @@
 import { TAccountRole } from '@/types/account';
+import { TCoefficientRuleField, TCoefficientRuleType } from '@/types/assignment';
 
 // ROLE
 export const ROLES: Record<'admin' | 'user', TAccountRole> = {
@@ -41,10 +42,19 @@ export const MAX_ASSIGNMENTS_USING_PROBLEM = 1;
 export const SETTING_FIELDS_MAPPING = {
   'file_size_limit': 'file_size_limit',
   'output_size_limit': 'output_size_limit',
-  'default_late_rule': 'default_late_rule',
+  // No longer support from this version. It still save in DB, but not use in any cases!
+  // 'default_late_rule': 'default_late_rule',
+  'default_coefficient_rules': 'default_coefficient_rules',
   'submit_penalty': 'submit_penalty',
   'enable_registration': 'enable_registration',
   'moss_userid': 'moss_userid',
+};
+export const COEFFICIENT_RULE_TYPES: TCoefficientRuleType[] = ["VARIANT_OVER_TIME", "CONST"];
+export const COEFFICIENT_RULE_FIELD_MAPPING: { [field: string]: TCoefficientRuleField } = {
+  delayRange: "DELAY_RANGE",
+  baseMins: "BASE_MINS",
+  variantOverTime: "VARIANT_OVER_TIME",
+  const: "CONST",
 };
 
 // REGEX

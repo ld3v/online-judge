@@ -45,11 +45,27 @@ export default {
   'assignment.form.participants.search.no-result': 'No student was found!',
   // Actions
   'assignment.actions.view-problems': 'View problems',
+  // Coefficient-rules
+  'assignment.coefficient-rules.warning': '<b>Warning! Your configuration has some problems:</b>',
   // Form exceptions
   'exception.assignment.no-do': 'You can not do this assignment because it finished (or not start)!',
   'exception.assignment.form.name.no-named': 'Name is required',
   'exception.assignment.form.participants.no-selected': 'Please select at least of student',
   'exception.assignment.form.problems.no-selected': 'Please select at least of problem',
+  // Form - Coefficient rule
+  'exception.assignment.form.coefficient-rules.error-need-fix': 'Please update your coefficient-rules to the right format!',
+  'exception.assignment.form.coefficient-rules.no-effect': 'This assignment hasn\'t finish time, or not allow to submit late (<code>Extra time</code> = 0), so, coefficient-rule is not necessary!.',
+
+  'exception.assignment.form.coefficient-rules.invalid': 'Your rules is invalid format!',
+  'exception.assignment.form.coefficient-rule.invalid': 'Your rule is invalid format!',
+
+  'exception.assignment.form.coefficient-rule.time-range.invalid': 'Delay-range is invalid (0 <= <code>Delay-range min</code> < <code>Delay-range max</code> <= 1440) <small>[#{e}]</small>.',
+  'exception.assignment.form.coefficient-rule.base-mins.invalid': 'Base-mins is invalid (0 <= <code>Base mins</code>).',
+  'exception.assignment.form.coefficient-rule.time-range.smaller-extra': '<b>Rule#{i}</b>: Extra-time is too short with <code>delay-range</code> and <code>base-mins</code> (<code>Delay-range max</code> + <code>Base mins</code> <= <code>Extra-time</code>).',
+  'exception.assignment.form.coefficient-rule.coefficient-value.empty': 'Please fill your coefficient value!',
+  'exception.assignment.form.coefficient-rule.coefficient-value.conflict': 'Unexpected error appeared when you change type of coefficient! Reload page and try again!',
+  'exception.assignment.form.coefficient-rule.coefficient-value.const-invalid': 'Constant value is invalid (0 <= <code>Coefficient</code> <= 100).',
+  'exception.assignment.form.coefficient-rule.coefficient-value.vot-invalid': 'Variant over time (VOT) is invalid (0 <= <code>VOT min</code> < <code>VOT max</code> <= 100)',
   // Exceptions
   'exception.assignment.notfound':
     '{ isMany, select, true {These assignments are} other {This assignment is} } not existed in our system!',

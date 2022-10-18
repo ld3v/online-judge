@@ -59,7 +59,6 @@ const CodeEditor: React.FC<ICodeEditor> = ({
   useEffect(() => {
     const setLangCb = (langs: any) => {
       if (Array.isArray(langs) && langs.length > 0) {
-        console.log(langExtAvailable, langs);
         const langsSupported = langs.filter((l) => langExtAvailable.includes(l.extension));
         handleChangeLang(langsSupported[0].extension);
       }

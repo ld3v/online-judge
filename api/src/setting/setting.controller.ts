@@ -14,6 +14,7 @@ import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { Http506Exception } from 'utils/Exceptions/http506.exception';
 import SettingDto from './dto/setting.dto';
 import { SettingService } from './setting.service';
+import { AssignmentService } from 'src/assignment/assignment.service';
 
 @Controller('settings')
 export class SettingController {
@@ -22,6 +23,7 @@ export class SettingController {
     private readonly configService: ConfigService,
     private readonly queueService: QueueService,
     @InjectQueue('setting') private readonly settingQueue: Queue,
+    private readonly assignmentService: AssignmentService,
   ) {}
 
   @Get('/')
@@ -134,10 +136,16 @@ export class SettingController {
   @UseGuards(JwtAuthGuard)
   @UseGuards(RoleGuard(Role.Admin))
   async updateSetting (
-    @Body() data: SettingDto
+    @Body() { default_coefficient_rules, ...data}: SettingDto
   ) {
     try {
-      const settings = await this.settingService.update(data);
+      // Verify rules
+      this.assignmentService.validateCoefficientRules(default_coefficient_rules);
+      // Update data
+      const settings = await this.settingService.update({
+        default_coefficient_rules: JSON.stringify(default_coefficient_rules),
+        ...data
+      });
       const settingsTransformed = this.settingService.transformSetting(settings);
       return settingsTransformed;
     } catch (err) {

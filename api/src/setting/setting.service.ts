@@ -229,16 +229,16 @@ export class SettingService {
     const currentSettings = await this.settingRepository.find();
     const currentSettingFields = currentSettings.map(settingItem => settingItem.key);
     // Transform input -> Available setting for current system.
-    const settingsAvailable: Record<string, any> = {};
-    Object.keys(newSetting).forEach((key: string) => {
-      if (SETTING_FIELDS_AVAILABLE.includes(key)) {
-        settingsAvailable[key] = newSetting[key];
-      }
-    });
+    // const settingsAvailable: Record<string, any> = {};
+    // Object.keys(newSetting).forEach((key: string) => {
+    //   if (SETTING_FIELDS_AVAILABLE.includes(key)) {
+    //     settingsAvailable[key] = newSetting[key];
+    //   }
+    // });
 
     const settingFieldsNeedCreate = SETTING_FIELDS_AVAILABLE.filter((key: string) => !currentSettingFields.includes(key));
-
     const newSettings = settingFieldsNeedCreate.map((key: string) => this.settingRepository.create({ key, value: newSetting[key] }));
+    
     const settingsUpdate = currentSettings.filter(({key}) => SETTING_FIELDS_AVAILABLE.includes(key)).map(({ key }) => ({ key, value: newSetting[key] }));
 
     const settingsUpdated = await this.settingRepository.save([...newSettings, ...settingsUpdate]);
@@ -318,6 +318,7 @@ export class SettingService {
   public transformSetting(settings: Record<string, string>): Record<string, any> {
     return {
       ...settings,
+      default_coefficient_rules: settings.default_coefficient_rules ? JSON.parse(settings.default_coefficient_rules) : [],
       enable_registration: `${settings.enable_registration}` === "true",
       file_size_limit: Number(settings.file_size_limit),
       output_size_limit: Number(settings.output_size_limit),

@@ -105,8 +105,11 @@ export class SubmissionProcessor {
       this.logger.log(`Exec command: ${shellCmd}`, undefined, 1, "INFO");
       const shellOutput = await exec(shellCmd);
       this.logger.log(`Result of exec command`, undefined, 1, "PROCESSING");
-      this.logger.log(`OUT: ${shellOutput.stdout}`, undefined, 2, "INFO")
-      this.logger.log(`ERR: ${shellOutput.stderr}`, undefined, 2, "INFO")
+      this.logger.log(`OUT: ${shellOutput.stdout}`, undefined, 2, "INFO");
+      this.logger.log(`ERR: ${shellOutput.stderr}`, undefined, 2, "INFO");
+
+      // Update result
+      // const 
       await this.queueService.update(`${job.id}`, undefined, QueueState.Done);
     } catch (err) {
       this.logger.log(`\x1b[31mHandle submission failed!\x1b[0m`, undefined, 0, "ERR");
