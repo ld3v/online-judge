@@ -162,7 +162,7 @@ TST="$(ls $PROBLEMPATH/in/input*.txt | wc -l)"  # Number of Test Cases
 logfile_jail "\nTesting..."
 logfile_jail "$TST test cases found"
 
-if [$TST -eq 0]; then
+if [ $TST -eq 0 ]; then
 	logfile_finish "No test file found";
 fi
 
