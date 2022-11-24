@@ -162,6 +162,10 @@ TST="$(ls $PROBLEMPATH/in/input*.txt | wc -l)"  # Number of Test Cases
 logfile_jail "\nTesting..."
 logfile_jail "$TST test cases found"
 
+if [$TST -eq 0]; then
+	logfile_finish "No test file found";
+fi
+
 if [ -f "$PROBLEMPATH/tester.cpp" ] && [ ! -f "$PROBLEMPATH/tester.executable" ]; then
 	logfile_jail "Tester file found. Compiling tester..."
 	TST_COMPILE_BEGIN_TIME=$(($(date +%s%N)/1000000));
