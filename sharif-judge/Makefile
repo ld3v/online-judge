@@ -1,7 +1,13 @@
 up:
-	docker-compose up -d --build --remove-orphans
+	docker compose up -d --build --remove-orphans
 
 down:
+	docker compose down
+
+mac-up:
+	docker-compose up -d --build --remove-orphans
+
+mac-down:
 	docker-compose down
 
 rm-assignment-tester:
