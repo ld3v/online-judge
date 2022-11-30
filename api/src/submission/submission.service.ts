@@ -13,6 +13,7 @@ import { SubmissionRepository } from './submission.repository';
 import { IAddSubmission, SubmissionFilter } from './submission.types';
 import CustomLogger from 'src/logger/customLogger';
 import { USER_SOLUTIONS_PATH } from 'utils/constants/path';
+import { Problem } from 'src/problem/entities/problem.entity';
 
 
 
@@ -124,6 +125,36 @@ export class SubmissionService {
     }
   }
 
+  public async updateResultAfterTest(submissionId: string, preScore: number, isShowErrIfErr: boolean = false) {
+    const submission = await this.submissionRepository.findOne(
+      submissionId,
+      {
+        relations: ['problem', 'account']
+      }
+    );
+    if (!submission) {
+      if (isShowErrIfErr) {
+        throw new Http503Exception('submission.notfound', { notFoundId: submissionId });
+      }
+      return false;
+    }
+    submission.pre_score = preScore;
+    // Update final
+    const finalSubmission = await this.getFinalSubmission(submission.problem, submission.submitter);
+    if (
+      !finalSubmission ||
+      finalSubmission.pre_score < preScore ||
+      finalSubmission.pre_score * Number(finalSubmission.coefficient) < preScore * Number(submission.coefficient)
+    ) {
+      submission.is_final = true;
+
+      finalSubmission.is_final = false;
+      await this.submissionRepository.save(finalSubmission);
+    }
+    await this.submissionRepository.save(submission);
+    return true;
+  }
+
   // [FINAL SUBMISSION] - All services, which reference to FINAL SUBMISSION.
 
   public async getFinalSubmissions(assignment: Assignment) {
@@ -136,6 +167,25 @@ export class SubmissionService {
       .where("assignment.id = :assignmentId AND sub.is_final = true", { assignmentId: assignment.id })
       .getMany();
     return submissions;
+  }
+
+  public async getFinalSubmission(problem: Problem, user: Account) {
+    const submission = await this.submissionRepository.createQueryBuilder("sub")
+      .leftJoinAndSelect("sub.submitter", "account")
+      .leftJoinAndSelect("sub.language", "lang")
+      .leftJoinAndSelect("sub.problem", "problem")
+      .leftJoinAndSelect("sub.assignment", "assignment")
+      .leftJoinAndSelect("sub.queue", "queue")
+      .where(
+        "problem.id = :problemId AND account.id = :accountId AND sub.is_final = true",
+        {
+          accountId: user.id,
+          problemId: problem.id,
+        }
+      )
+      .orderBy('createdAt', 'DESC')
+      .getOne();
+    return submission;
   }
   
   public async updateFinalSubmission(submission: Submission) {

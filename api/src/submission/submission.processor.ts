@@ -11,6 +11,7 @@ import { SettingService } from "src/setting/setting.service";
 import { promisify } from "util";
 import { LOGS_PATH, PROBLEM_SOLUTIONS_PATH, USER_SOLUTIONS_PATH } from "utils/constants/path";
 import { SETTING_FIELDS_MAPPING } from "utils/constants/settings";
+import { SubmissionService } from "./submission.service";
 const exec = promisify(childProcess.exec);
 
 export const SUBMISSION_PROCESS_KEY = { GET_CONFIGURATION: 'get-configuration', }
@@ -21,6 +22,7 @@ export class SubmissionProcessor {
     private readonly logger: CustomLogger,
     private readonly queueService: QueueService,
     private readonly settingService: SettingService,
+    private readonly submissionService: SubmissionService,
   ) {}
   
   @Process('submission')
@@ -102,14 +104,13 @@ export class SubmissionProcessor {
        * $12: `logEnabled` - Set in settings. allow write log to file, while compile, run & test user's solution.
        */
       const shellCmd = `cd ${testerPath};\n./tester.sh ${problemSolutionsDir} ${userSolutionsDir} ${logFilePath} ${filename} ${fileExtension} ${timeLimit} ${timeLimitInt} ${memoryLimit} ${outputSizeLimit} ${diffCmd} '${diffArg}' ${logEnabled}`;
-      this.logger.log(`Exec command: ${shellCmd}`, undefined, 1, "INFO");
-      const shellOutput = await exec(shellCmd);
-      this.logger.log(`Result of exec command`, undefined, 1, "PROCESSING");
-      this.logger.log(`OUT: ${shellOutput.stdout}`, undefined, 2, "INFO");
-      this.logger.log(`ERR: ${shellOutput.stderr}`, undefined, 2, "INFO");
+      this.logger.log(`Exec command: ${shellCmd.replace('\/\n\g', ' ')}`, undefined, 1, "INFO");
+      const { stdout, stderr } = await exec(shellCmd);
+      this.logger.log(stdout);
+      this.logger.log(stderr);
 
       // Update result
-      // const 
+      await this.submissionService.updateResultAfterTest(submissionId, Number.isNaN(stdout) ? 0 : Number(stdout));
       await this.queueService.update(`${job.id}`, undefined, QueueState.Done);
     } catch (err) {
       this.logger.log(`\x1b[31mHandle submission failed!\x1b[0m`, undefined, 0, "ERR");
