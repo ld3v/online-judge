@@ -79,7 +79,7 @@ export class SubmissionController {
     try {
       // Get and check exist input
       const assignment = await this.assignmentService.getById(data.assignmentId);
-      const problem = await this.problemService.getById(data.problemId);
+      const { problem } = await this.problemService.getById(data.problemId);
       const language = await this.languageService.getByExtension(data.languageExtension);
       // Get 'score' from Assignment-Problem relation.
       const assProb = await this.assignmentService.getAssProbByAssAndProb(assignment, problem);

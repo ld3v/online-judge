@@ -1,5 +1,5 @@
 import Card from '@/components/Card';
-import { notification, Skeleton } from 'antd';
+import { FormInstance, notification, Skeleton } from 'antd';
 import { useEffect } from 'react';
 import { connect, useHistory, useIntl, useParams } from 'umi';
 import ProblemForm from './ProblemForm';
@@ -21,24 +21,34 @@ const UpdateProblemPage: React.FC<IUpdateProblemPage> = ({
   const params = useParams();
   const history = useHistory();
 
-  const handleSubmit = ({ languages, ...data }: any) => {
+  const handleSubmit = ({ id: pId, upload, languages, ...data }: any, form: FormInstance<any>) => {
     const { id }: any = params || {};
-    const callback = (res: any) => {
+    const callback = (res: any, error: any) => {
       if (res) {
         notification.success({
-          message: intl.formatMessage({ id: 'problem.update.successfully' }),
+          message: intl.formatMessage({ id: 'problem.update.success' }),
         });
         history.push('/problems-manage');
+        return;
       }
+      form.setFields([
+        { name: 'upload', errors: [intl.formatMessage({ id: error.messageId }, error.errorData)] },
+      ]);
     };
     dispatch({
       type: 'problem/update',
       payload: {
         id,
         data: {
-          languages: languages.map(({ id: langId, problemLangId, ...langData }: any) => ({
+          upload:
+            Array.isArray(upload) && upload.length > 0
+              ? upload
+                  .filter((uploadItem) => !uploadItem.isViewOnly)
+                  .map((uploadItem) => uploadItem.file)
+              : [],
+          languages: languages.map(({ id, problemLangId, ...langData }: any) => ({
             id: problemLangId,
-            language_id: langId,
+            language_id: id,
             ...langData,
           })),
           ...data,

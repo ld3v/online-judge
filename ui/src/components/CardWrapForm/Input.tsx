@@ -1,32 +1,15 @@
-import {
-  EditFilled,
-  EyeFilled,
-  InboxOutlined,
-  MenuOutlined,
-  SearchOutlined,
-} from '@ant-design/icons';
+import { EditFilled, EyeFilled, MenuOutlined, SearchOutlined } from '@ant-design/icons';
 import { EditableProTable, ProColumns } from '@ant-design/pro-components';
 import { DragSortTable } from '@ant-design/pro-components';
-import {
-  DatePicker,
-  Empty,
-  EmptyProps,
-  Input,
-  InputProps,
-  Select,
-  SelectProps,
-  Tag,
-  Upload,
-} from 'antd';
+import { DatePicker, Empty, EmptyProps, Input, InputProps, Select, SelectProps, Tag } from 'antd';
 import { FINISH_TIME_LOCALE, START_TIME_LOCALE } from '@/locales/en-US';
 import { FORMAT_DATETIME } from '@/utils/constants';
 import moment from 'moment';
-import { FC, useCallback, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 import styles from './styles.less';
 import ActionIcons from '../ActionIcons';
 import { debounce } from 'lodash';
 import { useIntl } from 'umi';
-import { UploadChangeParam, UploadFile } from 'antd/lib/upload';
 import ReactMarkdown from 'react-markdown';
 import { TextAreaProps } from 'antd/lib/input';
 import remarkGfm from 'remark-gfm';
@@ -203,6 +186,7 @@ const TableSearchSelect: React.FC<ITableSearchSelect> = ({
         suffixIcon={<SearchOutlined />}
         showSearch
         value={''} // Force select can not have value.
+        filterOption={() => true}
       />
       <DragSortTable
         columns={columnsRendered}
@@ -490,50 +474,6 @@ const TagSelection: React.FC<ITagsSelection> = ({
   );
 };
 
-interface IInputUpload {
-  directory?: boolean;
-  className?: string;
-  emptyText?: string | React.ReactNode;
-  disabled?: boolean;
-  // Default
-  onChange?: (data: any) => void;
-  value?: any;
-}
-
-const InputUpload: React.FC<IInputUpload> = ({
-  directory,
-  emptyText,
-  className,
-  disabled,
-  onChange,
-  value,
-}) => {
-  const intl = useIntl();
-
-  const handleUpload = ({ file, fileList }: UploadChangeParam<UploadFile<any>>) => {
-    const newValue = directory ? fileList : file;
-    onChange?.(newValue);
-  };
-
-  return (
-    <Upload.Dragger
-      beforeUpload={() => false}
-      directory={!!directory}
-      onChange={handleUpload}
-      fileList={value || []}
-      className={`${styles.InputUpload} ${className || ''}`}
-      disabled={disabled}
-    >
-      <p className="ant-upload-drag-icon">
-        <InboxOutlined />
-      </p>
-      <p className="ant-upload-text">
-        {emptyText || intl.formatMessage({ id: 'component.upload.drag-drop.folder.content' })}
-      </p>
-    </Upload.Dragger>
-  );
-};
-
 interface IInputMarkdown {
   input?: {
     autoSize?: TextAreaProps['autoSize'];
@@ -597,7 +537,6 @@ export {
   InputSearchSelect,
   InputsNested,
   TagSelection,
-  InputUpload,
   InputMarkdown,
   InputDisplay,
 };

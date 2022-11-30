@@ -57,7 +57,7 @@ REDIS_HOST="localhost"                     # Redis host
 APP_PORT=11010                             # App port (@judge-api app port)
 APP_ACCOUNT_USER="admin"                   # Username for default account (for init)
 APP_ACCOUNT_PASS="admin@wecode"            # Password for default account (for init)
-TEST_OUTPUT_DIRECTORY_PATH="./upload/"     # Directory path (store test files for problems)
+UPLOAD_DIRECTORY_PATH="./upload/"     # Directory path (store test files for problems)
 # AUTHENTICATE CONFIGURE
 JWT_SECRET="jwt-secret-for-auth"           # JWT secret string (use for encrypting password)
 JWT_EXPIRATION_DATE=7                      # Time to expire JWT (days)

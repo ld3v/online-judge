@@ -47,9 +47,7 @@ const AuthModel: IAuthModel = {
         return;
       }
       const { account, token } = res;
-      // console.log(token, LC_STR_PREFIX + 'AUTH');
       localStorage.setItem(LC_STR_PREFIX + 'AUTH', token);
-      // console.log(account);
       callback?.(account);
     },
     *register({ payload }, { call }): Generator<any, any, any> {
@@ -69,9 +67,7 @@ const AuthModel: IAuthModel = {
         return;
       }
       const { account, token } = res;
-      // console.log(token, LC_STR_PREFIX + 'AUTH');
       localStorage.setItem(LC_STR_PREFIX + 'AUTH', token);
-      // console.log(account);
       callback?.(account);
     },
     *forgotPassword({ payload }, { call }): Generator<any, any, any> {

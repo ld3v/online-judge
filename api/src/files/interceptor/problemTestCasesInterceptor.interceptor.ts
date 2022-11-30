@@ -4,35 +4,26 @@ import { ConfigService } from '@nestjs/config';
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { diskStorage, DiskStorageOptions } from 'multer';
 import * as fs from 'fs/promises';
-import { Request } from 'express';
- 
-interface MultiFileInterceptorOptions {
-  fieldName: string;
-  maxCount?: number;
-  path?: (req: Request, file: Express.Multer.File) => { dst: string, err?: Error };
-  fileFilter?: MulterOptions['fileFilter'];
-  limits?: MulterOptions['limits'];
-}
+import { Problem } from 'src/problem/entities/problem.entity';
 
-function MultiFileInterceptor (options: MultiFileInterceptorOptions): Type<NestInterceptor> {
+function ProblemTestCasesInterceptor (fieldName: string): Type<NestInterceptor> {
   @Injectable()
-  class Interceptor implements NestInterceptor {
+  class TestCasesInterceptor implements NestInterceptor {
     filesInterceptor: NestInterceptor;
     constructor(configService: ConfigService) {
       const filesDestination = configService.get('UPLOAD_DIRECTORY_PATH');
+      const defaultId = Problem.genId();
  
       const destination: DiskStorageOptions['destination'] = async (req, file, cb) => {
-        if (options.path) {
-          const { dst, err } = options.path(req, file);
-          // Create if dir not exist
-          const finalDst = `${filesDestination}/${dst}`;
-          await fs.mkdir(finalDst, { recursive: true });
+        let subFolder = '';
+        if (file.originalname.includes('input')) subFolder = '/in';
+        if (file.originalname.includes('output')) subFolder = '/out';
 
-          cb(err || null, finalDst);
-          return;
-        }
-        await fs.mkdir(filesDestination, { recursive: true });
-        cb(null, filesDestination);
+        const id = req.params.id || defaultId;
+        const finalDst = `${filesDestination}/problem-solutions/${id}${subFolder}`;
+        // Create if dir not exist
+        await fs.mkdir(finalDst, { recursive: true });
+        cb(null, finalDst);
       };
  
       const multerOptions: MulterOptions = {
@@ -43,18 +34,17 @@ function MultiFileInterceptor (options: MultiFileInterceptorOptions): Type<NestI
             callback(null, filename);
           },
         }),
-        fileFilter: options.fileFilter,
-        limits: options.limits
       }
  
-      this.filesInterceptor = new (FilesInterceptor(options.fieldName, options.maxCount, multerOptions));
+      this.filesInterceptor = new (FilesInterceptor(fieldName, undefined, multerOptions));
     }
  
     intercept(...args: Parameters<NestInterceptor['intercept']>) {
       return this.filesInterceptor.intercept(...args);
     }
   }
-  return mixin(Interceptor);
+
+  return mixin(TestCasesInterceptor);
 }
  
-export default MultiFileInterceptor;
+export default ProblemTestCasesInterceptor;

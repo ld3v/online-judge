@@ -50,6 +50,12 @@ export default {
   'component.input-coefficient-rule.type.CONST': 'Constant',
   'component.input-coefficient-rule.type.VARIANT_OVER_TIME': 'Over time',
   'component.input-coefficient-rule.add': 'Add new rule',
+  // Input upload
+  'component.input-upload.empty': 'No files was selected.',
+  'component.input-upload.view-structure': 'View files structure',
+  'component.input-upload.clear-all': 'Clear all',
+  // Common
+  'component.common.more': 'View more',
   // Loading
   'component.loading.modal.title': 'Loading...',
   // Exception

@@ -20,3 +20,10 @@ export type TProblemWithAssignment = {
   problemName: string;
   score: number;
 }
+
+export type TProblemTemplate = {
+  banned: string[];
+  before: string;
+  after: string;
+  err?: any;
+}

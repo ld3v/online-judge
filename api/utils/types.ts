@@ -44,6 +44,7 @@ export interface IProblem {
   diff_arg?: string; // Default is `-bB`
   // Not allow to update
   created_by?: any;
+  id?: string;
 }
 
 export interface INotification {

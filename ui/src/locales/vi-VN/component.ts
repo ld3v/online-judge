@@ -50,6 +50,12 @@ export default {
   'component.input-coefficient-rule.type.CONST': 'Không đổi',
   'component.input-coefficient-rule.type.VARIANT_OVER_TIME': 'Biến thiên',
   'component.input-coefficient-rule.add': 'Thêm điều kiện',
+  // Common
+  'component.common.more': 'Tìm hiểu thêm',
+  // Input upload
+  'component.input-upload.empty': 'Không có tập tin nào được chọn! <b>Nhấn</b> hoặc <b>kéo thả</b> tập tin của bạn vào đây!',
+  'component.input-upload.view-structure': 'Xem cấu trúc',
+  'component.input-upload.clear-all': 'Xoá tất cả',
   // Loading
   'component.loading.modal.title': 'Đang tải...',
   // Exception

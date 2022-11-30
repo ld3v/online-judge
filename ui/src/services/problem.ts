@@ -1,4 +1,5 @@
 import { TProblemSearchQuery } from '@/types/problem';
+import { JSON2FormData } from '@/utils/funcs';
 import request from '@/utils/request';
 
 export const getAllProblems = ({ keyword, assignmentIds, langIds, except, page, limit }: TProblemSearchQuery) => {
@@ -17,14 +18,24 @@ export const getAllProblems = ({ keyword, assignmentIds, langIds, except, page, 
 };
 
 export const createProblem = (data: any) => {
-  return request.post('/problem', {
-    data,
+  const formData = new FormData();
+  JSON2FormData(data, undefined, formData);
+  return request.post(`/problem`, {
+    body: formData,
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
   });
 };
 
 export const updateProblem = (id: string, data: any) => {
+  const formData = new FormData();
+  JSON2FormData(data, undefined, formData);
   return request.patch(`/problem/${id}`, {
-    data,
+    body: formData,
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
   });
 };
 

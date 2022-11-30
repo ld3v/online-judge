@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AccountModule } from './account/account.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -19,6 +19,7 @@ import { SettingModule } from './setting/setting.module';
 import { LocalFileModule } from './files/localFile.module';
 import { BullModule } from '@nestjs/bull';
 import { LoggerModule } from './logger/logger.module';
+import { AppLoggerMiddleware } from './app.middleware';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { LoggerModule } from './logger/logger.module';
         REDIS_PORT: Joi.number().required(),
         APP_ACCOUNT_USER: Joi.string().required(),
         APP_ACCOUNT_PASS: Joi.string().required(),
-        TEST_OUTPUT_DIRECTORY_PATH: Joi.string().required(),
+        UPLOAD_DIRECTORY_PATH: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRATION_DATE: Joi.string().required(),
         MAIL_UI_PORT: Joi.number().required(),
@@ -83,4 +84,8 @@ import { LoggerModule } from './logger/logger.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(AppLoggerMiddleware).forRoutes('*');
+  }
+}

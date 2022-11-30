@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/account/account.enum';
 import { Account } from 'src/account/entities/account.entity';
@@ -7,11 +8,13 @@ import CustomLogger from 'src/logger/customLogger';
 import { TJudgeProblemLang, TJudgeProblemTransformed } from 'src/setting/setting.utils';
 import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { Http503Exception } from 'utils/Exceptions/http503.exception';
+import FileUtils from 'utils/file-utils';
+import { getFileInDir } from 'utils/func';
 import { FoundAndNotFoundResult, ILang, ILangAddProblem, IProblem, IUpdateProblemLang, SuccessAndFailed } from 'utils/types';
 import { Problem } from './entities/problem.entity';
 import { ProblemLanguage } from './entities/problem_language.entity';
 import { ProblemLangRepository, ProblemRepository } from './problem.repository';
-import { ProblemFilter } from './problem.types';
+import { ProblemFilter, TProblemTemplate } from './problem.types';
 
 @Injectable()
 export class ProblemService {
@@ -21,6 +24,7 @@ export class ProblemService {
     @InjectRepository(ProblemLangRepository)
     private readonly problemLangRepository: ProblemLangRepository,
     private readonly logger: CustomLogger,
+    private readonly configService: ConfigService,
   ) {}
 
   public async create ({ note, ...data }: IProblem, author: Account): Promise<Problem> {
@@ -91,7 +95,10 @@ export class ProblemService {
     return await this.problemRepository.remove(problemsNeedRemove);
   }
 
-  public async getById(id: string, showErrIfErr: boolean = true) {
+  public async getById(
+    id: string,
+    showErrIfErr: boolean = true
+  ): Promise<{ problem: Problem; template: TProblemTemplate, test: any[] }> {
     const curProb = await this.problemRepository.createQueryBuilder("problem")
       .leftJoinAndSelect("problem.created_by", "created_by")
       .leftJoinAndSelect("problem.languages", "problem_language")
@@ -105,7 +112,20 @@ export class ProblemService {
         notFoundId: id,
       });
     }
-    return curProb;
+    // GET TEMPLATE
+    const { banned, before, after, err: errGetTemplate } = await this.getProblemTemplate(id);
+    // Get Test cases
+    const testCases = await this.getProblemTestCases(id);
+
+    return {
+      problem: curProb,
+      test: testCases,
+      template: {
+        before,
+        after,
+        banned,
+      }
+    };
   }
 
   public async getByIds(ids: string[], showErrIfErr: boolean = true): Promise<FoundAndNotFoundResult<Problem>> {
@@ -202,7 +222,7 @@ export class ProblemService {
     const problemLangNotFoundIds = ids.filter(id => !problemLangFoundIds.includes(id));
 
     if (showErrIfErr && problemLangNotFoundIds.length > 0) {
-      throw new Http400Exception('problem.notfound', {
+      throw new Http400Exception('problem-lang.notfound', {
         notFoundKeys: problemLangNotFoundIds,
       });
     }
@@ -327,5 +347,51 @@ export class ProblemService {
       }
     });
     return problemTransformed;
+  }
+
+  /**
+   * Read template file.
+   * 
+   * -----
+   * *Function `template` in file `application/controllers/Submit.php`*
+   * 
+   * @param id Problem's ID
+   * @returns 
+   */
+  private async getProblemTemplate (
+    id: string
+  ): Promise<TProblemTemplate> {
+    try {
+      const content = await new FileUtils(`upload/${id}/template.php`).content();
+      if (!content) {
+        return { banned: [], before: '', after: '' };
+      }
+      let matches = content.match(/(\/\*###Begin banned.*\n)((.*\n)*)(###End banned keyword\*\/)/);
+      const banned = matches[2] ? matches[2].split('\n') : [];
+
+      matches = content.match(/(###End banned keyword\*\/\n)((.*\n)*)\/\/###INSERT CODE HERE -\n?((.*\n?)*)/);
+      const before = matches[2] || "";
+      const after = matches[4] || "";
+
+      return {
+        banned,
+        before,
+        after,
+      }
+
+    } catch (err) {
+      if (!(err.message || '').includes('no such file or directory')) {
+        this.logger.errorCustom(err);
+      }
+      return { banned: [], before: '', after: '', err };
+    }
+  }
+
+  private async getProblemTestCases (id: string) {
+    try {
+      return await getFileInDir(`${this.configService.get('UPLOAD_DIRECTORY_PATH')}/problem-solutions/${id}`, '_')
+    } catch (err) {
+      return {};
+    }
   }
 }

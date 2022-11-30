@@ -33,8 +33,8 @@ export default {
   'problem.form.diff-command.arguments.placeholder': '-bB',
   'problem.form.languages.label': 'Ngôn ngữ sử dụng',
   'problem.form.languages.description': 'Chọn và thiết lập <b>giới hạn thời gian</b> và <b>giới hạn bộ nhớ</b> cho ngôn ngữ',
-  'problem.form.test-folder.label': 'Test',
-  'problem.form.test-folder.description': 'Thư mục chứa các tệp để kiểm tra cách giải quyết vấn đề của học viên dựa trên tệp <code>input</code> và <code>output</code> được nhập vào',
+  'problem.form.test-folder.label': 'Các trường hợp thử nghiệm & Template',
+  'problem.form.test-folder.description': 'Thư mục tải lên cần có các tập tin <code>input_.txt</code> và <code>output_.txt</code>. Ngoài ra, bạn còn có thể thêm 1 tập tin <code>template.cpp</code> để làm template cho bài làm. Xem thêm tại <a href="https://github.com/nqhd3v/online-judge/blob/main/api/docs/solution-checking.md" target="_blank">đây</a>.',
   'problem.form.submit-problem': 'Nộp bài',
   'problem.form.submit-create': 'Tạo',
   'problem.form.submit-update': 'Cập nhật',
@@ -46,4 +46,7 @@ export default {
   'exception.problem.form.languages.no-selected': 'Vui lòng chọn ít nhất 1 ngôn ngữ',
   'exception.problem.notfound':
     '{ isMany, select, true {Các v} other {V} }ấn đề này không tồn tại trong hệ thống!',
+  'exception.problem.solution-checking.includes-other-files': 'Thư mục tải lên chỉ được chứa các tập tin input_.txt, output_.txt hoặc template.cpp',
+  'exception.problem.solution-checking.input-diff-output': 'Có {inpCount} tệp dữ liệu đầu vào trong khi có {outCount} tệp kết quả dự kiến',
+  'exception.problem.solution-checking.duplicated-filenames': 'Dường như có một số tập tin bị trùng tên với nhau!'
 };

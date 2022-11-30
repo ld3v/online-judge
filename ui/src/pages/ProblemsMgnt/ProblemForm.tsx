@@ -2,18 +2,20 @@ import CardWrapForm from '@/components/CardWrapForm';
 import {
   InputMarkdown,
   InputsNested,
-  InputUpload,
   LabelWithDesc,
   TagSelection,
 } from '@/components/CardWrapForm/Input';
-import { Col, Form, Input, Row } from 'antd';
+import InputUpload from '@/components/InputUpload';
+import { TFileDisplay } from '@/components/InputUpload/FilesDisplay';
+import { validateTestCasesFolder } from '@/utils/funcs';
+import { Col, Form, FormInstance, Input, Row } from 'antd';
 import { useEffect } from 'react';
-import { connect, FormattedHTMLMessage, useIntl } from 'umi';
+import { connect, FormattedHTMLMessage, FormattedMessage, useIntl } from 'umi';
 
 import styles from './styles.less';
 
 interface IProblemForm {
-  onSubmit: (formData: any) => void;
+  onSubmit: (formData: any, form: FormInstance<any>) => void;
   defaultValues?: Record<string, any>;
   cardTitle: string;
   preLoading?: boolean;
@@ -42,6 +44,7 @@ const ProblemForm: React.FC<IProblemForm> = ({
   const handleSubmit = ({ diff_command, languages, ...problemInfo }: any) => {
     const languagesTransformed = languages.map((lang: any) => ({
       id: lang.id,
+      problemLangId: lang.problemLangId,
       time_limit: lang.timeLimit,
       memory_limit: lang.memoryLimit,
     }));
@@ -51,7 +54,7 @@ const ProblemForm: React.FC<IProblemForm> = ({
       diff_arg: diff_command?.args || '',
       ...problemInfo,
     };
-    onSubmit(data);
+    onSubmit(data, form);
   };
 
   const initialValues = {
@@ -90,7 +93,7 @@ const ProblemForm: React.FC<IProblemForm> = ({
       onFinish={handleSubmit}
       loadingPreRender={preLoading}
       submitting={submitting}
-      className={styles.problemForm}
+      className="bg-gray-800"
     >
       <Row gutter={20}>
         <Col span={12}>
@@ -170,8 +173,27 @@ const ProblemForm: React.FC<IProblemForm> = ({
       >
         <InputMarkdown />
       </Form.Item>
-      <Form.Item name="test_folder" label={testFolderLabel}>
-        <InputUpload directory disabled />
+      <Form.Item
+        name="upload"
+        label={testFolderLabel}
+        rules={[
+          () => ({
+            validator(_, files: TFileDisplay[]) {
+              const validateFileUpload = validateTestCasesFolder(files);
+              if (validateFileUpload) {
+                return Promise.reject(
+                  <FormattedMessage
+                    id={validateFileUpload.msg}
+                    values={validateFileUpload.variables}
+                  />,
+                );
+              }
+              return Promise.resolve();
+            },
+          }),
+        ]}
+      >
+        <InputUpload directory />
       </Form.Item>
       <Form.Item
         name="languages"

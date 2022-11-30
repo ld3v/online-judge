@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LanguageModule } from 'src/language/language.module';
 import { LocalFileModule } from 'src/files/localFile.module';
 import { LoggerModule } from 'src/logger/logger.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { LoggerModule } from 'src/logger/logger.module';
     forwardRef(() => LanguageModule),
     LocalFileModule,
     LoggerModule,
+    ConfigModule,
   ],
   providers: [ProblemService],
   controllers: [ProblemController],

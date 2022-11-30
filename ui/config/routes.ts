@@ -31,13 +31,6 @@ export default [
     name: 'Maintenance',
     component: './Exceptions/Maintenance',
   },
-  // TEST
-  {
-    path: '_test/upload',
-    layout: false,
-    name: 'Test feature upload',
-    component: './Test/Upload',
-  },
   {
     path: '/',
     layout: false,

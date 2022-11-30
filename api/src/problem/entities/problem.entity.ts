@@ -84,8 +84,13 @@ export class Problem {
   created_by: Account;
 
   @BeforeInsert()
-  updateID() {
+  updateBeforeInsert() {
+    const id = Problem.genId();
+    this.id = this.id || id;
+  }
+
+  public static genId() {
     const idStr = nanoid(16);
-    this.id = `PRBx${idStr}`;
+    return `PRBx${idStr}`;
   }
 }

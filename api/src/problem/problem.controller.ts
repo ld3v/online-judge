@@ -1,23 +1,27 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Role } from 'src/account/account.enum';
 import { Account } from 'src/account/entities/account.entity';
 import RequestWithAccount from 'src/auth/dto/reqWithAccount.interface';
 import JwtAuthGuard from 'src/auth/gaurd/jwtAuth.gaurd';
 import RoleGuard from 'src/auth/gaurd/roles.gaurd';
+import ProblemTestCasesInterceptor from 'src/files/interceptor/problemTestCasesInterceptor.interceptor';
 import { LanguageService } from 'src/language/language.service';
-import { array2Map, isAdmin } from 'utils/func';
+import { array2Map, isAdmin, rmDiffFiles } from 'utils/func';
 import { TParamId } from 'utils/types';
 import CreateDto from './dto/create.dto';
 import UpdateDto from './dto/update.dto';
 import { Problem } from './entities/problem.entity';
 import { ProblemService } from './problem.service';
 import { ProblemFilter } from './problem.types';
+import { TestCaseFilesValidationPipe } from './testCases.pipe';
 
 @Controller('problem')
 export class ProblemController {
   constructor (
     private readonly problemService: ProblemService,
     private readonly langService: LanguageService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Get('/')
@@ -42,6 +46,7 @@ export class ProblemController {
     }
   }
 
+  @UseInterceptors(ProblemTestCasesInterceptor('upload'))
   @Post('/')
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
@@ -49,18 +54,30 @@ export class ProblemController {
   async create(
     @Req() { user }: RequestWithAccount,
     @Body() data: CreateDto,
+    @UploadedFiles(TestCaseFilesValidationPipe) files: Express.Multer.File[],
   ) {
     try {
+      let problemId = '';
+      if (Array.isArray(files) && files.length > 0) {
+        problemId = files[0].path.split('/')[2];
+      }
       const { languages, ...problemData } = data;
       const { map: langMapping } = array2Map(languages, 'language_id');
       const languageIds = Object.keys(langMapping);
       const { found: langsData } = await this.langService.getByIds(languageIds);
-      const newProb = await this.problemService.create(problemData, user);
+      const newProb = await this.problemService.create({
+        ...problemData,
+        id: problemId || Problem.genId(),
+      }, user);
       // Add lang to the new problem.
       await this.problemService.addProblemLangs(newProb, langsData, langMapping);
       // Get problem and send to FE
-      const problemCreated = await this.problemService.getById(newProb.id);
-      return this.transformProblem(user, problemCreated)[0];
+      const { problem: problemCreated, template, test } = await this.problemService.getById(newProb.id);
+      return {
+        ...this.transformProblem(user, problemCreated)[0],
+        template,
+        upload: test
+      };
     } catch (err) {
       throw err;
     }
@@ -74,14 +91,19 @@ export class ProblemController {
     @Param('id') id: string, 
   ) {
     try {
-      const problem = await this.problemService.getById(id);
-      return this.transformProblem(user, problem)[0];
+      const { problem, template, test } = await this.problemService.getById(id);
+      return {
+        ...this.transformProblem(user, problem)[0],
+        template,
+        upload: test,
+      };
     } catch (err) {
       throw err;
     }
   }
 
   // Update a problem, and its language.
+  @UseInterceptors(ProblemTestCasesInterceptor('upload'))
   @Patch('/:id')
   @UseGuards(JwtAuthGuard)
   @UseGuards(RoleGuard(Role.Admin))
@@ -89,9 +111,17 @@ export class ProblemController {
     @Req() { user }: RequestWithAccount,
     @Param() { id }: TParamId,
     @Body() data: UpdateDto,
+    @UploadedFiles(TestCaseFilesValidationPipe) files: any
   ) {
+    const uploadConfigPath = this.configService.get('UPLOAD_DIRECTORY_PATH');
+
     try {
-      const curProb = await this.problemService.getById(id);
+      // Remove non-duplicate files
+      if (files.length > 0) {
+        await rmDiffFiles(`${uploadConfigPath}/problem-solutions`, files);
+      }
+
+      const { problem: curProb } = await this.problemService.getById(id);
       const problemData = this.transformProblem(user, curProb)[0];
       const { languages, ...problemDataNeedUpdate } = data;
       // Update problem
@@ -118,7 +148,7 @@ export class ProblemController {
       await this.problemService.deleteProblemLangsByIds(problemLangIdsNeedDel);
 
       // Get problem after update and send to FE
-      const problemUpdated = await this.problemService.getById(id);
+      const { problem: problemUpdated } = await this.problemService.getById(id);
       return this.transformProblem(user, problemUpdated)[0];
     } catch (err) {
       throw err;
@@ -132,7 +162,7 @@ export class ProblemController {
     @Param() { id }: TParamId,
   ) {
     try {
-      const problemNeedDel = await this.problemService.getById(id);
+      const { problem: problemNeedDel } = await this.problemService.getById(id);
       return await this.problemService.deleteById(problemNeedDel.id);
     } catch (err) {
       throw err;

@@ -17,6 +17,13 @@ module.exports = {
     'import/no-extraneous-dependencies': 'off',
     'no-undef': 'off',
     'no-unused-vars': 'off',
+    'at-rule-no-unknown': null,
+    'css/at-rule-no-unknown': [
+      true,
+      {
+          'ignoreAtRules': ['tailwind']
+      }
+  ],
   },
   globals: {
     ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION: true,
