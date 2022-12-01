@@ -216,7 +216,7 @@ errors["EXCEPTION_SIGNAL"]="Killed by a signal"
 errors["EXCEPTION_OUTSIZE"]="Output Size Limit Exceeded"
 
 for((i=1;i<=TST;i++)); do
-	logfile_jail "\n=== TEST $i ==="
+	logfile_jail "\n=== CASE $i/$TST ==="
 
 	touch err
 
@@ -242,16 +242,16 @@ for((i=1;i<=TST;i++)); do
 		runcode="./runcode.sh $EXT $MEMLIMIT $TIMELIMIT $TIMELIMITINT ./input$i.txt $command"
 	fi
 
-	logfile_jail "$tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $runcode"
+	logfile_jail "$ $tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $runcode"
 	
 	$tester_dir/run_judge_in_docker.sh `pwd` ${languages_to_docker[$EXT]} > run_judge_error $runcode 2>&1
 	EXITCODE=$?
 
-	logfile_jail `cat run_judge_error`
+	logfile_jail `$ cat run_judge_error`
 	rm run_judge_error
 
 
-	logfile_jail "exit code $EXITCODE"
+	# logfile_jail "exit code $EXITCODE"
 ##################################################################
 ############## Process error code and error log ##################
 ##################################################################
@@ -259,7 +259,7 @@ for((i=1;i<=TST;i++)); do
 	if [ "$EXT" = "java" ]; then
 		if grep -iq -m 1 "Too small initial heap" out || grep -q -m 1 "java.lang.OutOfMemoryError" err; then
 			logfile_jail "Memory Limit Exceeded java"
-			logfile_jail `cat out`
+			logfile_jail "$ cat out"
 			continue
 		fi
 		if grep -q -m 1 "Exception in" err; then # show Exception
@@ -278,14 +278,14 @@ for((i=1;i<=TST;i++)); do
 		fi
 	fi
 
-	logfile_jail "Exit Code = $EXITCODE"
-	logfile_jail "err file:`cat err`"
+	logfile_jail "# Exit Code = $EXITCODE"
+	logfile_jail "# Error: `cat err`"
 
 	t=`grep "EXCEPTION_" err|cut -d" " -f3`
 	m=`grep "EXCEPTION_" err|cut -d" " -f5`
 	m2=`grep "EXCEPTION_" err|cut -d" " -f7`
 	m=$((m>m2?m:m2))
-	logfile_jail "$t s and $m KiB"
+	logfile_jail "# Time-limit $t (s) - Memory-limit: $m (KiB)"
 	found_error=0
 
 	if ! grep -q "FINISHED" err; then
@@ -301,11 +301,10 @@ for((i=1;i<=TST;i++)); do
 			
 	fi
 
-	logfile_jail "Time: $t s"
-	logfile_jail "Mem: $m kib"
+	logfile_jail "# Time-limit $t (s) - Memory-limit: $m (KiB)"
 	if [ $found_error = "1" ]; then
 		continue
-		logfile_jail "found error"
+		logfile_jail "Found error"
 	fi
 
 	if [ $EXITCODE -eq 137 ]; then
@@ -328,8 +327,8 @@ for((i=1;i<=TST;i++)); do
 		ulimit -t $(($TIMELIMITINT*5))
 		./code_tester $PROBLEMPATH/in/input$i.txt $PROBLEMPATH/out/output$i.txt out 2>cerr
 		EC=$?
-		logfile_jail "$EC"
-		logfile_jail `cat cerr`
+		logfile_jail "# Code tester's result: $EC"
+		logfile_jail `\# Code tester\'s error: cat cerr`
 		if [ $EC -eq 0 ]; then
 			ACCEPTED=true
 		fi
