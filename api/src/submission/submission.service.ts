@@ -126,12 +126,12 @@ export class SubmissionService {
   }
 
   public async updateResultAfterTest(submissionId: string, preScore: number, isShowErrIfErr: boolean = false) {
-    const submission = await this.submissionRepository.findOne(
-      submissionId,
-      {
-        relations: ['problem', 'account']
-      }
-    );
+    const submission = await this.submissionRepository
+      .createQueryBuilder('s')
+      .leftJoinAndSelect('s.submitter', 'account')
+      .leftJoinAndSelect('s.problem', 'problem')
+      .where('s.id = :submissionId')
+      .getOne();
     if (!submission) {
       if (isShowErrIfErr) {
         throw new Http503Exception('submission.notfound', { notFoundId: submissionId });
