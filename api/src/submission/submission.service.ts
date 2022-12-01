@@ -130,7 +130,7 @@ export class SubmissionService {
       .createQueryBuilder('s')
       .leftJoinAndSelect('s.submitter', 'account')
       .leftJoinAndSelect('s.problem', 'problem')
-      .where('s.id = :submissionId')
+      .where('s.id = :submissionId', { submissionId })
       .getOne();
     if (!submission) {
       if (isShowErrIfErr) {
