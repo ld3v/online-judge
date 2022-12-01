@@ -183,7 +183,7 @@ export class SubmissionService {
           problemId: problem.id,
         }
       )
-      .orderBy('created_at', 'DESC')
+      .orderBy('sub.created_at', 'DESC')
       .getOne();
     return submission;
   }
