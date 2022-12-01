@@ -78,7 +78,8 @@ export class SubmissionProcessor {
       // Diff with upload path, when run logs, script will run at './common/run-code' -> Just need add prefix '../../' for this path.
       const logFilePath = path.join('..', '..', LOGS_PATH, solutionLogFile);
       
-      const logEnabled = settingFieldKeysNotFound[SETTING_FIELDS_MAPPING.enable_log] ? "1" : "0";
+      // const logEnabled = settingFieldKeysNotFound[SETTING_FIELDS_MAPPING.enable_log] ? "1" : "0";
+      const logEnabled = "1";
       
       await addFile(LOGS_PATH, solutionLogFile, `Run code at ${moment().format('DD/MM/YYYY - HH:mm:ss')} ---------\n`);
       await addDir(path.join(PROBLEM_SOLUTIONS_PATH, problemId));

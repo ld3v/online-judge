@@ -143,7 +143,13 @@ export class SubmissionController {
         },
         { jobId: queueId }
       );
-      return addSubmit;
+
+      // Return data
+      return {
+        id: addSubmit.id,
+        queueState: addSubmit.queue.state,
+        createdAt: addSubmit.created_at,
+      };
     } catch (err) {
       throw err;
     }
