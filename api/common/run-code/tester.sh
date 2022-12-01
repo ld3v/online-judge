@@ -105,6 +105,7 @@ function logfile_finish
 
 #################### Initialization #####################
 
+logfile "Running in '" . $tester_dir . "'"
 logfile "Starting tester..."
 logfile $@
 # detecting existence of perl
