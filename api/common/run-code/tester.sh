@@ -247,7 +247,7 @@ for((i=1;i<=TST;i++)); do
 	$tester_dir/run_judge_in_docker.sh `pwd` ${languages_to_docker[$EXT]} > run_judge_error $runcode 2>&1
 	EXITCODE=$?
 
-	logfile_jail `$ cat run_judge_error`
+	logfile_jail "# Run Judge Error: `cat run_judge_error`"
 	rm run_judge_error
 
 
@@ -328,7 +328,7 @@ for((i=1;i<=TST;i++)); do
 		./code_tester $PROBLEMPATH/in/input$i.txt $PROBLEMPATH/out/output$i.txt out 2>cerr
 		EC=$?
 		logfile_jail "# Code tester's result: $EC"
-		logfile_jail `\# Code tester\'s error: cat cerr`
+		logfile_jail "# Code tester's error: `cat cerr`"
 		if [ $EC -eq 0 ]; then
 			ACCEPTED=true
 		fi
@@ -344,7 +344,7 @@ for((i=1;i<=TST;i++)); do
 		echo "" >> out
 		echo "" >> correctout
 
-		logfile_jail `diff out correctout | grep -e "^[0-9]" | head -n 5 `
+		logfile_jail "# Compare out vs correctout: `diff out correctout | grep -e "^[0-9]" | head -n 5 `"
 
 		if [ "$DIFFTOOL" = "diff" ]; then
 			# Add -q to diff options (for faster diff)
