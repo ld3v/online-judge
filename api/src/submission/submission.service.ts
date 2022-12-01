@@ -148,8 +148,10 @@ export class SubmissionService {
     ) {
       submission.is_final = true;
 
-      finalSubmission.is_final = false;
-      await this.submissionRepository.save(finalSubmission);
+      if (finalSubmission) {
+        finalSubmission.is_final = false;
+        await this.submissionRepository.save(finalSubmission);
+      }
     }
     await this.submissionRepository.save(submission);
     return true;
