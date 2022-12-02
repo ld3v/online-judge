@@ -46,7 +46,7 @@ fi
 # Imposing time limit with ulimit
 ulimit -t $TIMELIMITINT
 
-	echo "$ timeout -s9 $((TIMELIMITINT*2)) $CMD <$IN >out 2>err"
+	echo "[-] [runcode.sh] timeout -s9 $((TIMELIMITINT*2)) $CMD <$IN >out 2>err"
 if $TIMEOUT_EXISTS; then
 	# Run the command with REAL time limit of TIMELIMITINT*2
 	timeout -s9 $((TIMELIMITINT*2)) $CMD <$IN >out 2>err

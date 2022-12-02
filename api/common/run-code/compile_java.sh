@@ -4,7 +4,8 @@ cp ../java.policy java.policy
 cp $USERDIR/$FILENAME.java solution.java
 logfile_jail "[#] Compiling as JAVA"
 
-logfile_jail "[$] $tester_dir/run_judge_in_docker.sh "`pwd` " ${languages_to_docker[$EXT]} javac solution.java >/dev/null 2>cerr"
+logcode_jail "# [compile_java.sh]"
+logcode_jail "$tester_dir/run_judge_in_docker.sh "`pwd` " ${languages_to_docker[$EXT]} javac solution.java >/dev/null 2>cerr"
 $tester_dir/run_judge_in_docker.sh `pwd` ${languages_to_docker[$EXT]} javac solution.java >/dev/null 2>cerr
 # cp solution $FILENAME
 

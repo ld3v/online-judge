@@ -34,22 +34,23 @@ PROBLEMPATH=${1}
 USERDIR=${2}
 # RESULTFILE=${3}
 LOGFILE=${3}
+LOGFILENAME=${4}
 # file name without extension
-FILENAME=${4}
+FILENAME=${5}
 # file extension
-EXT=${5}
+EXT=${6}
 # time limit in seconds
-TIMELIMIT=${6}
+TIMELIMIT=${7}
 # integer time limit in seconds (should be an integer greater than TIMELIMIT)
-TIMELIMITINT=${7}
+TIMELIMITINT=${8}
 # memory limit in kB
-MEMLIMIT=${8}
+MEMLIMIT=${9}
 # output size limit in Bytes
-OUTLIMIT=${9}
+OUTLIMIT=${10}
 # diff tool (default: diff)
-DIFFTOOL=${10}
+DIFFTOOL=${11}
 # diff options (default: -bB)
-DIFFOPTION=${11}
+DIFFOPTION=${12}
 # enable/disable judge log
 if [ ${12} = "1" ]; then
 	LOG_ON=true
@@ -78,17 +79,32 @@ if [[ "$DIFFOPTION" != "identical" && "$DIFFOPTION" != "ignore" ]]; then
 	DIFFARGUMENT=$DIFFOPTION
 fi
 
+# Init log file path
+LOGFILE_PROGRESS="$LOGFILE/test_$LOGFILENAME"
+LOGFILE_COMMANDS="$LOGFILE/code_$LOGFILENAME"
+
 function logfile
 {
 	if $LOG_ON; then
-		echo -e "$@" >>$LOGFILE
+		echo -e "$@" >>$LOGFILE_PROGRESS
 	fi
 }
-
 function logfile_jail
 {
 	if $LOG_ON; then
-		echo -e "$@" >>"../$LOGFILE"
+		echo -e "$@" >>"../$LOGFILE_PROGRESS"
+	fi
+}
+function logcode
+{
+	if $LOG_ON; then
+		echo -e "$@" >>$LOGFILE_COMMANDS
+	fi
+}
+function logcode_jail
+{
+	if $LOG_ON; then
+		echo -e "$@" >>"../$LOGFILE_COMMANDS"
 	fi
 }
 
@@ -118,10 +134,12 @@ if ! $PERL_EXISTS; then
 	logfile "[W] Warning: perl not found. We continue without perl..."
 fi
 JAIL=jail-$RANDOM
+logcode "mkdir $JAIL"
 if ! mkdir $JAIL; then
 	logfile "[#] Folder 'tester' is not writable! Exiting..."
 	logfile_finish "Judge Error"
 fi
+logcode "cd $JAIL"
 cd $JAIL
 
 logfile_jail "[#] $(date)"
@@ -245,7 +263,7 @@ for((i=1;i<=TST;i++)); do
 		runcode="./runcode.sh $EXT $MEMLIMIT $TIMELIMIT $TIMELIMITINT ./input$i.txt $command"
 	fi
 
-	logfile_jail "[$] $tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $runcode"
+	logcode_jail "$tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $runcode"
 	
 	$tester_dir/run_judge_in_docker.sh `pwd` ${languages_to_docker[$EXT]} > run_judge_error $runcode 2>&1
 	EXITCODE=$?

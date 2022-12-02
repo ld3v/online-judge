@@ -67,7 +67,7 @@ export class SubmissionProcessor {
         return;
       }
 
-      const solutionLogFile = `solution_${submissionId}.log`;
+      const logFilename = `${submissionId}.log`;
       
       const settingOutputSizeLimit = settingMapping[SETTING_FIELDS_MAPPING.output_size_limit];
       const outputSizeLimit = Number(settingOutputSizeLimit) * 1024;
@@ -76,12 +76,13 @@ export class SubmissionProcessor {
       const problemSolutionsDir = path.join('..', '..', '..', PROBLEM_SOLUTIONS_PATH, problemId);
       const userSolutionsDir = path.join('..', '..', '..', USER_SOLUTIONS_PATH, username);
       // Diff with upload path, when run logs, script will run at './common/run-code' -> Just need add prefix '../../' for this path.
-      const logFilePath = path.join('..', '..', LOGS_PATH, solutionLogFile);
+      const logFilePath = path.join('..', '..', LOGS_PATH);
       
       // const logEnabled = settingFieldKeysNotFound[SETTING_FIELDS_MAPPING.enable_log] ? "1" : "0";
       const logEnabled = "1";
       
-      await addFile(LOGS_PATH, solutionLogFile, `Run code at ${moment().format('DD/MM/YYYY - HH:mm:ss')} ---------\n`);
+      await addFile(LOGS_PATH, `test_${logFilename}`, `[#] -- ${moment().format('DD/MM/YYYY - HH:mm:ss')} ---------\n`);
+      await addFile(LOGS_PATH, `code_${logFilename}`, `[#] -- ${moment().format('DD/MM/YYYY - HH:mm:ss')} ---------\n`);
       await addDir(path.join(PROBLEM_SOLUTIONS_PATH, problemId));
       await addDir(path.join(USER_SOLUTIONS_PATH, username));
       
@@ -93,22 +94,23 @@ export class SubmissionProcessor {
        * $1: `problemSolutionsDir` - Problem's dir, which store admin's solution files (uploaded by admin).                                           
        * $2: `userSolutionsDir` - Problem's dir, which store user's solution files (uploaded by user).                                                
        *      -> need to test with admin's solutions.                                                                                                 
-       * $3: `logFilePath` - All of progress will log to this file.                                                                                   
-       * $4: `filename` - File need to check (uploaded by user).                                                                                      
-       * $5: `fileExt` - File's extension -> Compile, run when process job.                                                                           
-       * $6: `timeLimit` - Limit of time to execute user's solution.                                                                                  
-       * $7: `timeLimitInt` - Same `timeLimit`, but type of it is `integer`.                                                                          
-       * $8: `memoryLimit` - Limit of memory to store user's solution.                                                                                
-       * $9: `outputSizeLimit` - Setting valuable (in settings). (TBU...)                                                                             
-       * $10: `diffCmd` - Difference command, which command run in linux.                                                                             
-       * $11: `diffCmd` - Difference arguments, arguments for diff-command.                                                                           
-       * $12: `logEnabled` - Set in settings. allow write log to file, while compile, run & test user's solution.
+       * $3: `logFilePath` - Log file's path.                                                                                   
+       * $4: `logFileName` - All of progress will log to this file.                                                                                   
+       * $5: `filename` - File need to check (uploaded by user).                                                                                      
+       * $6: `fileExt` - File's extension -> Compile, run when process job.                                                                           
+       * $7: `timeLimit` - Limit of time to execute user's solution.                                                                                  
+       * $8: `timeLimitInt` - Same `timeLimit`, but type of it is `integer`.                                                                          
+       * $9: `memoryLimit` - Limit of memory to store user's solution.                                                                                
+       * $10: `outputSizeLimit` - Setting valuable (in settings). (TBU...)                                                                             
+       * $11: `diffCmd` - Difference command, which command run in linux.                                                                             
+       * $12: `diffCmd` - Difference arguments, arguments for diff-command.                                                                           
+       * $13: `logEnabled` - Set in settings. allow write log to file, while compile, run & test user's solution.
        */
-      const shellCmd = `cd ${testerPath};\n./tester.sh ${problemSolutionsDir} ${userSolutionsDir} ${logFilePath} ${filename} ${fileExtension} ${timeLimit} ${timeLimitInt} ${memoryLimit} ${outputSizeLimit} ${diffCmd} '${diffArg}' ${logEnabled}`;
+      const shellCmd = `cd ${testerPath};\n./tester.sh ${problemSolutionsDir} ${userSolutionsDir} ${logFilePath} ${logFilename} ${filename} ${fileExtension} ${timeLimit} ${timeLimitInt} ${memoryLimit} ${outputSizeLimit} ${diffCmd} '${diffArg}' ${logEnabled}`;
       this.logger.log(`Exec command: ${shellCmd.replace('\/\n\g', ' ')}`, undefined, 1, "INFO");
       const { stdout, stderr } = await exec(shellCmd);
       this.logger.log(`Output: "${stdout}"`);
-      this.logger.error(`Error: ${stderr || 'No error'}`);
+      this.logger.errorCustom(new Error(stderr || 'No error'));
 
       // Update result
       await this.submissionService.updateResultAfterTest(submissionId, Number.isNaN(stdout) ? 0 : Number(stdout));
