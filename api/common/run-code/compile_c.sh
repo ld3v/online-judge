@@ -42,7 +42,7 @@ else
     cp $USERDIR/$FILENAME.$EXT code.c
 fi
 
-logfile_jail "# Compiling as $EXT"
+logfile_jail "[#] Compiling as $EXT"
 
 if [ $NEEDCOMPILE -eq 0 ]; then
     EXITCODE=110
@@ -54,11 +54,11 @@ else
 fi
 
 COMPILE_END_TIME=$(($(date +%s%N)/1000000));
-logfile_jail "# Compiled. Execution Time: $((COMPILE_END_TIME-COMPILE_BEGIN_TIME)) ms"
+logfile_jail "[#] Compiled. Execution Time: $((COMPILE_END_TIME-COMPILE_BEGIN_TIME)) ms"
 if [ $EXITCODE -ne 0 ]; then
-    logfile_jail "# Compile Error:"
+    logfile_jail "[#] Compile Error:"
     #logfile_jail "$(cat cerr | head -10)"
-    logfile_jail "$(cat cerr )"
+    logfile_jail "[#] `cat cerr`"
     # echo '<span class="text-primary">Compile Error<br>Error Messages: (line numbers are not correct)</span>' >$RESULTFILE
     # echo '<span class="text-danger">' >> $RESULTFILE
 
@@ -67,10 +67,10 @@ if [ $EXITCODE -ne 0 ]; then
     while read line; do
         # An's note: 2017-30-12
         # All this shit just to remove the file name from error messgae.
-        if [ "`echo $line|cut -d: -f1`" = "code.$EXT" ]; then
+        if [ "[#] `echo $line|cut -d: -f1`" = "code.$EXT" ]; then
             echo ${line#code.$EXT:} >>cerr2
         fi
-        if [ "`echo $line|cut -d: -f1`" = "shield.$EXT" ]; then
+        if [ "[#] `echo $line|cut -d: -f1`" = "shield.$EXT" ]; then
             echo ${line#shield.$EXT:} >>cerr2
         fi
     done <cerr

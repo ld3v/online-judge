@@ -25,7 +25,8 @@ CMD=$@
 TIMEOUT_EXISTS=true
 hash timeout 2>/dev/null || TIMEOUT_EXISTS=false
 
-echo SHIT
+# I don't know why this row is here!
+# echo SHIT
 if [ $EXT == "py2" ]; then
         mem=$(pid=$(python2 >/dev/null 2>/dev/null & echo $!) && ps -p $pid -o vsz=; kill $pid >/dev/null 2>/dev/null;)
         MEMLIMIT=$((MEMLIMIT+mem+5000))

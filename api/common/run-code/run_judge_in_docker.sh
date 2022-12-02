@@ -17,7 +17,7 @@ dockername="$USER-$(basename $share_directory)"
 
 if  [ "$owner" = "$USER" ] || [ "$owner" = "$SUDO_USER" ]
 then
-	echo "$ docker run --rm -v $share_directory:/work:rw --name=$dockername --network none -u$UID -w /work $docker_image $command "
+	echo "[$] docker run --rm -v $share_directory:/work:rw --name=$dockername --network none -u$UID -w /work $docker_image $command "
 	docker run --rm \
 		-v $share_directory:/work:rw \
 		--name=$dockername \
@@ -31,5 +31,5 @@ then
 
 	exit $EC
 else
-	echo "Share directory '$share_directory' does not belongs in your home directory '${HOME}'"
+	echo "[#] Share directory '$share_directory' does not belongs in your home directory '${HOME}'"
 fi

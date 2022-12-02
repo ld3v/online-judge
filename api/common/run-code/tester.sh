@@ -18,6 +18,7 @@
 #   Invalid Tester Code
 #   File Format Not Supported
 #   Judge Error
+# 	No Test Cases
 
 
 
@@ -105,7 +106,7 @@ function logfile_finish
 
 #################### Initialization #####################
 
-logfile "[#] == TESTER =="
+logfile "[%] INITIALIZATION"
 logfile $@
 # detecting existence of perl
 
@@ -143,7 +144,7 @@ logfile_jail "[#] Time Limit: $TIMELIMIT (s) - Memory Limit: $MEMLIMIT (kB) - Ou
 ################################################ COMPILING #############################################
 ########################################################################################################
 
-logfile_jail "[#] == COMPILING =="
+logfile_jail "[%] COMPILING"
 COMPILE_BEGIN_TIME=$(($(date +%s%N)/1000000));
 
 if [ "$EXT" = "java" ]; then
@@ -162,10 +163,10 @@ fi
 
 TST="$(ls $PROBLEMPATH/in/input*.txt | wc -l)"  # Number of Test Cases
 
-logfile_jail "\n[#] == TESTING ($TST test case(s) found) =="
+logfile_jail "\n[%] TESTING - $TST test case(s) found"
 
 if [ $TST -eq 0 ]; then
-	logfile_finish "No test file found";
+	logfile_finish "No Test Cases";
 fi
 
 if [ -f "$PROBLEMPATH/tester.cpp" ] && [ ! -f "$PROBLEMPATH/tester.executable" ]; then
@@ -199,6 +200,7 @@ PASSEDTESTS=0
 ######################## CODE RUNNING #############################
 ###################################################################
 
+logfile_jail "\n[%] CODE RUNNING"
 cp $PROBLEMPATH/in/input*.txt ./
 
 declare -A languages_to_comm
@@ -229,7 +231,7 @@ for((i=1;i<=TST;i++)); do
 	chmod +x runcode.sh
 
 	if [ ! ${languages_to_comm[$EXT]+_} ]; then
-		logfile_jail "[R] File Format Not Supported"
+		logfile_jail "[r] File Format Not Supported"
 		cd ..
 		rm -r $JAIL >/dev/null 2>/dev/null
 		logfile_finish "File Format Not Supported"
