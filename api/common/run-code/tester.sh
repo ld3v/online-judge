@@ -271,7 +271,7 @@ for((i=1;i<=TST;i++)); do
 		runcode="./runcode.sh $EXT $MEMLIMIT $TIMELIMIT $TIMELIMITINT ./input$i.txt $command"
 	fi
 
-	logcode_jail "[$] $tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $runcode"
+	logcode_jail "[$] $tester_dir/run_judge_in_docker.sh `pwd` ${languages_to_docker[$EXT]} > run_judge_error $runcode 2>&1"
 	
 	$tester_dir/run_judge_in_docker.sh `pwd` ${languages_to_docker[$EXT]} > run_judge_error $runcode 2>&1
 	EXITCODE=$?
@@ -372,7 +372,7 @@ for((i=1;i<=TST;i++)); do
 		fi
 		# Add a newline at the end of both files
 
-		logcode_jail "[$] echo "" >> out\n[$] echo "" >> correctout"
+		logcode_jail "[$] echo \"\" >> out\n[$] echo \"\" >> correctout"
 		echo "" >> out
 		echo "" >> correctout
 
