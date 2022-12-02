@@ -192,6 +192,7 @@ if [ -f "$PROBLEMPATH/tester.cpp" ] && [ ! -f "$PROBLEMPATH/tester.executable" ]
 	TST_COMPILE_BEGIN_TIME=$(($(date +%s%N)/1000000));
 	# An: 20160321 change
 	# no optimization when compile tester code
+	logcode_jail "[$] g++ -std=c++11 $PROBLEMPATH/tester.cpp -o $PROBLEMPATH/tester.executable 2>cerr"
 	g++ -std=c++11 $PROBLEMPATH/tester.cpp -o $PROBLEMPATH/tester.executable 2>cerr
 	EC=$?
 	TST_COMPILE_END_TIME=$(($(date +%s%N)/1000000));
@@ -200,6 +201,7 @@ if [ -f "$PROBLEMPATH/tester.cpp" ] && [ ! -f "$PROBLEMPATH/tester.executable" ]
 		logfile_jail "[#] `cat cerr`"
 		cd ..
 		rm -r $JAIL >/dev/null 2>/dev/null
+		logcode "[$] cd ..\n[$] rm -r $JAIL >/dev/null 2>/dev/null"
 		logfile_finish "Invalid Tester Code"
 	else
 		logfile_jail "[#] Tester compiled. Execution Time: $((TST_COMPILE_END_TIME-TST_COMPILE_BEGIN_TIME)) ms"
@@ -208,6 +210,7 @@ fi
 
 if [ -f "$PROBLEMPATH/tester.executable" ]; then
 	logfile_jail "[#] Copying tester executable to current directory"
+	logcode_jail "[$] cp $PROBLEMPATH/tester.executable code_tester"
 	cp $PROBLEMPATH/tester.executable code_tester
 	chmod +x code_tester
 fi
@@ -219,6 +222,7 @@ PASSEDTESTS=0
 ###################################################################
 
 logfile_jail "\n[%] CODE RUNNING"
+logcode_jail "[$] cp $PROBLEMPATH/in/input*.txt ./"
 cp $PROBLEMPATH/in/input*.txt ./
 
 declare -A languages_to_comm
@@ -240,6 +244,7 @@ for((i=1;i<=TST;i++)); do
 	logfile_jail "\n[#] === CASE $i/$TST ==="
 
 	touch err
+	logcode_jail "[$] touch err"
 
 	# Copy file from original path to the jail.
 	# Since we share jail with docker container, user may overwrite those file before hand
@@ -247,11 +252,14 @@ for((i=1;i<=TST;i++)); do
 	chmod +x timeout
 	cp $tester_dir/runcode.sh ./runcode.sh
 	chmod +x runcode.sh
+	logcode_jail "[$] cp $tester_dir/timeout ./timeout"
+	logcode_jail "[$] cp $tester_dir/runcode.sh ./runcode.sh"
 
 	if [ ! ${languages_to_comm[$EXT]+_} ]; then
 		logfile_jail "[r] File Format Not Supported"
 		cd ..
 		rm -r $JAIL >/dev/null 2>/dev/null
+		logcode "[$] cd ..\n[$] rm -r $JAIL >/dev/null 2>/dev/null"
 		logfile_finish "File Format Not Supported"
 	fi
 	command=${languages_to_comm[$EXT]}
@@ -345,6 +353,7 @@ for((i=1;i<=TST;i++)); do
 		#Limit the amount of time tester run.
 		#Perhaps 5 times longer than the solution timelimit is enough
 		ulimit -t $(($TIMELIMITINT*5))
+		logcode_jail "[$] ./code_tester $PROBLEMPATH/in/input$i.txt $PROBLEMPATH/out/output$i.txt out 2>cerr"
 		./code_tester $PROBLEMPATH/in/input$i.txt $PROBLEMPATH/out/output$i.txt out 2>cerr
 		EC=$?
 		logfile_jail "[#] Code tester's result: $EC"
@@ -353,14 +362,17 @@ for((i=1;i<=TST;i++)); do
 			ACCEPTED=true
 		fi
 	else
+		logcode_jail "[$] cp $PROBLEMPATH/out/output$i.txt correctout"
 		cp $PROBLEMPATH/out/output$i.txt correctout
 		if [ "$DIFFOPTION" = "ignore" ]; then
 			# Removing all newlines and whitespaces before diff
+			logcode_jail "[$] tr -d ' \t\n\r\f' <out >tmp1 && mv tmp1 out;\n[$] tr -d ' \t\n\r\f' <correctout >tmp1 && mv tmp1 correctout;"
 			tr -d ' \t\n\r\f' <out >tmp1 && mv tmp1 out;
 			tr -d ' \t\n\r\f' <correctout >tmp1 && mv tmp1 correctout;
 		fi
 		# Add a newline at the end of both files
 
+		logcode_jail "[$] echo "" >> out\n[$] echo "" >> correctout"
 		echo "" >> out
 		echo "" >> correctout
 
@@ -397,11 +409,12 @@ logfile_jail "[R] Passed $PASSEDTESTS/$TST test cases."
 	#fi
 
 
+logcode_jail "[#] [END]"
 
 cd ..
 # cp -r $JAIL "debug-jail-backup"
 rm -r $JAIL >/dev/null 2>/dev/null # removing files
-
+logcode "[$] cd ..\n[$] rm -r $JAIL >/dev/null 2>/dev/null"
 
 ((SCORE=PASSEDTESTS*10000/TST)) # give score from 10,000
 logfile "\n[R] Score from 10000: $SCORE"
