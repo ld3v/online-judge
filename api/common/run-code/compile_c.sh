@@ -38,8 +38,10 @@ if [ -f "$PROBLEMPATH/template.cpp" ]; then
             NEEDCOMPILE=0
         fi
     done <<< "$banned"
+    logcode_jail "[$] echo \"$code\" | sed -e \"/\\/\\/###INSERT CODE HERE/r $f\" -e '/\\/\\/###INSERT CODE HERE/d' > code.c"
     echo "$code" | sed -e "/\/\/###INSERT CODE HERE/r $f" -e '/\/\/###INSERT CODE HERE/d' > code.c
 else
+    logcode_jail "[$] cp $USERDIR/$FILENAME.$EXT code.c"
     cp $USERDIR/$FILENAME.$EXT code.c
 fi
 
