@@ -119,7 +119,7 @@ fi
 JAIL=jail-$RANDOM
 if ! mkdir $JAIL; then
 	logfile "[#] Folder 'tester' is not writable! Exiting..."
-	logfile_finish "[E] Judge Error"
+	logfile_finish "Judge Error"
 fi
 cd $JAIL
 
@@ -165,7 +165,7 @@ TST="$(ls $PROBLEMPATH/in/input*.txt | wc -l)"  # Number of Test Cases
 logfile_jail "\n[#] == TESTING ($TST test case(s) found) =="
 
 if [ $TST -eq 0 ]; then
-	logfile_finish "[E] No test file found";
+	logfile_finish "No test file found";
 fi
 
 if [ -f "$PROBLEMPATH/tester.cpp" ] && [ ! -f "$PROBLEMPATH/tester.executable" ]; then
@@ -181,7 +181,7 @@ if [ -f "$PROBLEMPATH/tester.cpp" ] && [ ! -f "$PROBLEMPATH/tester.executable" ]
 		logfile_jail "[#] `cat cerr`"
 		cd ..
 		rm -r $JAIL >/dev/null 2>/dev/null
-		logfile_finish "[E] Invalid Tester Code"
+		logfile_finish "Invalid Tester Code"
 	else
 		logfile_jail "[#] Tester compiled. Execution Time: $((TST_COMPILE_END_TIME-TST_COMPILE_BEGIN_TIME)) ms"
 	fi
@@ -232,7 +232,7 @@ for((i=1;i<=TST;i++)); do
 		logfile_jail "[R] File Format Not Supported"
 		cd ..
 		rm -r $JAIL >/dev/null 2>/dev/null
-		logfile_finish "[R] File Format Not Supported"
+		logfile_finish "File Format Not Supported"
 	fi
 	command=${languages_to_comm[$EXT]}
 
@@ -386,4 +386,4 @@ rm -r $JAIL >/dev/null 2>/dev/null # removing files
 ((SCORE=PASSEDTESTS*10000/TST)) # give score from 10,000
 logfile "\n[R] Score from 10000: $SCORE"
 
-logfile_finish "[R] $SCORE"
+logfile_finish $SCORE
