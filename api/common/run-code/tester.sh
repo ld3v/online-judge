@@ -414,7 +414,7 @@ logcode_jail "[#] [END]"
 
 cd ..
 # cp -r $JAIL "debug-jail-backup"
-# rm -r $JAIL >/dev/null 2>/dev/null # removing files
+rm -r $JAIL >/dev/null 2>/dev/null # removing files
 logcode "[$] cd ..\n[$] rm -r $JAIL >/dev/null 2>/dev/null"
 
 ((SCORE=PASSEDTESTS*10000/TST)) # give score from 10,000
