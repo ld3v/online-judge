@@ -329,10 +329,11 @@ for((i=1;i<=TST;i++)); do
 			
 	fi
 
+	t=`grep "FINISHED" err|cut -d" " -f3` # I search in Sharif-Judge source -> https://github.com/mjnaderi/Sharif-Judge/blob/Version-1/tester/tester.sh#L507
 	logfile_jail "[#] Time-limit $t (s) - Memory-limit: $m (KiB)"
 	if [ $found_error = "1" ]; then
-		continue
 		logfile_jail "[r] Found error"
+		continue
 	fi
 
 	if [ $EXITCODE -eq 137 ]; then
@@ -344,9 +345,9 @@ for((i=1;i<=TST;i++)); do
 		logfile_jail "[r] Runtime Error"
 		continue
 	fi
-############################################################################
-#################	# checking correctness of output #######################
-############################################################################
+	############################################################################
+	#################	# checking correctness of output #######################
+	############################################################################
 
 	ACCEPTED=false
 	if [ -f code_tester ]; then
