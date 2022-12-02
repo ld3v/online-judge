@@ -9,17 +9,17 @@ fi
 
 
 cp $USERDIR/$FILENAME.$EXT $FILENAME.$EXT
-logfile_jail "Checking Python Syntax"
+logfile_jail "# Compiling as PYTHON"
 # logfile_jail "$python -O -m py_compile $FILENAME.$EXT >/dev/null 2>cerr"
 
-logfile_jail "$tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $python -O -m py_compile $FILENAME.$EXT >/dev/null 2>cerr"
+logfile_jail "$ $tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $python -O -m py_compile $FILENAME.$EXT >/dev/null 2>cerr"
 $tester_dir/run_judge_in_docker.sh `pwd` ${languages_to_docker[$EXT]} $python -O -m py_compile $FILENAME.$EXT >/dev/null 2>cerr
 # $python -O -m py_compile $FILENAME.$EXT >/dev/null 2>cerr
 EXITCODE=$?
 COMPILE_END_TIME=$(($(date +%s%N)/1000000));
-logfile_jail "Syntax checked. Exit Code=$EXITCODE  Execution Time: $((COMPILE_END_TIME-COMPILE_BEGIN_TIME)) ms"
+logfile_jail "# Syntax checked. Execution Time: $((COMPILE_END_TIME-COMPILE_BEGIN_TIME)) ms"
 if [ $EXITCODE -ne 0 ]; then
-	logfile_jail "Syntax Error"
+	logfile_jail "# Syntax Error:"
 	logfile_jail "$(cat cerr | head -10)"
 	# echo '<span class="text-primary">Syntax Error</span>' >$RESULTFILE
 	# echo '<span class="text-danger">' >> $RESULTFILE

@@ -228,7 +228,7 @@ for((i=1;i<=TST;i++)); do
 	chmod +x runcode.sh
 
 	if [ ! ${languages_to_comm[$EXT]+_} ]; then
-		logfile_jail "File Format Not Supported"
+		logfile_jail "# File Format Not Supported"
 		cd ..
 		rm -r $JAIL >/dev/null 2>/dev/null
 		logfile_finish "File Format Not Supported"
@@ -247,7 +247,8 @@ for((i=1;i<=TST;i++)); do
 	$tester_dir/run_judge_in_docker.sh `pwd` ${languages_to_docker[$EXT]} > run_judge_error $runcode 2>&1
 	EXITCODE=$?
 
-	logfile_jail "# Run Judge Error: `cat run_judge_error`"
+	logfile_jail "# Run Judge Error:"
+	logfile_jail `cat run_judge_error`
 	rm run_judge_error
 
 
