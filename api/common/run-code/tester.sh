@@ -52,7 +52,7 @@ DIFFTOOL=${11}
 # diff options (default: -bB)
 DIFFOPTION=${12}
 # enable/disable judge log
-if [ ${12} -eq "1" ]; then
+if [ ${13} -eq "1" ]; then
 	LOG_ON=true
 else
 	LOG_ON=false
