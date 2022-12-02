@@ -96,7 +96,7 @@ function logfile_finish
 {
 	# Get Current Time (in milliseconds)
 	END=$(($(date +%s%N)/1000000));
-	logfile "\nTotal Execution Time: $((END-START)) ms"
+	logfile "\n[#] Total Execution Time: $((END-START)) ms"
 	echo $@
 	exit 0
 }
@@ -105,43 +105,45 @@ function logfile_finish
 
 #################### Initialization #####################
 
-logfile "Running in '" . $tester_dir . "'"
-logfile "Starting tester..."
+logfile "[#] == TESTER =="
 logfile $@
 # detecting existence of perl
 
-logfile "diff argu $DIFFOPTION"
+logfile "[#] diff argu $DIFFOPTION"
 
 PERL_EXISTS=true
 hash perl 2>/dev/null || PERL_EXISTS=false
 if ! $PERL_EXISTS; then
-	logfile "Warning: perl not found. We continue without perl..."
+	logfile "[W] Warning: perl not found. We continue without perl..."
 fi
 JAIL=jail-$RANDOM
 if ! mkdir $JAIL; then
-	logfile "Error: Folder 'tester' is not writable! Exiting..."
-	logfile_finish "Judge Error"
+	logfile "[#] Folder 'tester' is not writable! Exiting..."
+	logfile_finish "[E] Judge Error"
 fi
 cd $JAIL
 
-logfile_jail "$(date)"
-logfile_jail "Language: $EXT"
-logfile_jail "Time Limit: $TIMELIMIT s"
-logfile_jail "Memory Limit: $MEMLIMIT kB"
-logfile_jail "Output size limit: $OUTLIMIT bytes"
-if [[ $EXT = "c" || $EXT = "cpp" ]]; then
-	logfile_jail "C/C++ Shield: $C_SHIELD_ON"
-elif [[ $EXT = "py2" || $EXT = "py3" ]]; then
-	logfile_jail "Python Shield: $PY_SHIELD_ON"
-elif [[ $EXT = "java" ]]; then
-	logfile_jail "JAVA_POLICY: \"$JAVA_POLICY\""
-	logfile_jail "DISPLAY_JAVA_EXCEPTION_ON: $DISPLAY_JAVA_EXCEPTION_ON"
-fi
+logfile_jail "[#] $(date)"
+logfile_jail "[#] Language: $EXT"
+logfile_jail "[#] Time Limit: $TIMELIMIT (s) - Memory Limit: $MEMLIMIT (kB) - Output size limit: $OUTLIMIT (B)"
+
+# In root source (sharif-judge), `C_SHIELD_ON`, `PY_SHIELD_ON`,... have values, 
+# but in this source (`truongan forked`), those values were not defined
+# => So I comment below code, because not necessary.
+# if [[ $EXT = "c" || $EXT = "cpp" ]]; then
+# 	logfile_jail "[#] C/C++ Shield: $C_SHIELD_ON"
+# elif [[ $EXT = "py2" || $EXT = "py3" ]]; then
+# 	logfile_jail "[#] Python Shield: $PY_SHIELD_ON"
+# elif [[ $EXT = "java" ]]; then
+# 	logfile_jail "[#] JAVA_POLICY: \"$JAVA_POLICY\""
+# 	logfile_jail "[#] DISPLAY_JAVA_EXCEPTION_ON: $DISPLAY_JAVA_EXCEPTION_ON"
+# fi
 
 ########################################################################################################
 ################################################ COMPILING #############################################
 ########################################################################################################
 
+logfile_jail "[#] == COMPILING =="
 COMPILE_BEGIN_TIME=$(($(date +%s%N)/1000000));
 
 if [ "$EXT" = "java" ]; then
@@ -160,15 +162,14 @@ fi
 
 TST="$(ls $PROBLEMPATH/in/input*.txt | wc -l)"  # Number of Test Cases
 
-logfile_jail "\nTesting..."
-logfile_jail "$TST test cases found"
+logfile_jail "\n[#] == TESTING ($TST test case(s) found) =="
 
 if [ $TST -eq 0 ]; then
-	logfile_finish "No test file found";
+	logfile_finish "[E] No test file found";
 fi
 
 if [ -f "$PROBLEMPATH/tester.cpp" ] && [ ! -f "$PROBLEMPATH/tester.executable" ]; then
-	logfile_jail "Tester file found. Compiling tester..."
+	logfile_jail "[#] Tester file found. Compiling tester..."
 	TST_COMPILE_BEGIN_TIME=$(($(date +%s%N)/1000000));
 	# An: 20160321 change
 	# no optimization when compile tester code
@@ -176,18 +177,18 @@ if [ -f "$PROBLEMPATH/tester.cpp" ] && [ ! -f "$PROBLEMPATH/tester.executable" ]
 	EC=$?
 	TST_COMPILE_END_TIME=$(($(date +%s%N)/1000000));
 	if [ $EC -ne 0 ]; then
-		logfile_jail "Compiling tester failed."
-		logfile_jail `cat cerr`
+		logfile_jail "[#] Compiling tester failed."
+		logfile_jail "[#] `cat cerr`"
 		cd ..
 		rm -r $JAIL >/dev/null 2>/dev/null
-		logfile_finish "Invalid Tester Code"
+		logfile_finish "[E] Invalid Tester Code"
 	else
-		logfile_jail "Tester compiled. Execution Time: $((TST_COMPILE_END_TIME-TST_COMPILE_BEGIN_TIME)) ms"
+		logfile_jail "[#] Tester compiled. Execution Time: $((TST_COMPILE_END_TIME-TST_COMPILE_BEGIN_TIME)) ms"
 	fi
 fi
 
 if [ -f "$PROBLEMPATH/tester.executable" ]; then
-	logfile_jail "Copying tester executable to current directory"
+	logfile_jail "[#] Copying tester executable to current directory"
 	cp $PROBLEMPATH/tester.executable code_tester
 	chmod +x code_tester
 fi
@@ -216,7 +217,7 @@ errors["EXCEPTION_SIGNAL"]="Killed by a signal"
 errors["EXCEPTION_OUTSIZE"]="Output Size Limit Exceeded"
 
 for((i=1;i<=TST;i++)); do
-	logfile_jail "\n=== CASE $i/$TST ==="
+	logfile_jail "\n[#] === CASE $i/$TST ==="
 
 	touch err
 
@@ -228,10 +229,10 @@ for((i=1;i<=TST;i++)); do
 	chmod +x runcode.sh
 
 	if [ ! ${languages_to_comm[$EXT]+_} ]; then
-		logfile_jail "# File Format Not Supported"
+		logfile_jail "[R] File Format Not Supported"
 		cd ..
 		rm -r $JAIL >/dev/null 2>/dev/null
-		logfile_finish "File Format Not Supported"
+		logfile_finish "[R] File Format Not Supported"
 	fi
 	command=${languages_to_comm[$EXT]}
 
@@ -242,51 +243,49 @@ for((i=1;i<=TST;i++)); do
 		runcode="./runcode.sh $EXT $MEMLIMIT $TIMELIMIT $TIMELIMITINT ./input$i.txt $command"
 	fi
 
-	logfile_jail "$ $tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $runcode"
+	logfile_jail "[$] $tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $runcode"
 	
 	$tester_dir/run_judge_in_docker.sh `pwd` ${languages_to_docker[$EXT]} > run_judge_error $runcode 2>&1
 	EXITCODE=$?
 
-	logfile_jail "# Run Judge Error:"
-	logfile_jail `cat run_judge_error`
+	logfile_jail "[#] Run Judge Error:"
+	logfile_jail "[#] `cat run_judge_error`"
 	rm run_judge_error
 
 
 	# logfile_jail "exit code $EXITCODE"
-##################################################################
-############## Process error code and error log ##################
-##################################################################
+	##################################################################
+	############## Process error code and error log ##################
+	##################################################################
 
 	if [ "$EXT" = "java" ]; then
 		if grep -iq -m 1 "Too small initial heap" out || grep -q -m 1 "java.lang.OutOfMemoryError" err; then
-			logfile_jail "Memory Limit Exceeded java"
-			logfile_jail "$ cat out"
+			logfile_jail "[#] Memory Limit Exceeded java:"
+			logfile_jail "[#] `cat out`"
 			continue
 		fi
 		if grep -q -m 1 "Exception in" err; then # show Exception
 			javaexceptionname=`grep -m 1 "Exception in" err | grep -m 1 -oE 'java\.[a-zA-Z\.]*' | head -1 | head -c 80`
 			javaexceptionplace=`grep -m 1 "$FILENAME.java" err | head -1 | head -c 80`
-			logfile_jail "Exception: $javaexceptionname\nMaybe at:$javaexceptionplace"
+			logfile_jail "[#] Exception: $javaexceptionname\nMaybe at:$javaexceptionplace"
 			# if DISPLAY_JAVA_EXCEPTION_ON is true and the exception is in the trusted list, we show the exception name
 			if $DISPLAY_JAVA_EXCEPTION_ON && grep -q -m 1 "^$javaexceptionname\$" ../java_exceptions_list; then
-				logfile_jail "Runtime Error ($javaexceptionname)"
-				echo "Runtime Error ($javaexceptionname).\n"
+				logfile_jail "[r] Runtime Error ($javaexceptionname)"
 			else
-				logfile_jail "Runtime Error"
-				echo "Runtime Error.\n"
+				logfile_jail "[r] Runtime Error"
 			fi
 			continue
 		fi
 	fi
 
-	logfile_jail "# Exit Code = $EXITCODE"
-	logfile_jail "# Error: `cat err`"
+	logfile_jail "[#] Exit Code = $EXITCODE"
+	logfile_jail "[#] Error: `cat err`"
 
 	t=`grep "EXCEPTION_" err|cut -d" " -f3`
 	m=`grep "EXCEPTION_" err|cut -d" " -f5`
 	m2=`grep "EXCEPTION_" err|cut -d" " -f7`
 	m=$((m>m2?m:m2))
-	logfile_jail "# Time-limit $t (s) - Memory-limit: $m (KiB)"
+	logfile_jail "[#] Time-limit $t (s) - Memory-limit: $m (KiB)"
 	found_error=0
 
 	if ! grep -q "FINISHED" err; then
@@ -302,19 +301,19 @@ for((i=1;i<=TST;i++)); do
 			
 	fi
 
-	logfile_jail "# Time-limit $t (s) - Memory-limit: $m (KiB)"
+	logfile_jail "[#] Time-limit $t (s) - Memory-limit: $m (KiB)"
 	if [ $found_error = "1" ]; then
 		continue
-		logfile_jail "Found error"
+		logfile_jail "[r] Found error"
 	fi
 
 	if [ $EXITCODE -eq 137 ]; then
-		logfile_jail "Killed"
+		logfile_jail "[r] Killed"
 		continue
 	fi
 
 	if [ $EXITCODE -ne 0 ]; then
-		logfile_jail "Runtime Error"
+		logfile_jail "[r] Runtime Error"
 		continue
 	fi
 ############################################################################
@@ -328,8 +327,8 @@ for((i=1;i<=TST;i++)); do
 		ulimit -t $(($TIMELIMITINT*5))
 		./code_tester $PROBLEMPATH/in/input$i.txt $PROBLEMPATH/out/output$i.txt out 2>cerr
 		EC=$?
-		logfile_jail "# Code tester's result: $EC"
-		logfile_jail "# Code tester's error: `cat cerr`"
+		logfile_jail "[#] Code tester's result: $EC"
+		logfile_jail "[#] Code tester's error: `cat cerr`"
 		if [ $EC -eq 0 ]; then
 			ACCEPTED=true
 		fi
@@ -345,7 +344,7 @@ for((i=1;i<=TST;i++)); do
 		echo "" >> out
 		echo "" >> correctout
 
-		logfile_jail "# Compare out vs correctout: `diff out correctout | grep -e "^[0-9]" | head -n 5 `"
+		logfile_jail "[#] Compare out vs correctout: `diff out correctout | grep -e "^[0-9]" | head -n 5 `"
 
 		if [ "$DIFFTOOL" = "diff" ]; then
 			# Add -q to diff options (for faster diff)
@@ -358,13 +357,14 @@ for((i=1;i<=TST;i++)); do
 	fi
 
 	if $ACCEPTED; then
-		logfile_jail "ACCEPTED"
+		logfile_jail "[r] ACCEPTED"
 		((PASSEDTESTS=PASSEDTESTS+1))
 	else
-		logfile_jail "WRONG"
+		logfile_jail "[r] WRONG"
 	fi
 done
 
+logfile_jail "[R] Passed $PASSEDTESTS/$TST test cases."
 
 # After I added the feature for showing java exception name and exception place,
 # I found that the way I am doing it is a security risk. So I added the file "tester/java_exceptions_list"
@@ -384,6 +384,6 @@ rm -r $JAIL >/dev/null 2>/dev/null # removing files
 
 
 ((SCORE=PASSEDTESTS*10000/TST)) # give score from 10,000
-logfile "\nScore from 10000: $SCORE"
+logfile "\n[R] Score from 10000: $SCORE"
 
-logfile_finish $SCORE
+logfile_finish "[R] $SCORE"
