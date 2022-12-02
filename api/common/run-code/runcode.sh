@@ -28,11 +28,11 @@ hash timeout 2>/dev/null || TIMEOUT_EXISTS=false
 # I don't know why this row is here!
 # echo SHIT
 if [ $EXT == "py2" ]; then
-        mem=$(pid=$(python2 >/dev/null 2>/dev/null & echo $!) && ps -p $pid -o vsz=; kill $pid >/dev/null 2>/dev/null;)
-        MEMLIMIT=$((MEMLIMIT+mem+5000))
+	mem=$(pid=$(python2 >/dev/null 2>/dev/null & echo $!) && ps -p $pid -o vsz=; kill $pid >/dev/null 2>/dev/null;)
+	MEMLIMIT=$((MEMLIMIT+mem+5000))
 elif [ $EXT == "py3" ]; then
-        mem=$(pid=$(python3 >/dev/null 2>/dev/null & echo $!) && ps -p $pid -o vsz=; kill $pid >/dev/null 2>/dev/null;)
-        MEMLIMIT=$((MEMLIMIT+mem+5000))
+	mem=$(pid=$(python3 >/dev/null 2>/dev/null & echo $!) && ps -p $pid -o vsz=; kill $pid >/dev/null 2>/dev/null;)
+	MEMLIMIT=$((MEMLIMIT+mem+5000))
 fi
 
 
@@ -44,13 +44,14 @@ fi
 # fi
 
 # Imposing time limit with ulimit
-ulimit -t $TIMELIMITINT
 
-	echo "[-] [runcode.sh] timeout -s9 $((TIMELIMITINT*2)) $CMD <$IN >out 2>err"
+ulimit -t $TIMELIMITINT
 if $TIMEOUT_EXISTS; then
+	echo "[-] [runcode.sh] timeout -s9 $((TIMELIMITINT*2)) $CMD <$IN >out 2>err"
 	# Run the command with REAL time limit of TIMELIMITINT*2
 	timeout -s9 $((TIMELIMITINT*2)) $CMD <$IN >out 2>err
 else
+	echo "[-] [runcode.sh] $CMD <$IN >out 2>err	"
 	# Run the command
 	$CMD <$IN >out 2>err	
 fi
