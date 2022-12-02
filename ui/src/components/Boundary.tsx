@@ -25,7 +25,7 @@ class ErrorBoundary extends React.Component<any, TErrorBoundaryState> {
     const { hasError, error } = this.state;
     if (hasError) {
       // eslint-disable-next-line no-console
-      console.error(`Something went wrong when render component:${error}`);
+      console.error('Something went wrong when render component:', error, this.props.children);
       return (
         <div className="error-boundary-wrapper">
           <img src="/error.png" alt="error-boundary-img" />

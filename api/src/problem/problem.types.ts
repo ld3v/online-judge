@@ -19,6 +19,7 @@ export type TProblemWithAssignment = {
   // From assignment_problem
   problemName: string;
   score: number;
+  preScore?: number; // Only available when get Problems by Assignment
 }
 
 export type TProblemTemplate = {

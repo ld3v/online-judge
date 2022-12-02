@@ -57,7 +57,7 @@ export class SubmissionController {
         return {
           submitter: {
             id: submitter.id,
-            display_name: submitter.display_name,
+            displayName: submitter.display_name,
           },
           problem: {
             id: problem.id,

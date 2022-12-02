@@ -11,4 +11,5 @@ export default {
   'submission.table.rejudge': 'Re-judge',
   'submission.my.no-assignment-selected': 'No assignment was selected, choose an assignment to continue!',
   'submission.my.assignment-not-found': 'No assignment was found, choose an assignment to continue!',
+  'submission.table.go-to-problem': 'View this problem',
 };

@@ -74,7 +74,29 @@ const AssignmentProblems: React.FC<IAssignmentProblems> = ({
       key: 'name',
       dataIndex: 'problemName',
     },
-    { key: 'score', width: '25%', dataIndex: 'score', className: 'problem-score' },
+    {
+      key: 'score',
+      width: '25%',
+      dataIndex: 'score',
+      className: styles.ProblemScoreCell,
+      render: (score, { preScore, status }) => {
+        if (!preScore) {
+          return (
+            <div className={styles.ProblemScore} data-status={status}>
+              {score || 0}
+            </div>
+          );
+        }
+        // In judge, preScore was be calculated base on 10000 score
+        const passPerAll = preScore / 10000;
+        const scoreGot = score * passPerAll;
+        return (
+          <div className={styles.ProblemScore} data-status={status}>
+            {scoreGot}/${score}
+          </div>
+        );
+      },
+    },
   ];
 
   const renderProblemContent = () => {

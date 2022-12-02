@@ -392,6 +392,7 @@ export class AssignmentService {
           return;
         }
         problemWithAssMapping[finalSub.problem.id].status = 'danger';
+        problemWithAssMapping[finalSub.problem.id].preScore = finalSub.pre_score;
       });
 
       return Object.values(problemWithAssMapping);
