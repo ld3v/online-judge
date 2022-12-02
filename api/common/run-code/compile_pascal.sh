@@ -5,8 +5,8 @@ EXEFILE="s_$(echo $FILENAME | sed 's/[^a-zA-Z0-9]//g')" # Name of executable fil
 cp $USERDIR/$FILENAME.$EXT $FILENAME.$EXT
 logfile_jail "[#] Compiling as PASCAL"
 
-logcode_jail "# [compile_pascal.sh]"
-logcode_jail "$tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} pc -o$EXEFILE $FILENAME.$EXT >/dev/null 2>cerr"
+logcode_jail "[#] [compile_pascal.sh]"
+logcode_jail "[$] $tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} pc -o$EXEFILE $FILENAME.$EXT >/dev/null 2>cerr"
 
 $tester_dir/run_judge_in_docker.sh `pwd` ${languages_to_docker[$EXT]} pc -o$EXEFILE $FILENAME.$EXT >/dev/null 2>cerr
 EXITCODE=$?

@@ -134,12 +134,12 @@ if ! $PERL_EXISTS; then
 	logfile "[W] Warning: perl not found. We continue without perl..."
 fi
 JAIL=jail-$RANDOM
-logcode "mkdir $JAIL"
+logcode "[$] mkdir $JAIL"
 if ! mkdir $JAIL; then
 	logfile "[#] Folder 'tester' is not writable! Exiting..."
 	logfile_finish "Judge Error"
 fi
-logcode "cd $JAIL"
+logcode "[$] cd $JAIL"
 cd $JAIL
 
 logfile_jail "[#] $(date)"
@@ -263,7 +263,7 @@ for((i=1;i<=TST;i++)); do
 		runcode="./runcode.sh $EXT $MEMLIMIT $TIMELIMIT $TIMELIMITINT ./input$i.txt $command"
 	fi
 
-	logcode_jail "$tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $runcode"
+	logcode_jail "[$] $tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $runcode"
 	
 	$tester_dir/run_judge_in_docker.sh `pwd` ${languages_to_docker[$EXT]} > run_judge_error $runcode 2>&1
 	EXITCODE=$?

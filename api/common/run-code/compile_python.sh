@@ -12,8 +12,8 @@ cp $USERDIR/$FILENAME.$EXT $FILENAME.$EXT
 logfile_jail "[#] Compiling as PYTHON"
 # logfile_jail "$python -O -m py_compile $FILENAME.$EXT >/dev/null 2>cerr"
 
-logcode_jail "# [compile_python.sh]"
-logcode_jail "$tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $python -O -m py_compile $FILENAME.$EXT >/dev/null 2>cerr"
+logcode_jail "[#] [compile_python.sh]"
+logcode_jail "[$] $tester_dir/run_judge_in_docker.sh "`pwd` "${languages_to_docker[$EXT]} $python -O -m py_compile $FILENAME.$EXT >/dev/null 2>cerr"
 $tester_dir/run_judge_in_docker.sh `pwd` ${languages_to_docker[$EXT]} $python -O -m py_compile $FILENAME.$EXT >/dev/null 2>cerr
 # $python -O -m py_compile $FILENAME.$EXT >/dev/null 2>cerr
 EXITCODE=$?
