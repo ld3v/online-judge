@@ -50,6 +50,7 @@ logfile_jail "[#] Compiling as $EXT"
 if [ $NEEDCOMPILE -eq 0 ]; then
     EXITCODE=110
 else
+    logcode_jail "[$] mv code.c code.$EXT"
     mv code.c code.$EXT
     logcode_jail "[$] $tester_dir/run_judge_in_docker.sh `pwd` gcc:6 $COMPILER code.$EXT $C_OPTIONS $C_WARNING_OPTION -o $EXEFILE >/dev/null 2>cerr"
     $tester_dir/run_judge_in_docker.sh `pwd` gcc:6 $COMPILER code.$EXT $C_OPTIONS $C_WARNING_OPTION -o $EXEFILE >/dev/null 2>cerr
@@ -71,10 +72,10 @@ if [ $EXITCODE -ne 0 ]; then
     while read line; do
         # An's note: 2017-30-12
         # All this shit just to remove the file name from error messgae.
-        if [ "[#] `echo $line|cut -d: -f1`" = "code.$EXT" ]; then
+        if [ "`echo $line|cut -d: -f1`" = "code.$EXT" ]; then
             echo ${line#code.$EXT:} >>cerr2
         fi
-        if [ "[#] `echo $line|cut -d: -f1`" = "shield.$EXT" ]; then
+        if [ "`echo $line|cut -d: -f1`" = "shield.$EXT" ]; then
             echo ${line#shield.$EXT:} >>cerr2
         fi
     done <cerr
