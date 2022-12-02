@@ -5,7 +5,6 @@ import { Account } from 'src/account/entities/account.entity';
 import { Queue as QueueEntity } from 'src/queue/entities/queue.entity';
 import { Assignment } from 'src/assignment/entities/assignment.entity';
 import { addFile } from 'common/file.helper';
-import { QueueService } from 'src/queue/queue.service';
 import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { Http503Exception } from 'utils/Exceptions/http503.exception';
 import { Submission } from './entities/submission.entity';
@@ -98,7 +97,8 @@ export class SubmissionService {
       .leftJoinAndSelect("sub.submitter", "account")
       .leftJoinAndSelect("sub.language", "lang")
       .leftJoinAndSelect("sub.problem", "problem")
-      .leftJoinAndSelect("sub.assignment", "assignment");
+      .leftJoinAndSelect("sub.assignment", "assignment")
+      .orderBy("sub.created_at", "DESC");
     if (problemId) {
       submissionsQuery = submissionsQuery.andWhere("problem.id = :problemId", { problemId });
     }

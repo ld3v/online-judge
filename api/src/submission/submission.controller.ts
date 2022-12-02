@@ -1,7 +1,6 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { Queue } from 'bull';
-import { AccountService } from 'src/account/account.service';
 import { AssignmentService } from 'src/assignment/assignment.service';
 import RequestWithAccount from 'src/auth/dto/reqWithAccount.interface';
 import JwtAuthGuard from 'src/auth/gaurd/jwtAuth.gaurd';
@@ -21,7 +20,6 @@ export class SubmissionController {
   constructor(
     private readonly submissionService: SubmissionService,
     private readonly assignmentService: AssignmentService,
-    private readonly accountService: AccountService,
     private readonly problemService: ProblemService,
     private readonly languageService: LanguageService,
     @InjectQueue('submission')
@@ -44,18 +42,28 @@ export class SubmissionController {
       if (assignmentId) {
         const assData = await this.assignmentService.getById(assignmentId, false);
         assignmentData = assData
-          ? this.assignmentService.transformData(assData)[0]
+          ? {
+            id: assData.id,
+            name: assData.name,
+          }
           : undefined;
       }
       const { data, total } = await this.submissionService.get(queryParams);
       const dataTransformed = data.map(({ assignment, submitter, problem, ...dataItem}) => {
-        const assignmentTransformed = this.assignmentService.transformData(assignment)[0];
-        const problemTransformed = this.problemService.transformData(user, problem)[0];
-        const accountTransformed = this.accountService.transformAccountData(user, submitter)[0];
+        // const assignmentTransformed = this.assignmentService.transformData(assignment)[0];
+        // const problemTransformed = this.problemService.transformData(user, problem)[0];
+        // const accountTransformed = this.accountService.transformAccountData(user, submitter)[0];
+        // Only return enough data
         return {
-          submitter: accountTransformed,
-          problem: problemTransformed,
-          assignment: assignmentTransformed,
+          submitter: {
+            id: submitter.id,
+            display_name: submitter.display_name,
+          },
+          problem: {
+            id: problem.id,
+            name: problem.name,
+          },
+          assignmentId: assignment.id,
           ...dataItem,
         };
       })
