@@ -107,8 +107,8 @@ export class SubmissionProcessor {
       const shellCmd = `cd ${testerPath};\n./tester.sh ${problemSolutionsDir} ${userSolutionsDir} ${logFilePath} ${filename} ${fileExtension} ${timeLimit} ${timeLimitInt} ${memoryLimit} ${outputSizeLimit} ${diffCmd} '${diffArg}' ${logEnabled}`;
       this.logger.log(`Exec command: ${shellCmd.replace('\/\n\g', ' ')}`, undefined, 1, "INFO");
       const { stdout, stderr } = await exec(shellCmd);
-      this.logger.log(stdout);
-      this.logger.log(stderr);
+      this.logger.log(`Output: "${stdout}"`);
+      this.logger.error(`Error: ${stderr || 'No error'}`);
 
       // Update result
       await this.submissionService.updateResultAfterTest(submissionId, Number.isNaN(stdout) ? 0 : Number(stdout));
