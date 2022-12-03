@@ -2,7 +2,7 @@ import { Select } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import AceEditor, { IAceEditorProps } from 'react-ace';
 
-import languages, { TCodeEditorLang } from './language';
+import languages, { TCodeEditorLang, TLanguageExt } from './language';
 import themes from './themes';
 import styles from './styles.less';
 import { codeEditorLang2langExt, langExt2CodeEditorLang } from './utils';
@@ -21,7 +21,7 @@ import('ace-builds/src-noconflict/ext-language_tools');
 import('ace-builds/webpack-resolver');
 
 export interface ICodeEditor extends IAceEditorProps {
-  languageExtensionAvailable?: TCodeEditorLang[];
+  languageExtensionAvailable?: TLanguageExt[];
   onChangeLang?: (newLang: TCodeEditorLang) => void;
   langs?: { ext: string; name: string }[];
   dispatch?: any;
@@ -42,7 +42,8 @@ const CodeEditor: React.FC<ICodeEditor> = ({
   // langExtAvailable = "langExtSupported" JOIN (langExtensionAvailable from user | langExt from db)
   const langExtAvailable = useMemo(() => {
     const langExt = (langs || []).map((l) => l.ext);
-    const langExtensionAvailable = languageExtensionAvailable || langExt || [];
+    const langExtensionAvailable = languageExtensionAvailable || langExt || undefined;
+    console.log(langExtensionAvailable);
     return langExtensionAvailable.length > 0
       ? languageExtSupported.filter((ext) => langExtensionAvailable.includes(ext))
       : languageExtSupported;
@@ -67,6 +68,7 @@ const CodeEditor: React.FC<ICodeEditor> = ({
   }, []);
 
   // Language options
+  console.log(langs, langExtAvailable);
   const langOptions = (langs || [])
     .filter((l: any) => langExtAvailable.includes(l.ext))
     .map((l) => ({ value: l.ext, label: l.name }));

@@ -161,3 +161,4 @@ export default <TCodeEditorLang[]>[
 ];
 
 export type TCodeEditorLang = 'c_cpp' | 'python' | 'pascal' | 'java';
+export type TLanguageExt = "c" | "cpp" | "numpy" | "pas" | "py2" | "py3" | "java";

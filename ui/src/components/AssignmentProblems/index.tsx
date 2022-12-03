@@ -1,4 +1,4 @@
-import { Col, Row, Skeleton } from 'antd';
+import { Col, Row, Skeleton, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { connect, FormattedMessage, useIntl } from 'umi';
 import Table, { ColumnProps } from 'antd/lib/table';
@@ -92,7 +92,7 @@ const AssignmentProblems: React.FC<IAssignmentProblems> = ({
         const scoreGot = score * passPerAll;
         return (
           <div className={styles.ProblemScore} data-status={status}>
-            {scoreGot}/${score}
+            <Tooltip title={`${scoreGot}/${score}`}>{scoreGot}</Tooltip>
           </div>
         );
       },

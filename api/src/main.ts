@@ -1,16 +1,19 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
 import * as  moment from 'moment';
 import "moment-timezone";
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './exception.filter';
 import CustomLogger from './logger/customLogger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get('APP_PORT');
+  const adapterHost = app.get(HttpAdapterHost);
+
   moment.tz.setDefault("Asia/Ho_Chi_Minh");
   app.useGlobalPipes(
     new ValidationPipe({
@@ -31,6 +34,7 @@ async function bootstrap() {
   });
   app.useLogger(app.get(CustomLogger));
   app.use(cookieParser());
+  app.useGlobalFilters(new AllExceptionsFilter(adapterHost))
   await app.listen(port);
   console.info(`Running with port ${port}`);
 }

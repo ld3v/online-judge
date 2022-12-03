@@ -359,6 +359,8 @@ export class AssignmentService {
     const assProblems = await this.assignmentProblemRepository.createQueryBuilder('assProblem')
       .leftJoinAndSelect("assProblem.assignment", "assignment")
       .leftJoinAndSelect("assProblem.problem", "problem")
+      .leftJoinAndSelect("problem.languages", "problem_language")
+      .leftJoinAndSelect("problem_language.language", "language")
       .where('assignment.id = :id', { id: assignment.id })
       .orderBy('assProblem.ordering')
       .getMany();
@@ -371,6 +373,7 @@ export class AssignmentService {
       content: assProblem.problem.content,
       problemName: assProblem.problem_name,
       score: assProblem.score,
+      langExtAvailable: assProblem.problem.languages.map(probLang => probLang.language.extension),
     }));;
     return problemWithAssData;
   }

@@ -1,4 +1,4 @@
-import { TAssignment } from '@/types/assignment';
+import { TAssignment, TAssignmentProblem } from '@/types/assignment';
 import moment from 'moment';
 import { connect, useIntl } from 'umi';
 import AssignmentChild from '../Assignments/AssignmentChild';
@@ -8,14 +8,19 @@ import ProblemList from './ProblemList';
 import { Form, notification } from 'antd';
 import Card from '@/components/Card';
 import DoProblem from '@/components/AssignmentProblems/DoProblem';
+import { useState } from 'react';
+import { TCodeEditorLang, TLanguageExt } from '@/components/Code/CodeEditor/language';
+import { langExt2CodeEditorLang } from '@/components/Code/CodeEditor/utils';
 
 interface IProblemsPage {
   assignment: TAssignment;
+  assProblemDic: Record<string, TAssignmentProblem>;
   dispatch?: any;
 }
 
-const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
+const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment, assProblemDic }) => {
   const [form] = Form.useForm();
+  const [langAvailable, setLangAvailable] = useState<TLanguageExt[] | undefined>(undefined);
   const intl = useIntl();
 
   const handleSubmitCode = (values: any) => {
@@ -42,7 +47,13 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
   };
 
   const handleChangeProblem = (problemId: string) => {
-    form?.setFieldsValue({ problemId });
+    form.setFieldsValue({ problemId });
+    if (assProblemDic?.[problemId]) {
+      const langExtSupport = [
+        ...new Set((assProblemDic[problemId].langExtAvailable || []).filter((t) => t)),
+      ] as TLanguageExt[];
+      setLangAvailable(langExtSupport.length === 0 ? undefined : langExtSupport);
+    }
   };
 
   const renderDoProblem = () => {
@@ -68,6 +79,9 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
             notAllowedDo={isAssignmentDisabled}
             initialValues={{
               assignmentId: assignment.id,
+            }}
+            codeEditorProps={{
+              languageExtensionAvailable: langAvailable,
             }}
           />
         </Card>
@@ -95,5 +109,6 @@ export default connect(({ assignments }: any) => {
     : { problems: [] };
   return {
     assignment: assignments.selected ? assignmentData : undefined,
+    assProblemDic: assignments.problemDic,
   };
 })(ProblemsPage);
