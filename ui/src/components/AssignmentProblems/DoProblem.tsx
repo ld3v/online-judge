@@ -8,6 +8,7 @@ interface IDoProblem extends FormProps {
   submitTitleId?: string;
   notAllowedDo?: boolean;
   isSubmitting?: boolean;
+  problemId: string | undefined;
 }
 
 const DoProblem: React.FC<IDoProblem> = ({
@@ -16,6 +17,7 @@ const DoProblem: React.FC<IDoProblem> = ({
   submitTitleId,
   form,
   isSubmitting,
+  problemId,
   ...props
 }) => {
   const [current] = Form.useForm();
@@ -36,7 +38,7 @@ const DoProblem: React.FC<IDoProblem> = ({
   return (
     <Form form={form || current} {...props} layout="vertical">
       <Form.Item name="code">
-        <CodeEditor onChangeLang={handleChangeLang} {...codeEditorProps} />
+        <CodeEditor onChangeLang={handleChangeLang} problemId={problemId} {...codeEditorProps} />
       </Form.Item>
       <Button htmlType="submit" loading={isSubmitting}>
         <FormattedMessage id={submitTitleId || 'component.form.submit'} />

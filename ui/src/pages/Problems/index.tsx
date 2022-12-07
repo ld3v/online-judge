@@ -8,9 +8,7 @@ import ProblemList from './ProblemList';
 import { Form, notification } from 'antd';
 import Card from '@/components/Card';
 import DoProblem from '@/components/AssignmentProblems/DoProblem';
-import { useState } from 'react';
-import { TCodeEditorLang, TLanguageExt } from '@/components/Code/CodeEditor/language';
-import { langExt2CodeEditorLang } from '@/components/Code/CodeEditor/utils';
+import { useEffect, useState } from 'react';
 
 interface IProblemsPage {
   assignment: TAssignment;
@@ -18,21 +16,74 @@ interface IProblemsPage {
   dispatch?: any;
 }
 
-const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment, assProblemDic }) => {
+const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
   const [form] = Form.useForm();
-  const [langAvailable, setLangAvailable] = useState<TLanguageExt[] | undefined>(undefined);
+  const [problemId, setProblemId] = useState<string | undefined>(undefined);
+  const [submissionIdChecking, setSubmissionIdToCheck] = useState<string | undefined>(undefined);
   const intl = useIntl();
 
+  // const handleGetSyncAllStatus = (customCb?: (state: any, error?: any, data?: any) => void) => {
+  //   const callback = (state: any, _: any, data: any) => {
+  //     if (state) {
+  //       setCurrentId(state.currentId || '');
+  //       setHistoryIds(state.historyIds || []);
+  //     }
+  //     customCb?.(state, _, data);
+  //   };
+  //   dispatch({
+  //     type: 'settings/syncAllDataStatus',
+  //     payload: {
+  //       callback,
+  //     },
+  //   });
+  // };
+  const handleGetSubmissionStatus = (customCb?: (state: any, error?: any, data?: any) => void) => {
+    const callback = (state: boolean, _: any, res: any) => {
+      if (!state) {
+        notification.error({ message: intl.formatMessage({ id: res.msgId }) });
+        return;
+      }
+      customCb?.(state, _, res);
+    };
+    dispatch({
+      type: 'submission/getStatusById',
+      payload: { callback },
+    });
+  };
+
+  useEffect(() => {
+    if (!submissionIdChecking) {
+      return;
+    }
+    const intervalRefreshCurrentProcess = setInterval(() => {
+      const clearIntervalCb = (state: any, _: any, data: any) => {
+        if (state && data.state === 'DONE') {
+          clearInterval(intervalRefreshCurrentProcess);
+        }
+      };
+      handleGetSubmissionStatus(clearIntervalCb);
+    }, 5000);
+
+    return () => clearInterval(intervalRefreshCurrentProcess);
+  }, []);
+
   const handleSubmitCode = (values: any) => {
-    const { assignmentId, problemId, languageExtension, code } = values;
-    if (!assignmentId || !problemId || !languageExtension) {
+    const { assignmentId, languageExtension, code } = values;
+    if (!problemId) {
+      notification.error({
+        message: intl.formatMessage({ id: 'exception.submission.no-problem-selected' }),
+      });
+    }
+    if (!assignmentId || !languageExtension) {
       notification.error({
         message: intl.formatMessage({ id: 'exception.component.form.miss-data' }),
       });
       return;
     }
     const submitCodeCb = (res: any, err?: any) => {
-      if (err) console.error(err);
+      if (!res) {
+        console.error(err);
+      }
     };
     dispatch({
       type: 'submission/createWithCode',
@@ -47,13 +98,7 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment, assProble
   };
 
   const handleChangeProblem = (problemId: string) => {
-    form.setFieldsValue({ problemId });
-    if (assProblemDic?.[problemId]) {
-      const langExtSupport = [
-        ...new Set((assProblemDic[problemId].langExtAvailable || []).filter((t) => t)),
-      ] as TLanguageExt[];
-      setLangAvailable(langExtSupport.length === 0 ? undefined : langExtSupport);
-    }
+    setProblemId(problemId);
   };
 
   const renderDoProblem = () => {
@@ -80,9 +125,7 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment, assProble
             initialValues={{
               assignmentId: assignment.id,
             }}
-            codeEditorProps={{
-              languageExtensionAvailable: langAvailable,
-            }}
+            problemId={problemId}
           />
         </Card>
       );
@@ -109,6 +152,5 @@ export default connect(({ assignments }: any) => {
     : { problems: [] };
   return {
     assignment: assignments.selected ? assignmentData : undefined,
-    assProblemDic: assignments.problemDic,
   };
 })(ProblemsPage);

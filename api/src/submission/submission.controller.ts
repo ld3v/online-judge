@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bull';
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { Queue } from 'bull';
 import { AssignmentService } from 'src/assignment/assignment.service';
 import RequestWithAccount from 'src/auth/dto/reqWithAccount.interface';
@@ -11,6 +11,7 @@ import { QueueName } from 'src/queue/queue.enum';
 import { QueueService } from 'src/queue/queue.service';
 import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { isAdmin } from 'utils/func';
+import { TParamId } from 'utils/types';
 import CreateDto from './dto/create.dto';
 import { SubmissionService } from './submission.service';
 import { IAddSubmission, SubmissionFilter } from './submission.types';
@@ -73,6 +74,26 @@ export class SubmissionController {
         assignment: assignmentData,
         total,
       };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Get('/:id/status')
+  @UseGuards(JwtAuthGuard)
+  async getSubmissionStatus(
+    @Param() { id }: TParamId,
+  ) {
+    try {
+      const sub = await this.submissionService.getById(id);
+
+      return {
+        id: sub.id,
+        createdAt: sub.created_at,
+        result: sub.result,
+        queueProcess: sub.queue.process,
+        queueState: sub.queue.state,
+      }
     } catch (err) {
       throw err;
     }

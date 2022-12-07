@@ -8,13 +8,11 @@ This document was created to describe for 2 purposes:
 Your folder should have a structure like below:
 ```bash
   |- folder_need_to_upload
-      |- input0.txt
       |- input1.txt
       |- input2.txt
       |- input3.txt
       |  ...
       |- inputN.txt
-      |- output0.txt
       |- output1.txt
       |- output2.txt
       |- output3.txt
@@ -28,14 +26,12 @@ for management reason on your computer, you can define those files in nested fol
 ```bash
   |- folder_need_to_upload
       |- in
-      . |- input0.txt
       . |- input1.txt
       . |- input2.txt
       . |- input3.txt
       . |  ...
       . |- inputN.txt
       |- out
-      . |- output0.txt
       . |- output1.txt
       . |- output2.txt
       . |- output3.txt

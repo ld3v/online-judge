@@ -14,7 +14,7 @@ C_OPTIONS="-fno-asm -Dasm=error -lm -O2"
 C_WARNING_OPTION="-w"
 
 COMPILER="gcc -std=c11"
-logcode_jail "[#] [compile_c.sh]"
+logfile_jail "[#] [compile_c.sh]"
 if [ "$EXT" = "cpp" ]; then
     COMPILER="g++ -std=c++11"
 fi
@@ -38,10 +38,10 @@ if [ -f "$PROBLEMPATH/template.cpp" ]; then
             NEEDCOMPILE=0
         fi
     done <<< "$banned"
-    logcode_jail "[$] echo \"$code\" | sed -e \"/\\/\\/###INSERT CODE HERE/r $f\" -e '/\\/\\/###INSERT CODE HERE/d' > code.c"
+    logfile_jail "[$] echo \"$code\" | sed -e \"/\\/\\/###INSERT CODE HERE/r $f\" -e '/\\/\\/###INSERT CODE HERE/d' > code.c"
     echo "$code" | sed -e "/\/\/###INSERT CODE HERE/r $f" -e '/\/\/###INSERT CODE HERE/d' > code.c
 else
-    logcode_jail "[$] cp $USERDIR/$FILENAME.$EXT code.c"
+    logfile_jail "[$] cp $USERDIR/$FILENAME.$EXT code.c"
     cp $USERDIR/$FILENAME.$EXT code.c
 fi
 
@@ -50,12 +50,11 @@ logfile_jail "[#] Compiling as $EXT"
 if [ $NEEDCOMPILE -eq 0 ]; then
     EXITCODE=110
 else
-    logcode_jail "[$] mv code.c code.$EXT"
+    logfile_jail "[$] mv code.c code.$EXT"
     mv code.c code.$EXT
-    logcode_jail "[$] $tester_dir/run_judge_in_docker.sh `pwd` gcc:6 $COMPILER code.$EXT $C_OPTIONS $C_WARNING_OPTION -o $EXEFILE >/dev/null 2>cerr"
+    logfile_jail "[$] $tester_dir/run_judge_in_docker.sh `pwd` gcc:6 $COMPILER code.$EXT $C_OPTIONS $C_WARNING_OPTION -o $EXEFILE >/dev/null 2>cerr"
     $tester_dir/run_judge_in_docker.sh `pwd` gcc:6 $COMPILER code.$EXT $C_OPTIONS $C_WARNING_OPTION -o $EXEFILE >/dev/null 2>cerr
     EXITCODE=$?
-
 fi
 
 COMPILE_END_TIME=$(($(date +%s%N)/1000000));

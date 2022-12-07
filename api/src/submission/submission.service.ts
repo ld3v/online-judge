@@ -75,6 +75,7 @@ export class SubmissionService {
       .leftJoinAndSelect("sub.language", "lang")
       .leftJoinAndSelect("sub.problem", "problem")
       .leftJoinAndSelect("sub.assignment", "assignment")
+      .leftJoinAndSelect("sub.queue", "queue")
       .where("sub.id = :id", { id })
       .getOne();
     if (!submission && showErrIfErr) {

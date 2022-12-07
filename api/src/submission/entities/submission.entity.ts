@@ -35,6 +35,12 @@ export class Submission {
     default: 0,
   })
   public pre_score: number;
+  
+  @Column({
+    name: 'result',
+    default: '',
+  })
+  public result: string;
 
   // [NEED-CHECK]
   // @Column({
