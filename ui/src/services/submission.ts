@@ -12,6 +12,10 @@ export const getSubmission = ({ assignmentId, accountId, page, limit }: TSubmiss
   });
 };
 
+export const getSubmissionStatusById = (id: string) => {
+  return request(`/submission/${id}/status`);
+};
+
 export const submitCode = ({ assignmentId, problemId, languageExtension, code }: any) => {
   return request.post('/submission', {
     data: {

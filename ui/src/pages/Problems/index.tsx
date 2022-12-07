@@ -37,13 +37,13 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
   //     },
   //   });
   // };
-  const handleGetSubmissionStatus = (customCb?: (state: any, error?: any, data?: any) => void) => {
-    const callback = (state: boolean, _: any, res: any) => {
-      if (!state) {
+  const handleGetSubmissionStatus = (customCb?: (res: any) => void) => {
+    const callback = (res: any) => {
+      if (!res) {
         notification.error({ message: intl.formatMessage({ id: res.msgId }) });
         return;
       }
-      customCb?.(state, _, res);
+      customCb?.(res);
     };
     dispatch({
       type: 'submission/getStatusById',
@@ -55,17 +55,17 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
     if (!submissionIdChecking) {
       return;
     }
-    const intervalRefreshCurrentProcess = setInterval(() => {
-      const clearIntervalCb = (state: any, _: any, data: any) => {
-        if (state && data.state === 'DONE') {
-          clearInterval(intervalRefreshCurrentProcess);
+    const intervalCheckingSubmissionStatus = setInterval(() => {
+      const clearIntervalCb = (res: any) => {
+        if (res && res.queueState === 'DONE') {
+          clearInterval(intervalCheckingSubmissionStatus);
         }
       };
       handleGetSubmissionStatus(clearIntervalCb);
-    }, 5000);
+    }, 3000);
 
-    return () => clearInterval(intervalRefreshCurrentProcess);
-  }, []);
+    return () => clearInterval(intervalCheckingSubmissionStatus);
+  }, [submissionIdChecking]);
 
   const handleSubmitCode = (values: any) => {
     const { assignmentId, languageExtension, code } = values;
@@ -84,6 +84,7 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
       if (!res) {
         console.error(err);
       }
+      setSubmissionIdToCheck(res.id);
     };
     dispatch({
       type: 'submission/createWithCode',
