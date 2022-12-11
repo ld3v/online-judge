@@ -256,8 +256,6 @@ export class SubmissionService {
     return accountResult;
   }
 
-  // public transformData()
-
   /**
    * This func will create a new file from submit's code input.
    */

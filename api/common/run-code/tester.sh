@@ -428,7 +428,12 @@ logfile_jail "[R] Passed $PASSEDTESTS/$TST test cases."
 logfile_jail "[#] [END]"
 
 cd ..
-# cp -r $JAIL "debug-jail-backup"
+# BACKUP -> RE-RUN SCRIPT WITHOUT REMOVE JAIL
+
+if [ ${14} -eq "1" ]; then
+	cp -r $JAIL "backup-$JAIL"
+if
+
 rm -r $JAIL >/dev/null 2>/dev/null # removing files
 logfile "[$] cd ..\n[$] rm -r $JAIL >/dev/null 2>/dev/null"
 

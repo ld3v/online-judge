@@ -84,6 +84,8 @@ export class SubmissionProcessor {
       await addFile(LOGS_PATH, `result_${logFilename}`, `# ${moment().format('DD/MM/YYYY - HH:mm:ss')}\n`);
       await addDir(path.join(PROBLEM_SOLUTIONS_PATH, problemId));
       await addDir(path.join(USER_SOLUTIONS_PATH, username));
+
+      const needBackup = 0;
       
       /**
        * ### SHELL COMMAND DESCRIPTION:                                                                                                               
@@ -104,8 +106,9 @@ export class SubmissionProcessor {
        * $11: `diffCmd` - Difference command, which command run in linux.                                                                             
        * $12: `diffCmd` - Difference arguments, arguments for diff-command.                                                                           
        * $13: `logEnabled` - Set in settings. allow write log to file, while compile, run & test user's solution.
+       * $14: `createBackup` - In normal case, after run code, everything reference will be removed. When enabled this params -> We will copy `jail-x` folder -> `backup-jail-x`.
        */
-      const shellCmd = `cd ${testerPath};\n./tester.sh ${problemSolutionsDir} ${userSolutionsDir} ${logFilePath} ${logFilename} ${filename} ${fileExtension} ${timeLimit} ${timeLimitInt} ${memoryLimit} ${outputSizeLimit} ${diffCmd} '${diffArg}' ${logEnabled}`;
+      const shellCmd = `cd ${testerPath};\n./tester.sh ${problemSolutionsDir} ${userSolutionsDir} ${logFilePath} ${logFilename} ${filename} ${fileExtension} ${timeLimit} ${timeLimitInt} ${memoryLimit} ${outputSizeLimit} ${diffCmd} '${diffArg}' ${logEnabled} ${needBackup}`;
       this.logger.log(`Exec command: ${shellCmd.replace('\/\n\g', ' ')}`, undefined, 1, "INFO");
       const { stdout, stderr } = await exec(shellCmd);
       this.logger.log(`Output: "${stdout}"`);
