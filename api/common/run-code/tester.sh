@@ -297,6 +297,8 @@ for((i=1;i<=TST;i++)); do
 		if grep -iq -m 1 "Too small initial heap" out || grep -q -m 1 "java.lang.OutOfMemoryError" err; then
 			logfile_jail "[#] Memory Limit Exceeded java:"
 			logfile_jail "[#] `cat out`"
+
+			logresult_jail "TEST CASE $i: Memory limit Exceeded"
 			continue
 		fi
 		if grep -q -m 1 "Exception in" err; then # show Exception
@@ -309,6 +311,7 @@ for((i=1;i<=TST;i++)); do
 			else
 				logfile_jail "[r] Runtime Error"
 			fi
+			logresult_jail "TEST CASE $i: Runtime Error (#314)"
 			continue
 		fi
 	fi
@@ -340,16 +343,19 @@ for((i=1;i<=TST;i++)); do
 	logfile_jail "[#] Time-limit $t (s) - Memory-limit: $m (KiB)"
 	if [ $found_error = "1" ]; then
 		logfile_jail "[r] Found error"
+		logresult_jail "TEST CASE $i: Found Error"
 		continue
 	fi
 
 	if [ $EXITCODE -eq 137 ]; then
+		logresult_jail "TEST CASE $i: Killed"
 		logfile_jail "[r] Killed"
 		continue
 	fi
 
 	if [ $EXITCODE -ne 0 ]; then
 		logfile_jail "[r] Runtime Error"
+		logresult_jail "TEST CASE $i: Runtime Error (#358)"
 		continue
 	fi
 	############################################################################

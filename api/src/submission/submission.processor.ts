@@ -80,8 +80,8 @@ export class SubmissionProcessor {
       // const logEnabled = settingFieldKeysNotFound[SETTING_FIELDS_MAPPING.enable_log] ? "1" : "0";
       const logEnabled = "1";
       
-      await addFile(LOGS_PATH, `test_${logFilename}`, `[#] -- ${moment().format('DD/MM/YYYY - HH:mm:ss')} ---------\n`);
-      await addFile(LOGS_PATH, `result_${logFilename}`, `# ${moment().format('DD/MM/YYYY - HH:mm:ss')} ---------\n`);
+      await addFile(LOGS_PATH, `test_${logFilename}`, `[#] -- ${moment().format('DD/MM/YYYY - HH:mm:ss')}\n`);
+      await addFile(LOGS_PATH, `result_${logFilename}`, `# ${moment().format('DD/MM/YYYY - HH:mm:ss')}\n`);
       await addDir(path.join(PROBLEM_SOLUTIONS_PATH, problemId));
       await addDir(path.join(USER_SOLUTIONS_PATH, username));
       
