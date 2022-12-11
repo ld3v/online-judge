@@ -28,13 +28,18 @@ export const isFile = (path: string): boolean => {
 export const getFileContent = async (
   path: string,
   encoding?: any,
-): Promise<string | Buffer> => {
+  showErrIfErr: boolean = true,
+): Promise<string> => {
   if (!isFile(path)) {
-    throw new Error('file.invalid');
+    if (showErrIfErr) {
+      throw new Error('file.invalid');
+    }
+    return "";
   }
 
   const readFile = promisify(fs.readFile);
-  return readFile(path, encoding || {});
+  const content = await readFile(path, encoding || {});
+  return content.toString();
 };
 
 /**

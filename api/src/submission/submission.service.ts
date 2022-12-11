@@ -126,20 +126,28 @@ export class SubmissionService {
     }
   }
 
-  public async updateResultAfterTest(submissionId: string, preScore: number, isShowErrIfErr: boolean = false) {
+  public async updateResultAfterTest(submissionId: string, output: string | number, result: string = '', isShowErrIfErr: boolean = false) {
     const submission = await this.submissionRepository
       .createQueryBuilder('s')
       .leftJoinAndSelect('s.submitter', 'account')
       .leftJoinAndSelect('s.problem', 'problem')
       .where('s.id = :submissionId', { submissionId })
       .getOne();
+    let preScore = 0;
     if (!submission) {
       if (isShowErrIfErr) {
         throw new Http503Exception('submission.notfound', { notFoundId: submissionId });
       }
       return false;
     }
-    submission.pre_score = preScore;
+    submission.result = result || submission.result;
+    if (Number.isNaN(Number(output))) {
+      submission.pre_score = 0;
+      submission.result = `Tester: ${output}\n${submission.result}`;
+    } else {
+      submission.pre_score = Number(output);
+      preScore = Number(output);
+    }
     // Update final
     const finalSubmission = await this.getFinalSubmission(submission.problem, submission.submitter);
     if (

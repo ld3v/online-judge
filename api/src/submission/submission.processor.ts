@@ -1,7 +1,7 @@
 import { Process, Processor } from "@nestjs/bull";
 import { Job } from "bull";
 import * as childProcess from "child_process";
-import { addDir, addFile } from "common/file.helper";
+import { addDir, addFile, getFileContent } from "common/file.helper";
 import * as moment from "moment";
 import * as path from "path";
 import CustomLogger from "src/logger/customLogger";
@@ -113,7 +113,13 @@ export class SubmissionProcessor {
       this.logger.errorCustom(new Error(stderr || 'No error'));
 
       // Update result
-      await this.submissionService.updateResultAfterTest(submissionId, Number.isNaN(stdout) ? 0 : Number(stdout));
+      const result = await getFileContent(`${logFilePath}/result_${logFilename}`, 'utf8', false);
+      const output = stdout ? stdout.replace(/(\r\n|\n|\r)/gm, "") : "0";
+      await this.submissionService.updateResultAfterTest(
+        submissionId,
+        output,
+        result,
+      );
       await this.queueService.update(`${job.id}`, undefined, QueueState.Done);
     } catch (err) {
       this.logger.log(`\x1b[31mHandle submission failed!\x1b[0m`, undefined, 0, "ERR");

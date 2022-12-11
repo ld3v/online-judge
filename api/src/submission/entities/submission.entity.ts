@@ -42,25 +42,11 @@ export class Submission {
   })
   public result: string;
 
-  // [NEED-CHECK]
-  // @Column({
-  //   name: 'status',
-  //   default: '',
-  // })
-  // public status: string;
-
   @Column({
     name: 'coefficient',
     default: '',
   })
   coefficient: string;
-
-  // In source `wecode-judge`, this field is `file_name`.
-  @Column({
-    name: 'file',
-    default: '',
-  })
-  file: string;
 
   @CreateDateColumn({
     type: 'timestamptz'
