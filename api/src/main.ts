@@ -12,7 +12,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get('APP_PORT');
-  const adapterHost = app.get(HttpAdapterHost);
+  // const adapterHost = app.get(HttpAdapterHost);
 
   moment.tz.setDefault("Asia/Ho_Chi_Minh");
   app.useGlobalPipes(
@@ -34,7 +34,7 @@ async function bootstrap() {
   });
   app.useLogger(app.get(CustomLogger));
   app.use(cookieParser());
-  app.useGlobalFilters(new AllExceptionsFilter(adapterHost))
+  // app.useGlobalFilters(new AllExceptionsFilter(adapterHost))
   await app.listen(port);
   console.info(`Running with port ${port}`);
 }
