@@ -178,6 +178,11 @@ fi
 ################################################ TESTING ###############################################
 ########################################################################################################
 
+if [ ! -d $PROBLEMPATH ] || [ ! -d "$PROBLEMPATH/in" ] || [ ! -d "$PROBLEMPATH/out"]; then
+	logresult "Problem path is invalid ('$PROBLEMPATH/in' or '$PROBLEMPATH/out' was not exist!";
+	logfile_finish "No Test Cases";
+fi
+
 TST="$(ls $PROBLEMPATH/in/input*.txt | wc -l)"  # Number of Test Cases
 
 logfile_jail "\n[%] TESTING - $TST test case(s) found"
