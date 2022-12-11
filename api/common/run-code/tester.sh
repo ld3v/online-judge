@@ -428,7 +428,7 @@ cd ..
 # BACKUP -> RE-RUN SCRIPT WITHOUT REMOVE JAIL
 
 if [ ${14} -eq "1" ]; then
-	# mkdir -p "../../backup/runcode-$JAIL"
+	mkdir -p "../../backup"
 	cp -r $JAIL "../../backup/runcode-$JAIL"
 fi 
 
