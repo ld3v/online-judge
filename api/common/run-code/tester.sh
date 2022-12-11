@@ -178,7 +178,7 @@ fi
 ################################################ TESTING ###############################################
 ########################################################################################################
 
-if [ ! -d $PROBLEMPATH ] || [ ! -d "$PROBLEMPATH/in" ] || [ ! -d "$PROBLEMPATH/out"]; then
+if [ ! -d $PROBLEMPATH ] || [ ! -d "$PROBLEMPATH/in" ] || [ ! -d "$PROBLEMPATH/out" ]; then
 	cd ..
 	logresult "Problem path is invalid ('in' & 'out' dir was not exist)!";
 	logfile_finish "No Test Cases";

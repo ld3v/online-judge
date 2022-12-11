@@ -54,8 +54,7 @@ export class SubmissionProcessor {
       );
       
       if (
-        settingFieldKeysNotFound.includes(SETTING_FIELDS_MAPPING.output_size_limit) ||
-        settingFieldKeysNotFound.includes(SETTING_FIELDS_MAPPING.enable_log)
+        settingFieldKeysNotFound.includes(SETTING_FIELDS_MAPPING.output_size_limit)
       ) {
         await this.queueService.update(
           `${job.id}`,
@@ -110,7 +109,10 @@ export class SubmissionProcessor {
       this.logger.log(`Exec command: ${shellCmd.replace('\/\n\g', ' ')}`, undefined, 1, "INFO");
       const { stdout, stderr } = await exec(shellCmd);
       this.logger.log(`Output: "${stdout}"`);
-      this.logger.errorCustom(new Error(stderr || 'No error'));
+
+      if (stderr) {
+        this.logger.errorCustom(new Error(stderr));
+      }
 
       // Update result
       const result = await getFileContent(`./logs/result_${logFilename}`, 'utf8', false);
