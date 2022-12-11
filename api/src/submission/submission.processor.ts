@@ -113,7 +113,7 @@ export class SubmissionProcessor {
       this.logger.errorCustom(new Error(stderr || 'No error'));
 
       // Update result
-      const result = await getFileContent(`${logFilePath}/result_${logFilename}`, 'utf8', false);
+      const result = await getFileContent(`./logs/result_${logFilename}`, 'utf8', false);
       const output = stdout ? stdout.replace(/(\r\n|\n|\r)/gm, "") : "0";
       await this.submissionService.updateResultAfterTest(
         submissionId,
