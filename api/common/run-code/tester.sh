@@ -424,15 +424,13 @@ logfile_jail "[R] Passed $PASSEDTESTS/$TST test cases."
 	#	echo -e "$javaexceptionname\n$javaexceptionplace" >>$RESULTFILE
 	#fi
 
-
-logfile_jail "[#] [END]"
-
 cd ..
 # BACKUP -> RE-RUN SCRIPT WITHOUT REMOVE JAIL
 
 if [ ${14} -eq "1" ]; then
-	cp -r $JAIL "backup-$JAIL"
-if
+	# mkdir -p "../../backup/runcode-$JAIL"
+	cp -r $JAIL "../../backup/runcode-$JAIL"
+fi 
 
 rm -r $JAIL >/dev/null 2>/dev/null # removing files
 logfile "[$] cd ..\n[$] rm -r $JAIL >/dev/null 2>/dev/null"
