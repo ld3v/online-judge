@@ -99,6 +99,19 @@ export class SubmissionController {
     }
   }
 
+  @Get('/:id/code')
+  @UseGuards(JwtAuthGuard)
+  async getCode (
+    @Param() { id }: TParamId,
+  ): Promise<string> {
+    try {
+      const sub = await this.submissionService.getById(id);
+      return await this.submissionService.getSubmissionCode(sub);
+    } catch (err) {
+      throw err;
+    }
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard)
   async createSubmission (

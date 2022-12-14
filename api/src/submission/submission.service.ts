@@ -4,7 +4,7 @@ import * as path from 'path';
 import { Account } from 'src/account/entities/account.entity';
 import { Queue as QueueEntity } from 'src/queue/entities/queue.entity';
 import { Assignment } from 'src/assignment/entities/assignment.entity';
-import { addFile } from 'common/file.helper';
+import { addFile, getFileContent } from 'common/file.helper';
 import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { Http503Exception } from 'utils/Exceptions/http503.exception';
 import { Submission } from './entities/submission.entity';
@@ -254,6 +254,19 @@ export class SubmissionService {
       accountResult[item.submitter.id][item.problem.id] = item.subs_count;
     })
     return accountResult;
+  }
+
+  public async getSubmissionCode (submission: Submission) {
+    try {
+      const submitter = submission.submitter.username;
+      const langExt = submission.language.extension;
+      const path = `./upload/user-solutions/${submitter}/solution_${submission.id}.${langExt}`;
+      const content = await getFileContent(path, 'utf-8');
+      return content;
+    } catch (err) {
+      console.error(`Error when reading code for submission (${submission.id}) at "${path}":`, err);
+      return 'ERR: Code File not found!';
+    }
   }
 
   /**
