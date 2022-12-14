@@ -10,7 +10,7 @@ Basically, both methods are using the same scripts, flow to compile, run & test 
 - **With file**: after upload this file to `@judge-api` -> Run script with this file.
 
 Sample flow:  
-![](https://i.imgur.com/v6nt7xg.png)
+![](https://i.imgur.com/4eCe4au.png)
 ## Submit with code
 ![](https://i.imgur.com/JvJIFlu.png)
 

@@ -109,7 +109,7 @@ export class SubmissionProcessor {
        * $14: `createBackup` - In normal case, after run code, everything reference will be removed. When enabled this params -> We will copy `jail-x` folder -> `backup-jail-x`.
        */
       const shellCmd = `cd ${testerPath};\n./tester.sh ${problemSolutionsDir} ${userSolutionsDir} ${logFilePath} ${logFilename} ${filename} ${fileExtension} ${timeLimit} ${timeLimitInt} ${memoryLimit} ${outputSizeLimit} ${diffCmd} '${diffArg}' ${logEnabled} ${needBackup}`;
-      this.logger.log(`Exec command: ${shellCmd.replace('\/\n\g', ' ')}`, undefined, 1, "INFO");
+      this.logger.log(`Exec command: ${shellCmd.replace('\\n/g', ' ')}`, undefined, 1, "INFO");
       const { stdout, stderr } = await exec(shellCmd);
       this.logger.log(`Output: "${stdout}"`);
 

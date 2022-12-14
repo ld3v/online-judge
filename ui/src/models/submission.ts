@@ -74,9 +74,9 @@ const SubmissionModel: ISubmissionModel = {
       }
     },
     *getStatusById({ payload }, { call }): Generator<any, any, any> {
-      const { callback } = payload || {};
+      const { id, callback } = payload || {};
       try {
-        const res = yield call(getSubmissionStatusById);
+        const res = yield call(getSubmissionStatusById, id);
         if (res.isError) {
           callback?.(false, res);
           return;

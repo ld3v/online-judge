@@ -2,19 +2,17 @@ import { ROLES } from '@/utils/constants';
 import { getMenuData, getPageTitle } from '@ant-design/pro-layout';
 import { FC, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import { ConnectProps, history, useDispatch } from 'umi';
+import { ConnectProps, history } from 'umi';
 import { connect, useIntl } from 'umi';
 import { ErrorBoundary } from '../Boundary';
 import Navbar from '../Navbar';
 import CreateNotification from '../Modal/CreateNotification';
 import ViewNotification from '../Modal/ViewNotification';
-import SIDEBAR_ITEMS from './sidebarItems';
+import SIDEBAR_ITEMS, { MAP_ROLE2ROUTE } from './sidebarItems';
 
 import styles from './styles.less';
 
-export interface LayoutWrapperProps extends ConnectProps {
-  currentAccount: any;
-}
+export interface LayoutWrapperProps extends ConnectProps {}
 
 const LayoutWrapper: FC<LayoutWrapperProps> = (props: any) => {
   // Handle logic to get page's title
@@ -22,10 +20,10 @@ const LayoutWrapper: FC<LayoutWrapperProps> = (props: any) => {
     route = {
       routes: [],
     },
-    currentAccount,
+    dispatch,
+    account: currentAccount,
   } = props;
 
-  const dispatch = useDispatch();
   const intl = useIntl();
 
   useEffect(() => {
@@ -46,7 +44,7 @@ const LayoutWrapper: FC<LayoutWrapperProps> = (props: any) => {
         dispatch({ type: 'settings/getAll' });
       }
     }
-  }, [currentAccount && currentAccount.id]);
+  }, [(currentAccount || {}).id]);
 
   const { routes = [] } = route;
   const {
@@ -76,17 +74,7 @@ const LayoutWrapper: FC<LayoutWrapperProps> = (props: any) => {
     );
   }
 
-  const sidebarItems = SIDEBAR_ITEMS.filter((item) =>
-    item.roleAccessible.includes(currentAccount.role),
-  );
-  const pageNamesAvailable = sidebarItems.map((sidebar) => sidebar.title);
-  if (!pageNamesAvailable.includes(pageName)) {
-    console.error(
-      `no.page-name.available for "${location.pathname}": ${pageName || '"no-page-name"'} - ${
-        currentAccount?.role || '"no-account"'
-      }`,
-    );
-  }
+  const sidebarItemTitles = MAP_ROLE2ROUTE[currentAccount.role] || [];
   return (
     <ErrorBoundary>
       <Helmet>
@@ -98,15 +86,17 @@ const LayoutWrapper: FC<LayoutWrapperProps> = (props: any) => {
           <div className="sidebar">
             <div className="sidebar-items">
               <ErrorBoundary>
-                {sidebarItems
-                  .filter((i) => i.href)
-                  .map((item) => (
+                {sidebarItemTitles
+                  .filter((itemTitle) => SIDEBAR_ITEMS[itemTitle]?.href)
+                  .map((itemTitle) => (
                     <div
-                      key={item.key}
-                      className={`sidebar-item ${pageName === item.title ? 'active' : ''}`}
-                      onClick={() => (pageName === item.title ? null : history.push(item.href))}
+                      key={SIDEBAR_ITEMS[itemTitle].key}
+                      className={`sidebar-item ${pageName === itemTitle ? 'active' : ''}`}
+                      onClick={() =>
+                        pageName === itemTitle ? null : history.push(SIDEBAR_ITEMS[itemTitle].href)
+                      }
                     >
-                      {intl.formatMessage({ id: item.title })}
+                      {intl.formatMessage({ id: itemTitle })}
                     </div>
                   ))}
               </ErrorBoundary>

@@ -1,6 +1,6 @@
 import { TAssignment, TAssignmentProblem } from '@/types/assignment';
 import moment from 'moment';
-import { connect, useIntl } from 'umi';
+import { connect, FormattedMessage, Link, useIntl } from 'umi';
 import AssignmentChild from '../Assignments/AssignmentChild';
 
 import styles from './styles.less';
@@ -20,23 +20,9 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
   const [form] = Form.useForm();
   const [problemId, setProblemId] = useState<string | undefined>(undefined);
   const [submissionIdChecking, setSubmissionIdToCheck] = useState<string | undefined>(undefined);
+  const [currentResult, setCurrentResult] = useState<string | undefined>(undefined);
   const intl = useIntl();
 
-  // const handleGetSyncAllStatus = (customCb?: (state: any, error?: any, data?: any) => void) => {
-  //   const callback = (state: any, _: any, data: any) => {
-  //     if (state) {
-  //       setCurrentId(state.currentId || '');
-  //       setHistoryIds(state.historyIds || []);
-  //     }
-  //     customCb?.(state, _, data);
-  //   };
-  //   dispatch({
-  //     type: 'settings/syncAllDataStatus',
-  //     payload: {
-  //       callback,
-  //     },
-  //   });
-  // };
   const handleGetSubmissionStatus = (customCb?: (res: any) => void) => {
     const callback = (res: any) => {
       if (!res) {
@@ -47,7 +33,7 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
     };
     dispatch({
       type: 'submission/getStatusById',
-      payload: { callback },
+      payload: { id: submissionIdChecking, callback },
     });
   };
 
@@ -57,8 +43,10 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
     }
     const intervalCheckingSubmissionStatus = setInterval(() => {
       const clearIntervalCb = (res: any) => {
-        if (res && res.queueState === 'DONE') {
+        if (res && (res.queueState === 'DONE' || res.queueState === 'ERR')) {
           clearInterval(intervalCheckingSubmissionStatus);
+          setSubmissionIdToCheck(undefined);
+          setCurrentResult(res.result);
         }
       };
       handleGetSubmissionStatus(clearIntervalCb);
@@ -77,6 +65,12 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
     if (!assignmentId || !languageExtension) {
       notification.error({
         message: intl.formatMessage({ id: 'exception.component.form.miss-data' }),
+      });
+      return;
+    }
+    if (!code || code.trim() === '') {
+      notification.error({
+        message: intl.formatMessage({ id: 'exception.problem-solving.code-empty' }),
       });
       return;
     }
@@ -100,6 +94,9 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
 
   const handleChangeProblem = (problemId: string) => {
     setProblemId(problemId);
+    if (form) {
+      form.setFieldValue('code', '');
+    }
   };
 
   const renderDoProblem = () => {
@@ -110,6 +107,10 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
         (!!assignment.finishTime &&
           moment(assignment.finishTime).add(assignment.extraTime, 'minutes').isBefore(now));
 
+      const codeEditorLink = `/code-editor?${assignment ? `ass=${assignment.id}&` : ''}${
+        problemId ? `prob=${problemId}` : ''
+      }`;
+
       return (
         <Card
           cardTitle={intl.formatMessage({ id: 'problem.do-problem.title' })}
@@ -119,6 +120,9 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
               : undefined
           }
         >
+          <Link to={codeEditorLink}>
+            <FormattedMessage id="site.go-to-beta" />
+          </Link>
           <DoProblem
             onFinish={handleSubmitCode}
             form={form}
@@ -127,6 +131,10 @@ const ProblemsPage: React.FC<IProblemsPage> = ({ dispatch, assignment }) => {
               assignmentId: assignment.id,
             }}
             problemId={problemId}
+            checking={{
+              loading: !!submissionIdChecking,
+              result: currentResult,
+            }}
           />
         </Card>
       );

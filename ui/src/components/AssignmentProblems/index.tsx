@@ -147,7 +147,9 @@ export default connect(({ assignments, loading }: any, { assignmentId }: IAssign
   const assignmentData = assignmentId ? assignments.dic[assignmentId] : { problems: [] };
   const { problems } = assignmentData || { problems: [] };
   return {
-    problems: problems.map((id: string) => assignments.problemDic[id]).filter((item: any) => item),
+    problems: (problems || [])
+      .map((id: string) => assignments.problemDic[id])
+      .filter((item: any) => item),
     problemDic: assignments.problemDic,
     problemLoading: loading.effects['assignments/getProblems'],
   };

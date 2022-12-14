@@ -40,7 +40,6 @@ const CodeEditor: React.FC<ICodeEditor> = ({
   const langExtAvailable = useMemo(() => {
     const langExt = (langs || []).map((l) => l.ext);
     const langExtensionAvailable = langExt || undefined;
-    console.log(languageExtSupported, langExtensionAvailable);
     return langExtensionAvailable.length > 0
       ? languageExtSupported.filter((ext) => langExtensionAvailable.includes(ext))
       : languageExtSupported;

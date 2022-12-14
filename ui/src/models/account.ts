@@ -128,6 +128,12 @@ const AccountModel: IAccountModel = {
   },
   reducers: {
     saveCurrent(state, { payload }) {
+      if (!payload) {
+        return {
+          ...state,
+          current: undefined,
+        }
+      }
       return {
         ...state,
         dic: {
@@ -171,11 +177,23 @@ const AccountModel: IAccountModel = {
       };
     },
     saveDic(state, { payload }) {
+      const dataToUpdate = { ...state.dic }
+      Object.keys(payload).forEach(key => {
+        if (dataToUpdate[key]) {
+          // Update
+          dataToUpdate[key] = {
+            ...dataToUpdate[key],
+            ...payload[key],
+          };
+          return;
+        }
+        // New
+        dataToUpdate[key] = { ...payload[key] };
+      });
       return {
         ...state,
         dic: {
-          ...state.dic,
-          ...payload,
+          ...dataToUpdate,
         },
       };
     },

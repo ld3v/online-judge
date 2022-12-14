@@ -1,3 +1,4 @@
+import { TAccount } from '@/types/account';
 import { FORGOT_PASSWORD_PATH, REGISTER_PATH } from '@/utils/constants';
 import { Button, Form, Input } from 'antd';
 import { FC, useEffect, useState } from 'react';
@@ -7,10 +8,11 @@ import styles from './styles.less';
 interface ILoginPage {
   submitting: boolean;
   authenticated: boolean;
+  setAccount: (acc: TAccount | undefined) => void;
   dispatch: any;
 }
 
-const LoginPage: FC<ILoginPage> = ({ submitting, authenticated, dispatch }) => {
+const LoginPage: FC<ILoginPage> = ({ submitting, authenticated, dispatch, setAccount }) => {
   const [isRegisterEnabled, setIsRegisterEnabled] = useState<boolean>(false);
   const intl = useIntl();
 
@@ -22,9 +24,10 @@ const LoginPage: FC<ILoginPage> = ({ submitting, authenticated, dispatch }) => {
   }, []);
 
   const onContinue = ({ username, password }: any) => {
-    const callback = (isDone: boolean = false) => {
-      if (isDone) {
-        history.push('/');
+    const callback = (account: any = false) => {
+      if (account) {
+        setAccount(account);
+        history.push('/dashboard');
       }
     };
     dispatch({

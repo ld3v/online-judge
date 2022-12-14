@@ -43,7 +43,7 @@ const SubmissionPage: React.FC<ISubmissionPage> = ({
       fixed: 'left',
       render: (problem, data) => (
         <Tooltip title={intl.formatMessage({ id: 'submission.table.go-to-problem' })}>
-          <a href={`/assignments/${data.assignmentId}?problem=${problem.id}`} target="_blank">
+          <a href={`/problems/${data.assignmentId}?problem=${problem.id}`} target="_blank">
             {problem.name}
           </a>
         </Tooltip>

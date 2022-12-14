@@ -15,4 +15,5 @@ export default {
   'site.accounts': 'Accounts',
   'site.accounts.update': 'Update account',
   'site.settings': 'Settings',
+  'site.go-to-beta': 'Use beta version'
 };

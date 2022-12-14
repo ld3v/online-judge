@@ -67,6 +67,7 @@ export default {
   'exception.assignment.form.coefficient-rule.coefficient-value.const-invalid': 'Constant value is invalid (0 <= <code>Coefficient</code> <= 100).',
   'exception.assignment.form.coefficient-rule.coefficient-value.vot-invalid': 'Variant over time (VOT) is invalid (0 <= <code>VOT min</code> < <code>VOT max</code> <= 100)',
   // Exceptions
+  'exception.assignment.get-problems.unknown': 'Unexpected error happened when getting assignment\'s problems!',
   'exception.assignment.notfound':
     '{ isMany, select, true {These assignments are} other {This assignment is} } not existed in our system!',
 };

@@ -38,7 +38,13 @@ export default {
   'problem.form.submit-problem': 'Nộp bài',
   'problem.form.submit-create': 'Tạo',
   'problem.form.submit-update': 'Cập nhật',
+  'problem-solving.loading-content': 'Đang tải dữ liệu của vấn đề...',
+  'problem-solving.submit': 'Chạy',
+  'problem-solving.running': 'Đang kiểm tra kết quả...',
+  'problem-solving.empty-data': 'Không thể hiển thị dữ liệu cho vấn đề này vì nó bị trống!',
+  'problem-solving.checking-solution': 'Đang kiểm tra bài làm của bạn...',
   // Exceptions
+  'exception.problem-solving.code-empty': 'Vui lòng không bỏ trống bài làm của bạn!',
   'exception.problem.form.languages.required': 'Vui lòng chọn ít nhất một ngôn ngữ',
   'exception.problem.form.name.required': 'Vui lòng nhập tên vấn đề',
   'exception.problem.form.diff-command.required': 'Vui lòng nhập lệnh <code>diff</code>',
@@ -48,5 +54,10 @@ export default {
     '{ isMany, select, true {Các v} other {V} }ấn đề này không tồn tại trong hệ thống!',
   'exception.problem.solution-checking.includes-other-files': 'Thư mục tải lên chỉ được chứa các tập tin input_.txt, output_.txt hoặc template.cpp',
   'exception.problem.solution-checking.input-diff-output': 'Có {inpCount} tệp dữ liệu đầu vào trong khi có {outCount} tệp kết quả dự kiến',
-  'exception.problem.solution-checking.duplicated-filenames': 'Dường như có một số tập tin bị trùng tên với nhau!'
+  'exception.problem.solution-checking.duplicated-filenames': 'Dường như có một số tập tin bị trùng tên với nhau!',
+  'exception.problem-solving.no-problem-selected': 'Vui lòng chọn 1 vấn đề càn giải quyết!',
+  'exception.problem-solving.assignment-notfound': 'Dường như bài thi bạn đang làm không tồn tại!',
+  'exception.problem-solving.problem-notfound': 'Dường như vấn đề bạn cần giải quyết không tồn tại!',
+  'exception.problem-solving.problem-not-in-assignment': 'Dường như vấn đề bạn cần giải quyết không thuộc bài thi này!',
+  'exception.problem.get-by-id.unknown': 'Một lỗi nào đó đã xảy ra lúc truy vấn thông tin của vấn đề!',
 };

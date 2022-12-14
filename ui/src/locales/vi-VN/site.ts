@@ -16,4 +16,5 @@ export default {
   "site.accounts-manage": 'Quản lý tài khoản',
   'site.accounts.update': 'Cập nhật tài khoản',
   'site.settings': 'Cài đặt',
+  'site.go-to-beta': 'Dùng bản thử nghiệm'
 };

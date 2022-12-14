@@ -92,16 +92,18 @@ const ProblemModel: IProblemModel = {
         const res = yield call(getProblemById, id);
         if (res.isError) {
           callback?.(false, res);
-          return;
+          return res;
         }
         yield put({
           type: 'saveCurrent',
           payload: res,
         })
         callback?.(res);
+        return res;
       } catch (err) {
         console.error('[ERROR] - [DISPATCH] - [PROBLEM/GET-BY-ID]:', id, err);
         callback?.(false, err);
+        return { isError: true, messageId: 'exception.problem.getById.unknown' }
       }
     },
     *deleteById({ payload }, { call, put }): Generator<any, any, any> {

@@ -16,6 +16,10 @@ export const getSubmissionStatusById = (id: string) => {
   return request(`/submission/${id}/status`);
 };
 
+export const getSubmissionCodeById = (id: string) => {
+  return request(`/submission/${id}/code`);
+};
+
 export const submitCode = ({ assignmentId, problemId, languageExtension, code }: any) => {
   return request.post('/submission', {
     data: {
