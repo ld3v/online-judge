@@ -60,6 +60,7 @@ const ProblemForm: React.FC<IProblemForm> = ({
   const initialValues = {
     diff_command: {
       command: 'diff',
+      args: '-bB',
     },
     ...defaultValues,
   };

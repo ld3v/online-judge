@@ -92,7 +92,7 @@ my $uflush_time = 100_000;
 
 # String to identify thes script's prints in the output
 #my $id_str = $ENV{'TIMEOUT_IDSTR'} || '';
-my $id_str = 'SHJ_'; #changed by mjnaderi
+my $id_str = 'EXCEPTION_'; #changed by mjnaderi
 
 use strict;
 

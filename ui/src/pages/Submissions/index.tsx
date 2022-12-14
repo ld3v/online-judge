@@ -5,7 +5,7 @@ import SubmissionStatus from '@/components/SubmissionStatus';
 import { TAccount } from '@/types/account';
 import { TAssignment } from '@/types/assignment';
 import { ROLES } from '@/utils/constants';
-import { TableProps } from 'antd';
+import { TableProps, Tooltip } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { connect, FormattedHTMLMessage, useIntl, useParams } from 'umi';
@@ -35,19 +35,27 @@ const SubmissionPage: React.FC<ISubmissionPage> = ({
   const intl = useIntl();
   const columns: TableColumnsProps = [
     {
-      title: intl.formatMessage({ id: 'submission.table.submitter' }),
-      key: 'submitter',
-      fixed: 'left',
-      width: 220,
-      dataIndex: 'submitter',
-      render: (submitter) => submitter.displayName,
-    },
-    {
       title: intl.formatMessage({ id: 'submission.table.problem' }),
       key: 'submission-problem-resolved',
       width: 200,
       dataIndex: 'problem',
-      render: (problem) => problem.name,
+      ellipsis: true,
+      fixed: 'left',
+      render: (problem, data) => (
+        <Tooltip title={intl.formatMessage({ id: 'submission.table.go-to-problem' })}>
+          <a href={`/problems/${data.assignmentId}?problem=${problem.id}`} target="_blank">
+            {problem.name}
+          </a>
+        </Tooltip>
+      ),
+    },
+    {
+      title: intl.formatMessage({ id: 'submission.table.submitter' }),
+      key: 'submitter',
+      width: 220,
+      ellipsis: true,
+      dataIndex: 'submitter',
+      render: (submitter) => submitter.displayName,
     },
     {
       title: intl.formatMessage({ id: 'submission.table.lang' }),
@@ -68,7 +76,7 @@ const SubmissionPage: React.FC<ISubmissionPage> = ({
       key: 'submission-score',
       width: 100,
       fixed: 'right',
-      dataIndex: 'score',
+      dataIndex: 'pre_score',
     },
     {
       title: intl.formatMessage({ id: 'submission.table.status' }),

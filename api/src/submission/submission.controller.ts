@@ -1,7 +1,6 @@
 import { InjectQueue } from '@nestjs/bull';
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { Queue } from 'bull';
-import { AccountService } from 'src/account/account.service';
 import { AssignmentService } from 'src/assignment/assignment.service';
 import RequestWithAccount from 'src/auth/dto/reqWithAccount.interface';
 import JwtAuthGuard from 'src/auth/gaurd/jwtAuth.gaurd';
@@ -12,6 +11,7 @@ import { QueueName } from 'src/queue/queue.enum';
 import { QueueService } from 'src/queue/queue.service';
 import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { isAdmin } from 'utils/func';
+import { TParamId } from 'utils/types';
 import CreateDto from './dto/create.dto';
 import { SubmissionService } from './submission.service';
 import { IAddSubmission, SubmissionFilter } from './submission.types';
@@ -21,7 +21,6 @@ export class SubmissionController {
   constructor(
     private readonly submissionService: SubmissionService,
     private readonly assignmentService: AssignmentService,
-    private readonly accountService: AccountService,
     private readonly problemService: ProblemService,
     private readonly languageService: LanguageService,
     @InjectQueue('submission')
@@ -44,18 +43,28 @@ export class SubmissionController {
       if (assignmentId) {
         const assData = await this.assignmentService.getById(assignmentId, false);
         assignmentData = assData
-          ? this.assignmentService.transformData(assData)[0]
+          ? {
+            id: assData.id,
+            name: assData.name,
+          }
           : undefined;
       }
       const { data, total } = await this.submissionService.get(queryParams);
       const dataTransformed = data.map(({ assignment, submitter, problem, ...dataItem}) => {
-        const assignmentTransformed = this.assignmentService.transformData(assignment)[0];
-        const problemTransformed = this.problemService.transformData(user, problem)[0];
-        const accountTransformed = this.accountService.transformAccountData(user, submitter)[0];
+        // const assignmentTransformed = this.assignmentService.transformData(assignment)[0];
+        // const problemTransformed = this.problemService.transformData(user, problem)[0];
+        // const accountTransformed = this.accountService.transformAccountData(user, submitter)[0];
+        // Only return enough data
         return {
-          submitter: accountTransformed,
-          problem: problemTransformed,
-          assignment: assignmentTransformed,
+          submitter: {
+            id: submitter.id,
+            displayName: submitter.display_name,
+          },
+          problem: {
+            id: problem.id,
+            name: problem.name,
+          },
+          assignmentId: assignment.id,
           ...dataItem,
         };
       })
@@ -65,6 +74,26 @@ export class SubmissionController {
         assignment: assignmentData,
         total,
       };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  @Get('/:id/status')
+  @UseGuards(JwtAuthGuard)
+  async getSubmissionStatus(
+    @Param() { id }: TParamId,
+  ) {
+    try {
+      const sub = await this.submissionService.getById(id);
+
+      return {
+        id: sub.id,
+        createdAt: sub.created_at,
+        result: sub.result,
+        queueProcess: sub.queue.process,
+        queueState: sub.queue.state,
+      }
     } catch (err) {
       throw err;
     }
@@ -143,7 +172,13 @@ export class SubmissionController {
         },
         { jobId: queueId }
       );
-      return addSubmit;
+
+      // Return data
+      return {
+        id: addSubmit.id,
+        queueState: addSubmit.queue.state,
+        createdAt: addSubmit.created_at,
+      };
     } catch (err) {
       throw err;
     }

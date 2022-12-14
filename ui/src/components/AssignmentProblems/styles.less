@@ -21,3 +21,25 @@
     }
   }
 }
+
+.ProblemScoreCell {
+  padding: 0 !important;
+
+  .ProblemScore {
+    padding: 16px 10px;
+    &[data-status='danger'] {
+      color: white;
+      font-weight: bold;
+      background-color: #ff7e7e;
+    }
+  }
+}
+
+.CodeProcessing {
+  display: flex;
+
+  .CodeProcessingState {
+    margin-left: 10px;
+    white-space: pre-wrap;
+  }
+}

@@ -55,7 +55,7 @@ const Card: FC<ICard> = ({ className, cardTitle, cardDescription, search, action
                   />
                 </div>
               )}
-              {Array.isArray(actions) && actions.length > 0 && (
+              {Array.isArray(actions) && actions.length > 0 ? (
                 <div className="buttons">
                   {actions.map(({ key, title, ...btnProps }) => (
                     <Button {...btnProps} key={key}>
@@ -63,7 +63,7 @@ const Card: FC<ICard> = ({ className, cardTitle, cardDescription, search, action
                     </Button>
                   ))}
                 </div>
-              )}
+              ) : null}
             </div>
           )}
         </div>

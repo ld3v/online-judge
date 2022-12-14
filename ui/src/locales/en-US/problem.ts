@@ -38,7 +38,13 @@ export default {
   'problem.form.submit-problem': 'Submit your solution',
   'problem.form.submit-create': 'Create',
   'problem.form.submit-update': 'Update',
+  'problem-solving.loading-content': 'Loading problem\'s data...',
+  'problem-solving.submit': 'Run',
+  'problem-solving.running': 'Testing your code...',
+  'problem-solving.empty-data': 'Cannot display data for this problem, because of empty data!',
+  'problem-solving.checking-solution': 'Checking your solution...',
   // Exceptions
+  'exception.problem-solving.code-empty': 'Please enter your solution!',
   'exception.problem.form.languages.required': 'Please select at least an language!',
   'exception.problem.form.name.required': 'Please enter your problem\'s name!',
   'exception.problem.form.diff-command.required': 'Please enter your <code>diff</code> command',
@@ -48,5 +54,10 @@ export default {
     '{ isMany, select, true {These problems are} other {This problem is} } not existed in our system!',
   'exception.problem.solution-checking.includes-other-files': 'Folder upload should have only files, which have names is input_.txt, output_.txt, or template.cpp',
   'exception.problem.solution-checking.input-diff-output': 'Has {inpCount} input files, but has {outCount} output files',
-  'exception.problem.solution-checking.duplicated-filenames': 'Maybe a lot of files have the same filename!'
+  'exception.problem.solution-checking.duplicated-filenames': 'Maybe a lot of files have the same filename!',
+  'exception.problem-solving.no-problem-selected': 'Please select a problem to solve!',
+  'exception.problem-solving.assignment-notfound': 'Looks like the assignment you\'re taking doesn\'t exist!',
+  'exception.problem-solving.problem-notfound': 'Looks like the problem you\'re solving doesn\'t exist!',
+  'exception.problem-solving.problem-not-in-assignment': "Looks like the problem you're solving doesn't include in this assignment!",
+  'exception.problem.getById.unknown': "Unexpected error happened when getting problem's data!",
 };

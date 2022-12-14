@@ -1,4 +1,4 @@
-import { getSubmission, submitCode } from '@/services/submission';
+import { getSubmission, getSubmissionStatusById, submitCode } from '@/services/submission';
 import { array2Map } from '@/utils/funcs';
 import type { Model } from 'dva';
 import type { Effect, Reducer } from 'umi';
@@ -13,6 +13,7 @@ interface ISubmissionModel extends Model {
   effects: {
     search: Effect;
     createWithCode: Effect;
+    getStatusById: Effect;
   };
   reducers: {
     saveCurrent: Reducer;
@@ -69,6 +70,24 @@ const SubmissionModel: ISubmissionModel = {
           callback?.({ keys, total: res.total });
       } catch (err) {
         console.error('[ERROR] - [DISPATCH] - [SUBMISSION/SEARCH]:', err);
+        callback?.(false, err);
+      }
+    },
+    *getStatusById({ payload }, { call }): Generator<any, any, any> {
+      const { id, callback } = payload || {};
+      try {
+        const res = yield call(getSubmissionStatusById, id);
+        if (res.isError) {
+          callback?.(false, res);
+          return;
+        }
+        // Refresh data
+        // const { history, current } = res;
+        // const { map: historyMapping, keys: historyIds } = array2Map([...history, ...(current ? [current] : [])], "id");
+        // yield put({ type: 'saveSyncAllHistory', payload: historyMapping });
+        callback?.(res);
+      } catch (err) {
+        console.error('[ERROR] - [DISPATCH] - [SUBMISSION/GET-SUBMISSION-STATUS]:', err);
         callback?.(false, err);
       }
     },

@@ -34,6 +34,18 @@ export default [
   {
     path: '/',
     layout: false,
+    name: 'About us',
+    component: './Landing',
+  },
+  {
+    path: '/code-editor',
+    layout: false,
+    name: 'Code Editor',
+    component: './CodeEditorSplit'
+  },
+  {
+    path: '/',
+    layout: false,
     component: '../components/LayoutWrapper',
     routes: [
       {
@@ -135,11 +147,11 @@ export default [
       {
         path: '*',
         redirect: '/dashboard',
-      },
+      }
     ],
   },
   {
     path: '*',
-    redirect: '/',
+    redirect: '/dashboard',
   },
 ];

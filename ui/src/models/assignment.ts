@@ -218,7 +218,7 @@ const AssignmentModel: IAssignmentModel = {
         const res = yield call(getAssignmentProblems, id);
         if (res.isError) {
           callback?.(false, res);
-          return;
+          return res;
         }
         const { assignmentMapping, participantMapping, submissionMapping } = transformAssignmentData(res.assignment);
         yield put({
@@ -249,9 +249,11 @@ const AssignmentModel: IAssignmentModel = {
         callback?.({
           problemIds,
         });
+        return { problemIds };
       } catch (err) {
         console.error('[ERROR] - [DISPATCH] - [ASSIGNMENT/GET-PROBLEMS]:', id, err);
         callback?.(false, err);
+        return { isError: true, messageId: 'exception.assignment.get-problems.unknown' };
       }
     },
     *deleteById({ payload }, { call, put }): Generator<any, any, any> {

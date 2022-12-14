@@ -1,4 +1,4 @@
-import { TCodeEditorLang } from "./language";
+import { TCodeEditorLang, TLanguageExt } from "./language";
 
 /**
  * ### [IMPORTANT]
@@ -6,7 +6,7 @@ import { TCodeEditorLang } from "./language";
  * 
  * -> Please update this object when you change the language's extension in the database.
  */
-export const langExt2CodeEditorLang: Record<string, TCodeEditorLang> = {
+export const langExt2CodeEditorLang: Record<TLanguageExt, TCodeEditorLang> = {
   c: 'c_cpp',
   cpp: 'c_cpp',
   java: 'java',
@@ -15,7 +15,7 @@ export const langExt2CodeEditorLang: Record<string, TCodeEditorLang> = {
   pas: 'pascal',
   numpy: 'python',
 };
-export const codeEditorLang2langExt: Record<TCodeEditorLang, string[]> = {
+export const codeEditorLang2langExt: Record<TCodeEditorLang, TLanguageExt[]> = {
   c_cpp: ["c", "cpp"],
   java: ["java"],
   python: ["py2", "py3", "numpy"],

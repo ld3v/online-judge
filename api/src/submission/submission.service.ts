@@ -5,7 +5,6 @@ import { Account } from 'src/account/entities/account.entity';
 import { Queue as QueueEntity } from 'src/queue/entities/queue.entity';
 import { Assignment } from 'src/assignment/entities/assignment.entity';
 import { addFile } from 'common/file.helper';
-import { QueueService } from 'src/queue/queue.service';
 import { Http400Exception } from 'utils/Exceptions/http400.exception';
 import { Http503Exception } from 'utils/Exceptions/http503.exception';
 import { Submission } from './entities/submission.entity';
@@ -76,6 +75,7 @@ export class SubmissionService {
       .leftJoinAndSelect("sub.language", "lang")
       .leftJoinAndSelect("sub.problem", "problem")
       .leftJoinAndSelect("sub.assignment", "assignment")
+      .leftJoinAndSelect("sub.queue", "queue")
       .where("sub.id = :id", { id })
       .getOne();
     if (!submission && showErrIfErr) {
@@ -98,7 +98,8 @@ export class SubmissionService {
       .leftJoinAndSelect("sub.submitter", "account")
       .leftJoinAndSelect("sub.language", "lang")
       .leftJoinAndSelect("sub.problem", "problem")
-      .leftJoinAndSelect("sub.assignment", "assignment");
+      .leftJoinAndSelect("sub.assignment", "assignment")
+      .orderBy("sub.created_at", "DESC");
     if (problemId) {
       submissionsQuery = submissionsQuery.andWhere("problem.id = :problemId", { problemId });
     }
@@ -125,20 +126,28 @@ export class SubmissionService {
     }
   }
 
-  public async updateResultAfterTest(submissionId: string, preScore: number, isShowErrIfErr: boolean = false) {
+  public async updateResultAfterTest(submissionId: string, output: string | number, result: string = '', isShowErrIfErr: boolean = false) {
     const submission = await this.submissionRepository
       .createQueryBuilder('s')
       .leftJoinAndSelect('s.submitter', 'account')
       .leftJoinAndSelect('s.problem', 'problem')
       .where('s.id = :submissionId', { submissionId })
       .getOne();
+    let preScore = 0;
     if (!submission) {
       if (isShowErrIfErr) {
         throw new Http503Exception('submission.notfound', { notFoundId: submissionId });
       }
       return false;
     }
-    submission.pre_score = preScore;
+    submission.result = result || submission.result;
+    if (Number.isNaN(Number(output))) {
+      submission.pre_score = 0;
+      submission.result = `Tester: ${output}\n${submission.result}`;
+    } else {
+      submission.pre_score = Number(output);
+      preScore = Number(output);
+    }
     // Update final
     const finalSubmission = await this.getFinalSubmission(submission.problem, submission.submitter);
     if (
@@ -246,8 +255,6 @@ export class SubmissionService {
     })
     return accountResult;
   }
-
-  // public transformData()
 
   /**
    * This func will create a new file from submit's code input.

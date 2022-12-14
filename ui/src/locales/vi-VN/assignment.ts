@@ -69,6 +69,7 @@ export default {
   'exception.assignment.form.coefficient-rule.coefficient-value.const-invalid': 'Giá trị hệ số không hợp lệ (0 <= <code>Hệ số</code> <= 100).',
   'exception.assignment.form.coefficient-rule.coefficient-value.vot-invalid': 'Giá trị biến thêm không hợp lệ (0 <= <code>Giá trị biến thiên đầu</code> < <code>Giá trị biến thiên cuối</code> <= 100)',
   // Exceptions
+  'exception.assignment.get-problems.unknown': 'Một lỗi nào đó đã xảy ra lúc truy vấn danh sách vấn đề cần giải quyết!',
   'exception.assignment.notfound':
     '{ isMany, select, true {Các b} other {B} }ài thi này không tồn tại trong hệ thống!',
 };

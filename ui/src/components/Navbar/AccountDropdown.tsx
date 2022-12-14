@@ -88,7 +88,8 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ currentAccount: account }) 
     >
       <div className={styles.Action}>
         <div className="avatar">
-          <img src={account.avatar || '/default-avatar.png'} alt="navbar-account-avatar" />
+          {/* <img src={account.avatar || '/default-avatar.png'} alt="navbar-account-avatar" /> */}
+          <img src={'/default-avatar.png'} alt="navbar-account-avatar" />
         </div>
       </div>
     </Dropdown>

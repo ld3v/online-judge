@@ -35,26 +35,18 @@ export class Submission {
     default: 0,
   })
   public pre_score: number;
-
-  // [NEED-CHECK]
-  // @Column({
-  //   name: 'status',
-  //   default: '',
-  // })
-  // public status: string;
+  
+  @Column({
+    name: 'result',
+    default: '',
+  })
+  public result: string;
 
   @Column({
     name: 'coefficient',
     default: '',
   })
   coefficient: string;
-
-  // In source `wecode-judge`, this field is `file_name`.
-  @Column({
-    name: 'file',
-    default: '',
-  })
-  file: string;
 
   @CreateDateColumn({
     type: 'timestamptz'

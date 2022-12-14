@@ -98,7 +98,7 @@ export class ProblemService {
   public async getById(
     id: string,
     showErrIfErr: boolean = true
-  ): Promise<{ problem: Problem; template: TProblemTemplate, test: any[] }> {
+  ): Promise<{ problem: Problem; template: TProblemTemplate | undefined, test: any[] }> {
     const curProb = await this.problemRepository.createQueryBuilder("problem")
       .leftJoinAndSelect("problem.created_by", "created_by")
       .leftJoinAndSelect("problem.languages", "problem_language")
@@ -108,9 +108,16 @@ export class ProblemService {
       .where('problem.id = :id', { id })
       .getOne();
     if (!curProb && showErrIfErr) {
-      throw new Http400Exception('problem.notfound', {
-        notFoundId: id,
-      });
+      if (showErrIfErr) {
+        throw new Http400Exception('problem.notfound', {
+          notFoundId: id,
+        });
+      }
+      return {
+        problem: null,
+        test: [],
+        template: undefined,
+      }
     }
     // GET TEMPLATE
     const { banned, before, after, err: errGetTemplate } = await this.getProblemTemplate(id);

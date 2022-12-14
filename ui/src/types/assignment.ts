@@ -1,3 +1,4 @@
+import { TLanguageExt } from "@/components/Code/CodeEditor/language";
 import { TSearchQuery } from ".";
 
 export type TAssignmentSearchQuery = TSearchQuery & {
@@ -34,6 +35,7 @@ export type TAssignmentProblem = {
   name: string; // problem's name
   problemName: string; // assignment-problem's name
   score: number;
+  langExtAvailable: TLanguageExt[];
 };
 
 export type TCoefficientRuleType = "VARIANT_OVER_TIME" | "CONST";

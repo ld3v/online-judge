@@ -2,7 +2,7 @@ import { Select } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import AceEditor, { IAceEditorProps } from 'react-ace';
 
-import languages, { TCodeEditorLang } from './language';
+import languages, { TCodeEditorLang, TLanguageExt } from './language';
 import themes from './themes';
 import styles from './styles.less';
 import { codeEditorLang2langExt, langExt2CodeEditorLang } from './utils';
@@ -13,7 +13,7 @@ languages.forEach((lang) => {
   import(`ace-builds/src-noconflict/mode-${lang}`);
   import(`ace-builds/src-noconflict/snippets/${lang}`);
 });
-const languageExtSupported: string[] = languages.map((l) => codeEditorLang2langExt[l]).flat();
+const languageExtSupported: TLanguageExt[] = languages.map((l) => codeEditorLang2langExt[l]).flat();
 
 themes.forEach((theme) => import(`ace-builds/src-noconflict/theme-${theme}`));
 import('ace-builds/src-noconflict/ext-searchbox');
@@ -21,7 +21,6 @@ import('ace-builds/src-noconflict/ext-language_tools');
 import('ace-builds/webpack-resolver');
 
 export interface ICodeEditor extends IAceEditorProps {
-  languageExtensionAvailable?: TCodeEditorLang[];
   onChangeLang?: (newLang: TCodeEditorLang) => void;
   langs?: { ext: string; name: string }[];
   dispatch?: any;
@@ -34,19 +33,17 @@ const CodeEditor: React.FC<ICodeEditor> = ({
   onChange,
   onChangeLang,
   value,
-  languageExtensionAvailable,
   langs,
   dispatch,
   ...editorProps
 }) => {
-  // langExtAvailable = "langExtSupported" JOIN (langExtensionAvailable from user | langExt from db)
   const langExtAvailable = useMemo(() => {
     const langExt = (langs || []).map((l) => l.ext);
-    const langExtensionAvailable = languageExtensionAvailable || langExt || [];
+    const langExtensionAvailable = langExt || undefined;
     return langExtensionAvailable.length > 0
       ? languageExtSupported.filter((ext) => langExtensionAvailable.includes(ext))
       : languageExtSupported;
-  }, [langs, languageExtensionAvailable]);
+  }, [langs]);
 
   const [codeLang, setLang] = useState<TCodeEditorLang | undefined>(undefined);
   const [codeTheme, setTheme] = useState<string>(themeDefault);
@@ -98,10 +95,14 @@ const CodeEditor: React.FC<ICodeEditor> = ({
   );
 };
 
-export default connect(({ language }: any) => {
+export default connect(({ language, assignments }: any, { problemId }: any) => {
   const langs = Object.values(language.dic);
-
+  const { langExtAvailable } = assignments.problemDic[problemId] || {};
   return {
-    langs: langs.map((l: any) => ({ name: l.name, ext: l.extension })),
+    langs: langExtAvailable
+      ? langs
+          .filter((l: any) => langExtAvailable.includes(l.extension))
+          .map((l: any) => ({ name: l.name, ext: l.extension }))
+      : [],
   };
 })(CodeEditor);

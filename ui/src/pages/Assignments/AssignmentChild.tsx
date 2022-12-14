@@ -71,8 +71,8 @@ export default connect(({ assignments, problem, account, loading }: any) => {
     selected: assignments.selected
       ? {
           ...selectedInfo,
-          problems: problems.map((id: string) => problem.dic[id]),
-          participants: participants.map((id: string) => account.dic[id]),
+          problems: (problems || []).map((id: string) => problem.dic[id]),
+          participants: (participants || []).map((id: string) => account.dic[id]),
         }
       : undefined,
   };

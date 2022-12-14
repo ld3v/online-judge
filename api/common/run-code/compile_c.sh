@@ -14,6 +14,7 @@ C_OPTIONS="-fno-asm -Dasm=error -lm -O2"
 C_WARNING_OPTION="-w"
 
 COMPILER="gcc -std=c11"
+logfile_jail "[#] [compile_c.sh]"
 if [ "$EXT" = "cpp" ]; then
     COMPILER="g++ -std=c++11"
 fi
@@ -37,28 +38,31 @@ if [ -f "$PROBLEMPATH/template.cpp" ]; then
             NEEDCOMPILE=0
         fi
     done <<< "$banned"
+    logfile_jail "[$] echo \"$code\" | sed -e \"/\\/\\/###INSERT CODE HERE/r $f\" -e '/\\/\\/###INSERT CODE HERE/d' > code.c"
     echo "$code" | sed -e "/\/\/###INSERT CODE HERE/r $f" -e '/\/\/###INSERT CODE HERE/d' > code.c
 else
+    logfile_jail "[$] cp $USERDIR/$FILENAME.$EXT code.c"
     cp $USERDIR/$FILENAME.$EXT code.c
 fi
 
-logfile_jail "Compiling as $EXT"
+logfile_jail "[#] Compiling as $EXT"
 
 if [ $NEEDCOMPILE -eq 0 ]; then
     EXITCODE=110
 else
+    logfile_jail "[$] mv code.c code.$EXT"
     mv code.c code.$EXT
+    logfile_jail "[$] $tester_dir/run_judge_in_docker.sh `pwd` gcc:6 $COMPILER code.$EXT $C_OPTIONS $C_WARNING_OPTION -o $EXEFILE >/dev/null 2>cerr"
     $tester_dir/run_judge_in_docker.sh `pwd` gcc:6 $COMPILER code.$EXT $C_OPTIONS $C_WARNING_OPTION -o $EXEFILE >/dev/null 2>cerr
     EXITCODE=$?
-
 fi
 
 COMPILE_END_TIME=$(($(date +%s%N)/1000000));
-logfile_jail "Compiled. Exit Code=$EXITCODE  Execution Time: $((COMPILE_END_TIME-COMPILE_BEGIN_TIME)) ms"
+logfile_jail "[#] Compiled. Execution Time: $((COMPILE_END_TIME-COMPILE_BEGIN_TIME)) ms"
 if [ $EXITCODE -ne 0 ]; then
-    logfile_jail "Compile Error"
+    logfile_jail "[#] Compile Error:"
     #logfile_jail "$(cat cerr | head -10)"
-    logfile_jail "$(cat cerr )"
+    logfile_jail "[#] `cat cerr`"
     # echo '<span class="text-primary">Compile Error<br>Error Messages: (line numbers are not correct)</span>' >$RESULTFILE
     # echo '<span class="text-danger">' >> $RESULTFILE
 

@@ -1,6 +1,8 @@
 import { TFileDisplay } from '@/components/InputUpload/FilesDisplay';
 import { TMap } from '@/types';
 import { UploadFile } from 'antd/es/upload';
+import { marked } from 'marked';
+import DOMPurify from 'isomorphic-dompurify';
 
 /**
  * This func is used to convert array to map. Filter out items, which has key, or has not key.
@@ -169,4 +171,15 @@ export const validateTestCasesFolder = (files: TFileDisplay[]): { msg: string, v
     return { msg: 'exception.problem.solution-checking.duplicated-filenames' };
   }
   return undefined;
+}
+
+export const getMDContent = (src: string, options?: marked.MarkedOptions) => {
+  try {
+    const markedParsed = marked(src, options);
+    const markedHTML = DOMPurify.sanitize(markedParsed);
+    return markedHTML;
+  } catch (err) {
+    console.error('[ERROR] - [GET-MD-CONTENT]:', err);
+    return '';
+  }
 }

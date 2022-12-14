@@ -1,4 +1,4 @@
-import { Col, Row, Skeleton } from 'antd';
+import { Col, Row, Skeleton, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { connect, FormattedMessage, useIntl } from 'umi';
 import Table, { ColumnProps } from 'antd/lib/table';
@@ -74,7 +74,29 @@ const AssignmentProblems: React.FC<IAssignmentProblems> = ({
       key: 'name',
       dataIndex: 'problemName',
     },
-    { key: 'score', width: '25%', dataIndex: 'score', className: 'problem-score' },
+    {
+      key: 'score',
+      width: '25%',
+      dataIndex: 'score',
+      className: styles.ProblemScoreCell,
+      render: (score, { preScore, status }) => {
+        if (!preScore) {
+          return (
+            <div className={styles.ProblemScore} data-status={status}>
+              {score || 0}
+            </div>
+          );
+        }
+        // In judge, preScore was be calculated base on 10000 score
+        const passPerAll = preScore / 10000;
+        const scoreGot = score * passPerAll;
+        return (
+          <div className={styles.ProblemScore} data-status={status}>
+            <Tooltip title={`${scoreGot}/${score}`}>{scoreGot}</Tooltip>
+          </div>
+        );
+      },
+    },
   ];
 
   const renderProblemContent = () => {
@@ -125,7 +147,9 @@ export default connect(({ assignments, loading }: any, { assignmentId }: IAssign
   const assignmentData = assignmentId ? assignments.dic[assignmentId] : { problems: [] };
   const { problems } = assignmentData || { problems: [] };
   return {
-    problems: problems.map((id: string) => assignments.problemDic[id]).filter((item: any) => item),
+    problems: (problems || [])
+      .map((id: string) => assignments.problemDic[id])
+      .filter((item: any) => item),
     problemDic: assignments.problemDic,
     problemLoading: loading.effects['assignments/getProblems'],
   };
