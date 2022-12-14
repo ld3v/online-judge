@@ -269,6 +269,17 @@ export class SubmissionService {
     }
   }
 
+  public async getSubmissionLog (submission: Submission) {
+    try {
+      const path = `./logs/test_${submission.id}.log`;
+      const content = await getFileContent(path, 'utf-8');
+      return content;
+    } catch (err) {
+      console.error(`Error when reading progress log for submission (${submission.id}) at "${path}":`, err);
+      return 'ERR: Code File not found!';
+    }
+  }
+
   /**
    * This func will create a new file from submit's code input.
    */
