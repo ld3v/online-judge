@@ -26,7 +26,12 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: ['https://wecode.nqhuy.dev', 'http://localhost:11000'],
+    origin: [
+      'https://wecode.nqhuy.dev',
+      'http://localhost:11000',
+      'https://beta.wecode.nqhuy.dev', // Beta version (Deployed)
+      'http://localhost:11001',        // Beta version (Local)
+    ],
     methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'sentry-trace', 'Authorization'],
     // credentials: true,
