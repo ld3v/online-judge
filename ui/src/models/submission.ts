@@ -1,4 +1,4 @@
-import { getSubmission, getSubmissionStatusById, submitCode } from '@/services/submission';
+import { getSubmission, getSubmissionCodeById, getSubmissionLogById, getSubmissionStatusById, submitCode } from '@/services/submission';
 import { array2Map } from '@/utils/funcs';
 import type { Model } from 'dva';
 import type { Effect, Reducer } from 'umi';
@@ -14,10 +14,13 @@ interface ISubmissionModel extends Model {
     search: Effect;
     createWithCode: Effect;
     getStatusById: Effect;
+    getCodeById: Effect;
+    getLogById: Effect;
   };
   reducers: {
     saveCurrent: Reducer;
     saveDic: Reducer;
+    updateFieldValue: Reducer;
   };
 }
 
@@ -91,6 +94,50 @@ const SubmissionModel: ISubmissionModel = {
         callback?.(false, err);
       }
     },
+    *getCodeById({ payload }, { call, put }): Generator<any, any, any> {
+      const { id, callback } = payload || {};
+      try {
+        const res = yield call(getSubmissionCodeById, id);
+        if (res.isError) {
+          callback?.(false, res);
+          return;
+        }
+        yield put({
+          type: 'updateFieldValue',
+          payload: {
+            key: id,
+            field: 'code',
+            value: res,
+          }
+        });
+        callback?.(res);
+      } catch (err) {
+        console.error('[ERROR] - [DISPATCH] - [SUBMISSION/GET-CODE-CONTENT]:', err);
+        callback?.(false, err);
+      }
+    },
+    *getLogById({ payload }, { call, put }): Generator<any, any, any> {
+      const { id, callback } = payload || {};
+      try {
+        const res = yield call(getSubmissionLogById, id);
+        if (res.isError) {
+          callback?.(false, res);
+          return;
+        }
+        yield put({
+          type: 'updateFieldValue',
+          payload: {
+            key: id,
+            field: 'log',
+            value: res,
+          }
+        });
+        callback?.(res);
+      } catch (err) {
+        console.error('[ERROR] - [DISPATCH] - [SUBMISSION/GET-LOG-FULL]:', err);
+        callback?.(false, err);
+      }
+    },
   },
   reducers: {
     saveCurrent(state, { payload }) {
@@ -102,6 +149,18 @@ const SubmissionModel: ISubmissionModel = {
         },
         current: payload.id,
       };
+    },
+    updateFieldValue(state, { payload }) {
+      return {
+        ...state,
+        dic: {
+          ...state.dic,
+          [payload.key || state.current]: {
+            ...state.dic[payload.key || state.current],
+            [payload.field]: payload.value,
+          }
+        }
+      }
     },
     saveDic(state, { payload }) {
       return {
